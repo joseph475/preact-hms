@@ -33,7 +33,9 @@ module.exports = {
         }
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['Roboto', 'system-ui', '-apple-system', 'sans-serif'],
+        serif: ['Roboto', 'system-ui', '-apple-system', 'sans-serif'],
+        heading: ['Roboto', 'system-ui', '-apple-system', 'sans-serif'],
       },
     },
   },

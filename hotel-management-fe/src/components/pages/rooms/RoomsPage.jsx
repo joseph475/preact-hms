@@ -23,11 +23,11 @@ const RoomsPage = ({ user }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [roomToDelete, setRoomToDelete] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 15;
+  const itemsPerPage = 16;
   const { searchTerm, updateCurrentPage } = useSearch();
   const [viewMode, setViewMode] = useState(() => {
     // Load view preference from localStorage, default to 'table'
-    return localStorage.getItem('roomsViewMode') || 'table';
+    return localStorage.getItem('roomsViewMode') || 'cards';
   });
   const [formData, setFormData] = useState({
     roomNumber: '',
@@ -702,9 +702,11 @@ const RoomsPage = ({ user }) => {
                 </div>
 
                 {/* Card Body - Empty for clean design */}
-                <div className="p-5">
-                  {/* Intentionally minimal - capacity and mark available button are in header */}
-                </div>
+                {user?.role === 'user' && (
+                  <div className="p-5">
+                    {/* Intentionally minimal - capacity and mark available button are in header */}
+                  </div>
+                )}
 
                 {/* Card Actions - Admin only */}
                 {user?.role === 'admin' && (
@@ -971,26 +973,25 @@ const RoomsPage = ({ user }) => {
         }
       >
         {selectedRoom && (
-          <>
-            {/* Room Overview */}
-            <div className="form-section">
-              <h4 className="form-section-title">Room Overview</h4>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex items-center space-x-3">
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                    selectedRoom.status === 'Available' ? 'bg-green-100' :
-                    selectedRoom.status === 'Occupied' ? 'bg-red-100' :
-                    selectedRoom.status === 'Maintenance' ? 'bg-yellow-100' : 'bg-gray-100'
-                  }`}>
-                    {getStatusIcon(selectedRoom.status)}
+          <div className="max-h-[80vh] overflow-y-auto">
+            <div className="space-y-4">
+              {/* Header Section */}
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                      selectedRoom.status === 'Available' ? 'bg-green-100' :
+                      selectedRoom.status === 'Occupied' ? 'bg-red-100' :
+                      selectedRoom.status === 'Maintenance' ? 'bg-yellow-100' : 'bg-gray-100'
+                    }`}>
+                      {getStatusIcon(selectedRoom.status)}
+                    </div>
+                    <div>
+                      <h3 className="text-lg text-gray-900 mb-1">Room {selectedRoom.roomNumber}</h3>
+                      <p className="text-sm text-gray-600">{getRoomTypeName(selectedRoom.roomType)}</p>
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-lg font-bold text-gray-900">Room {selectedRoom.roomNumber}</div>
-                    <div className="text-sm text-gray-600">{getRoomTypeName(selectedRoom.roomType)}</div>
-                  </div>
-                </div>
-                <div className="flex justify-end">
-                  <span className={`badge ${getStatusBadge(selectedRoom.status)} text-sm`}>
+                  <span className={`inline-flex items-center px-4 py-2 rounded-full text-sm ${getStatusBadge(selectedRoom.status)}`}>
                     <span className={`status-dot-${
                       selectedRoom.status === 'Available' ? 'green' :
                       selectedRoom.status === 'Occupied' ? 'red' :
@@ -1000,90 +1001,89 @@ const RoomsPage = ({ user }) => {
                   </span>
                 </div>
               </div>
-            </div>
 
-            {/* Basic Information */}
-            <div className="form-section">
-              <h4 className="form-section-title">Basic Information</h4>
-              <div className="grid grid-cols-2 gap-4 mb-4">
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                    </svg>
-                    <span className="text-sm font-medium text-gray-600">Floor</span>
+              {/* Basic Information */}
+              <div className="bg-white rounded-xl border border-gray-200 p-4">
+                <h4 className="text-base text-gray-900 mb-3 flex items-center">
+                  <svg className="w-4 h-4 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Basic Information
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-xs text-gray-500 block mb-1">Floor</label>
+                      <p className="text-sm text-gray-900">{selectedRoom.floor}</p>
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-500 block mb-1">Capacity</label>
+                      <p className="text-sm text-gray-900">{selectedRoom.roomType?.baseCapacity || 0} guests</p>
+                    </div>
                   </div>
-                  <div className="text-lg font-bold text-gray-900">{selectedRoom.floor}</div>
-                </div>
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                    <span className="text-sm font-medium text-gray-600">Capacity</span>
-                  </div>
-                  <div className="text-lg font-bold text-gray-900">{selectedRoom.roomType?.baseCapacity || 0} guests</div>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                    </svg>
-                    <span className="text-sm font-medium text-gray-600">Telephone</span>
-                  </div>
-                  <div className="text-lg font-bold text-gray-900">
-                    {selectedRoom.telephone || 'Not assigned'}
-                  </div>
-                </div>
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                    </svg>
-                    <span className="text-sm font-medium text-gray-600">Penalty</span>
-                  </div>
-                  <div className="text-lg font-bold text-gray-900">
-                    {selectedRoom.roomType?.penalty > 0 ? `₱${selectedRoom.roomType?.penalty}` : 'None'}
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-xs text-gray-500 block mb-1">Telephone</label>
+                      <p className="text-sm text-gray-900">{selectedRoom.telephone || 'Not assigned'}</p>
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-500 block mb-1">Penalty</label>
+                      <p className="text-sm text-gray-900">
+                        {selectedRoom.roomType?.penalty > 0 ? `₱${selectedRoom.roomType?.penalty}` : 'None'}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Pricing Details */}
-            <div className="form-section">
-              <h4 className="form-section-title">Pricing Details</h4>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
-                  <div className="text-sm font-semibold text-blue-900 mb-2">3 Hours</div>
-                  <div className="text-2xl font-bold text-blue-700">₱{selectedRoom.roomType?.pricing?.hourly3 || 0}</div>
-                </div>
-                <div className="bg-green-50 p-4 rounded-lg border border-green-100">
-                  <div className="text-sm font-semibold text-green-900 mb-2">8 Hours</div>
-                  <div className="text-2xl font-bold text-green-700">₱{selectedRoom.roomType?.pricing?.hourly8 || 0}</div>
-                </div>
-                <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-100">
-                  <div className="text-sm font-semibold text-yellow-900 mb-2">12 Hours</div>
-                  <div className="text-2xl font-bold text-yellow-700">₱{selectedRoom.roomType?.pricing?.hourly12 || 0}</div>
-                </div>
-                <div className="bg-purple-50 p-4 rounded-lg border border-purple-100">
-                  <div className="text-sm font-semibold text-purple-900 mb-2">24 Hours (Daily)</div>
-                  <div className="text-2xl font-bold text-purple-700">₱{selectedRoom.roomType?.pricing?.daily || 0}</div>
+              {/* Pricing Details */}
+              <div className="bg-white rounded-xl border border-gray-200 p-4">
+                <h4 className="text-base text-gray-900 mb-3 flex items-center">
+                  <svg className="w-4 h-4 text-amber-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                  </svg>
+                  Pricing Details
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-xs text-gray-500 block mb-1">3 Hours</label>
+                      <p className="text-sm text-gray-900">₱{selectedRoom.roomType?.pricing?.hourly3 || 0}</p>
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-500 block mb-1">8 Hours</label>
+                      <p className="text-sm text-gray-900">₱{selectedRoom.roomType?.pricing?.hourly8 || 0}</p>
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-xs text-gray-500 block mb-1">12 Hours</label>
+                      <p className="text-sm text-gray-900">₱{selectedRoom.roomType?.pricing?.hourly12 || 0}</p>
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-500 block mb-1">24 Hours (Daily)</label>
+                      <p className="text-sm text-gray-900">₱{selectedRoom.roomType?.pricing?.daily || 0}</p>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Description */}
-            {selectedRoom.description && (
-              <div className="form-section">
-                <h4 className="form-section-title">Description</h4>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-gray-700 leading-relaxed">{selectedRoom.description}</p>
+              {/* Description */}
+              {selectedRoom.description && (
+                <div className="bg-white rounded-xl border border-gray-200 p-4">
+                  <h4 className="text-base text-gray-900 mb-3 flex items-center">
+                    <svg className="w-4 h-4 text-slate-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Description
+                  </h4>
+                  <div className="bg-gray-50 rounded-lg p-3 border">
+                    <p className="text-sm text-gray-900 leading-relaxed">{selectedRoom.description}</p>
+                  </div>
                 </div>
-              </div>
-            )}
-          </>
+              )}
+            </div>
+          </div>
         )}
       </Modal>
 
