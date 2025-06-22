@@ -28,7 +28,7 @@ const getApiBaseUrl = () => {
   }
   
   // Production fallback - replace this with your actual backend URL after deployment
-  return 'https://your-backend-url.vercel.app/api/v1';
+  return 'https://preact-hms-be.vercel.app/api/v1';
 };
 
 export default getEnvironmentConfig;
