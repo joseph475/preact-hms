@@ -1,4 +1,5 @@
 import { getEnvironmentConfig } from '../config/environment.js';
+import cacheService from './cacheService.js';
 
 const API_BASE_URL = getEnvironmentConfig().apiBaseUrl;
 
@@ -85,6 +86,64 @@ class ApiService {
     }
   }
 
+  /**
+   * Cached request method for GET requests
+   */
+  async cachedRequest(endpoint, params = {}, options = {}) {
+    const method = options.method || 'GET';
+    
+    // Only cache GET requests
+    if (method !== 'GET') {
+      return this.request(endpoint, options);
+    }
+
+    // Check if caching is disabled for this request
+    if (options.noCache) {
+      return this.request(endpoint, options);
+    }
+
+    // Try to get from cache first
+    const cachedData = cacheService.get(endpoint, params);
+    if (cachedData) {
+      return cachedData;
+    }
+
+    // If not in cache, make the request
+    const data = await this.request(endpoint, options);
+    
+    // Cache successful responses
+    if (data && data.success !== false) {
+      cacheService.set(endpoint, params, data);
+    }
+
+    return data;
+  }
+
+  /**
+   * Invalidate cache after mutations
+   */
+  invalidateCache(endpoint, params = {}) {
+    // Invalidate specific endpoint
+    cacheService.invalidate(endpoint, params);
+    
+    // Also invalidate related categories based on endpoint
+    if (endpoint.includes('/rooms')) {
+      cacheService.invalidate('rooms');
+      cacheService.invalidate('dashboard'); // Dashboard shows room stats
+    } else if (endpoint.includes('/bookings')) {
+      cacheService.invalidate('bookings');
+      cacheService.invalidate('dashboard'); // Dashboard shows booking stats
+    } else if (endpoint.includes('/guests')) {
+      cacheService.invalidate('guests');
+    } else if (endpoint.includes('/users')) {
+      cacheService.invalidate('users');
+    } else if (endpoint.includes('/settings')) {
+      cacheService.invalidate('settings');
+      cacheService.invalidate('roomTypes');
+      cacheService.invalidate('amenities');
+    }
+  }
+
   // Auth methods
   async login(email, password) {
     const response = await this.request('/auth/login', {
@@ -130,244 +189,294 @@ class ApiService {
 
   // Room methods
   async getRooms(params = {}) {
-    const queryString = new URLSearchParams(params).toString();
-    return this.request(`/rooms${queryString ? `?${queryString}` : ''}`);
+    return this.cachedRequest('/rooms', params);
   }
 
   async getRoom(id) {
-    return this.request(`/rooms/${id}`);
+    return this.cachedRequest(`/rooms/${id}`);
   }
 
   async createRoom(roomData) {
-    return this.request('/rooms', {
+    const result = await this.request('/rooms', {
       method: 'POST',
       body: JSON.stringify(roomData),
     });
+    this.invalidateCache('/rooms');
+    return result;
   }
 
   async updateRoom(id, roomData) {
-    return this.request(`/rooms/${id}`, {
+    const result = await this.request(`/rooms/${id}`, {
       method: 'PUT',
       body: JSON.stringify(roomData),
     });
+    this.invalidateCache('/rooms');
+    this.invalidateCache(`/rooms/${id}`);
+    return result;
   }
 
   async deleteRoom(id) {
-    return this.request(`/rooms/${id}`, {
+    const result = await this.request(`/rooms/${id}`, {
       method: 'DELETE',
     });
+    this.invalidateCache('/rooms');
+    this.invalidateCache(`/rooms/${id}`);
+    return result;
   }
 
   async getAvailableRooms(params = {}) {
-    const queryString = new URLSearchParams(params).toString();
-    return this.request(`/rooms/available${queryString ? `?${queryString}` : ''}`);
+    return this.cachedRequest('/rooms/available', params);
   }
 
   async updateRoomStatus(id, status) {
-    return this.request(`/rooms/${id}/status`, {
+    const result = await this.request(`/rooms/${id}/status`, {
       method: 'PUT',
       body: JSON.stringify({ status }),
     });
+    this.invalidateCache('/rooms');
+    this.invalidateCache(`/rooms/${id}`);
+    this.invalidateCache('/rooms/available');
+    return result;
   }
 
   // Guest methods
   async getGuests(params = {}) {
-    const queryString = new URLSearchParams(params).toString();
-    return this.request(`/guests${queryString ? `?${queryString}` : ''}`);
+    return this.cachedRequest('/guests', params);
   }
 
   async getGuest(id) {
-    return this.request(`/guests/${id}`);
+    return this.cachedRequest(`/guests/${id}`);
   }
 
   async createGuest(guestData) {
-    return this.request('/guests', {
+    const result = await this.request('/guests', {
       method: 'POST',
       body: JSON.stringify(guestData),
     });
+    this.invalidateCache('/guests');
+    return result;
   }
 
   async updateGuest(id, guestData) {
-    return this.request(`/guests/${id}`, {
+    const result = await this.request(`/guests/${id}`, {
       method: 'PUT',
       body: JSON.stringify(guestData),
     });
+    this.invalidateCache('/guests');
+    this.invalidateCache(`/guests/${id}`);
+    return result;
   }
 
   async deleteGuest(id) {
-    return this.request(`/guests/${id}`, {
+    const result = await this.request(`/guests/${id}`, {
       method: 'DELETE',
     });
+    this.invalidateCache('/guests');
+    this.invalidateCache(`/guests/${id}`);
+    return result;
   }
 
   async searchGuests(query) {
-    return this.request(`/guests/search?q=${encodeURIComponent(query)}`);
+    return this.cachedRequest('/guests/search', { q: query });
   }
 
   // Booking methods
   async getBookings(params = {}) {
-    const queryString = new URLSearchParams(params).toString();
-    return this.request(`/bookings${queryString ? `?${queryString}` : ''}`);
+    return this.cachedRequest('/bookings', params);
   }
 
   async getBooking(id) {
-    return this.request(`/bookings/${id}`);
+    return this.cachedRequest(`/bookings/${id}`);
   }
 
   async createBooking(bookingData) {
-    return this.request('/bookings', {
+    const result = await this.request('/bookings', {
       method: 'POST',
       body: JSON.stringify(bookingData),
     });
+    this.invalidateCache('/bookings');
+    return result;
   }
 
   async updateBooking(id, bookingData) {
-    return this.request(`/bookings/${id}`, {
+    const result = await this.request(`/bookings/${id}`, {
       method: 'PUT',
       body: JSON.stringify(bookingData),
     });
+    this.invalidateCache('/bookings');
+    this.invalidateCache(`/bookings/${id}`);
+    return result;
   }
 
   async deleteBooking(id) {
-    return this.request(`/bookings/${id}`, {
+    const result = await this.request(`/bookings/${id}`, {
       method: 'DELETE',
     });
+    this.invalidateCache('/bookings');
+    this.invalidateCache(`/bookings/${id}`);
+    return result;
   }
 
   async checkInGuest(id) {
-    return this.request(`/bookings/${id}/checkin`, {
+    const result = await this.request(`/bookings/${id}/checkin`, {
       method: 'PUT',
     });
+    this.invalidateCache('/bookings');
+    this.invalidateCache(`/bookings/${id}`);
+    return result;
   }
 
   async checkOutGuest(id) {
-    return this.request(`/bookings/${id}/checkout`, {
+    const result = await this.request(`/bookings/${id}/checkout`, {
       method: 'PUT',
     });
+    this.invalidateCache('/bookings');
+    this.invalidateCache(`/bookings/${id}`);
+    return result;
   }
 
   async cancelBooking(id, reason) {
-    return this.request(`/bookings/${id}/cancel`, {
+    const result = await this.request(`/bookings/${id}/cancel`, {
       method: 'PUT',
       body: JSON.stringify({ reason }),
     });
+    this.invalidateCache('/bookings');
+    this.invalidateCache(`/bookings/${id}`);
+    return result;
   }
 
   async markNoShow(id, notes) {
-    return this.request(`/bookings/${id}/noshow`, {
+    const result = await this.request(`/bookings/${id}/noshow`, {
       method: 'PUT',
       body: JSON.stringify({ notes }),
     });
+    this.invalidateCache('/bookings');
+    this.invalidateCache(`/bookings/${id}`);
+    return result;
   }
 
   // Dashboard methods
   async getDashboardStats() {
-    return this.request('/dashboard/stats');
+    return this.cachedRequest('/dashboard/stats');
   }
 
   async getRevenueAnalytics(params = {}) {
-    const queryString = new URLSearchParams(params).toString();
-    return this.request(`/dashboard/revenue${queryString ? `?${queryString}` : ''}`);
+    return this.cachedRequest('/dashboard/revenue', params);
   }
 
   // User methods
   async getUsers(params = {}) {
-    const queryString = new URLSearchParams(params).toString();
-    return this.request(`/users${queryString ? `?${queryString}` : ''}`);
+    return this.cachedRequest('/users', params);
   }
 
   async getUser(id) {
-    return this.request(`/users/${id}`);
+    return this.cachedRequest(`/users/${id}`);
   }
 
   async createUser(userData) {
-    return this.request('/users', {
+    const result = await this.request('/users', {
       method: 'POST',
       body: JSON.stringify(userData),
     });
+    this.invalidateCache('/users');
+    return result;
   }
 
   async updateUser(id, userData) {
-    return this.request(`/users/${id}`, {
+    const result = await this.request(`/users/${id}`, {
       method: 'PUT',
       body: JSON.stringify(userData),
     });
+    this.invalidateCache('/users');
+    this.invalidateCache(`/users/${id}`);
+    return result;
   }
 
   async deleteUser(id) {
-    return this.request(`/users/${id}`, {
+    const result = await this.request(`/users/${id}`, {
       method: 'DELETE',
     });
+    this.invalidateCache('/users');
+    this.invalidateCache(`/users/${id}`);
+    return result;
   }
 
   // Report methods
   async getBookingReports(params = {}) {
-    const queryString = new URLSearchParams(params).toString();
-    return this.request(`/reports/bookings${queryString ? `?${queryString}` : ''}`);
+    return this.cachedRequest('/reports/bookings', params);
   }
 
   async getRevenueReports(params = {}) {
-    const queryString = new URLSearchParams(params).toString();
-    return this.request(`/reports/revenue${queryString ? `?${queryString}` : ''}`);
+    return this.cachedRequest('/reports/revenue', params);
   }
 
   async getOccupancyReports(params = {}) {
-    const queryString = new URLSearchParams(params).toString();
-    return this.request(`/reports/occupancy${queryString ? `?${queryString}` : ''}`);
+    return this.cachedRequest('/reports/occupancy', params);
   }
 
   async getGuestReports(params = {}) {
-    const queryString = new URLSearchParams(params).toString();
-    return this.request(`/reports/guests${queryString ? `?${queryString}` : ''}`);
+    return this.cachedRequest('/reports/guests', params);
   }
 
   // Settings methods
   async getRoomTypes() {
-    return this.request('/settings/room-types');
+    return this.cachedRequest('/settings/room-types');
   }
 
   async createRoomType(roomTypeData) {
-    return this.request('/settings/room-types', {
+    const result = await this.request('/settings/room-types', {
       method: 'POST',
       body: JSON.stringify(roomTypeData),
     });
+    this.invalidateCache('/settings/room-types');
+    return result;
   }
 
   async updateRoomType(id, roomTypeData) {
-    return this.request(`/settings/room-types/${id}`, {
+    const result = await this.request(`/settings/room-types/${id}`, {
       method: 'PUT',
       body: JSON.stringify(roomTypeData),
     });
+    this.invalidateCache('/settings/room-types');
+    return result;
   }
 
   async deleteRoomType(id) {
-    return this.request(`/settings/room-types/${id}`, {
+    const result = await this.request(`/settings/room-types/${id}`, {
       method: 'DELETE',
     });
+    this.invalidateCache('/settings/room-types');
+    return result;
   }
 
   async getAmenities() {
-    return this.request('/settings/amenities');
+    return this.cachedRequest('/settings/amenities');
   }
 
   async createAmenity(amenityData) {
-    return this.request('/settings/amenities', {
+    const result = await this.request('/settings/amenities', {
       method: 'POST',
       body: JSON.stringify(amenityData),
     });
+    this.invalidateCache('/settings/amenities');
+    return result;
   }
 
   async updateAmenity(id, amenityData) {
-    return this.request(`/settings/amenities/${id}`, {
+    const result = await this.request(`/settings/amenities/${id}`, {
       method: 'PUT',
       body: JSON.stringify(amenityData),
     });
+    this.invalidateCache('/settings/amenities');
+    return result;
   }
 
   async deleteAmenity(id) {
-    return this.request(`/settings/amenities/${id}`, {
+    const result = await this.request(`/settings/amenities/${id}`, {
       method: 'DELETE',
     });
+    this.invalidateCache('/settings/amenities');
+    return result;
   }
 }
 

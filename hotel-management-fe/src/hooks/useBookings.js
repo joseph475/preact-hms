@@ -1,40 +1,53 @@
-import { useState, useEffect } from 'preact/hooks';
+import { useState } from 'preact/hooks';
 import apiService from '../services/api';
+import { useSimpleCache } from './useSimpleCache';
 
 export const useBookings = () => {
-  const [bookings, setBookings] = useState([]);
-  const [rooms, setRooms] = useState([]);
-  const [guests, setGuests] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  // Use individual cache hooks for each data type
+  const {
+    data: bookingsResponse,
+    loading: bookingsLoading,
+    refresh: refreshBookings
+  } = useSimpleCache('/bookings', () => apiService.getBookings());
+
+  const {
+    data: roomsResponse,
+    loading: roomsLoading,
+    refresh: refreshRooms
+  } = useSimpleCache('/rooms', () => apiService.getRooms());
+
+  const {
+    data: guestsResponse,
+    loading: guestsLoading,
+    refresh: refreshGuests
+  } = useSimpleCache('/guests', () => apiService.getGuests());
+
+  // Extract data from responses
+  const bookings = bookingsResponse?.data || [];
+  const rooms = roomsResponse?.data || [];
+  const guests = guestsResponse?.data || [];
+
+  // Overall loading state
+  const loading = bookingsLoading || roomsLoading || guestsLoading;
 
   const loadData = async () => {
     try {
-      setLoading(true);
-      const [bookingsRes, roomsRes, guestsRes] = await Promise.all([
-        apiService.getBookings(),
-        apiService.getRooms(),
-        apiService.getGuests()
+      setError('');
+      await Promise.all([
+        refreshBookings(),
+        refreshRooms(),
+        refreshGuests()
       ]);
-
-      if (bookingsRes.success) setBookings(bookingsRes.data);
-      if (roomsRes.success) {
-        // For editing purposes, we need to include all rooms, not just available ones
-        // We'll filter available rooms in the room selection UI instead
-        setRooms(roomsRes.data);
-      }
-      if (guestsRes.success) setGuests(guestsRes.data);
     } catch (err) {
       setError('Failed to load data');
       console.error('Load data error:', err);
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleCheckIn = async (bookingId) => {
     try {
-      setLoading(true);
       // Set check-in time to current time when button is clicked
       const actualCheckInTime = new Date().toISOString();
       const response = await apiService.updateBooking(bookingId, { 
@@ -47,14 +60,11 @@ export const useBookings = () => {
     } catch (err) {
       setError('Failed to check in');
       console.error('Check in error:', err);
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleCheckOut = async (bookingId) => {
     try {
-      setLoading(true);
       const response = await apiService.updateBooking(bookingId, { 
         bookingStatus: 'Checked Out',
         paymentStatus: 'Paid',
@@ -66,8 +76,6 @@ export const useBookings = () => {
     } catch (err) {
       setError('Failed to check out');
       console.error('Check out error:', err);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -76,7 +84,6 @@ export const useBookings = () => {
     if (reason === null) return; // User cancelled the prompt
     
     try {
-      setLoading(true);
       const response = await apiService.cancelBooking(bookingId, reason);
       if (response.success) {
         await loadData();
@@ -84,14 +91,11 @@ export const useBookings = () => {
     } catch (err) {
       setError('Failed to cancel booking');
       console.error('Cancel booking error:', err);
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleMarkNoShow = async (bookingId, notes) => {
     try {
-      setLoading(true);
       const response = await apiService.markNoShow(bookingId, notes);
       if (response.success) {
         await loadData();
@@ -99,14 +103,11 @@ export const useBookings = () => {
     } catch (err) {
       setError('Failed to mark as no show');
       console.error('Mark no show error:', err);
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleDelete = async (bookingId) => {
     try {
-      setLoading(true);
       const response = await apiService.deleteBooking(bookingId);
       if (response.success) {
         await loadData();
@@ -114,14 +115,11 @@ export const useBookings = () => {
     } catch (err) {
       setError('Failed to cancel booking');
       console.error('Delete booking error:', err);
-    } finally {
-      setLoading(false);
     }
   };
 
   const createBooking = async (bookingData) => {
     try {
-      setLoading(true);
       const response = await apiService.createBooking(bookingData);
       if (response.success) {
         await loadData();
@@ -132,14 +130,11 @@ export const useBookings = () => {
       setError('Failed to create booking');
       console.error('Create booking error:', err);
       return { success: false };
-    } finally {
-      setLoading(false);
     }
   };
 
   const updateBooking = async (bookingId, bookingData) => {
     try {
-      setLoading(true);
       const response = await apiService.updateBooking(bookingId, bookingData);
       if (response.success) {
         await loadData();
@@ -150,14 +145,9 @@ export const useBookings = () => {
       setError('Failed to update booking');
       console.error('Update booking error:', err);
       return { success: false };
-    } finally {
-      setLoading(false);
     }
   };
 
-  useEffect(() => {
-    loadData();
-  }, []);
 
   return {
     bookings,
