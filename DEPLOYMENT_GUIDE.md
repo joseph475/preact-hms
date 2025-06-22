@@ -178,6 +178,12 @@ Or create an admin user manually through the registration endpoint.
    - **Solution**: Check that build command is `npm run build` and output directory is `dist`
    - **Solution**: Try redeploying after clearing Vercel's build cache
 
+2. **"process is not defined" Error**:
+   - This occurs when browser code tries to access Node.js `process` object
+   - **Solution**: The webpack configuration now includes `DefinePlugin` to handle this
+   - **Solution**: Environment variables are safely handled with try-catch blocks
+   - **Solution**: Redeploy after the webpack configuration update
+
 2. **CORS Errors**: Ensure backend CORS is configured correctly
 
 3. **Database Connection**: Verify MongoDB Atlas connection string and IP whitelist

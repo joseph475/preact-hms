@@ -18,12 +18,17 @@ const getApiBaseUrl = () => {
   }
   
   // Check for environment variable (useful for different deployment environments)
-  if (process.env.REACT_APP_API_URL) {
-    return process.env.REACT_APP_API_URL;
+  // Use try-catch to handle cases where process.env might not be available
+  try {
+    if (typeof process !== 'undefined' && process.env && process.env.REACT_APP_API_URL) {
+      return process.env.REACT_APP_API_URL;
+    }
+  } catch (error) {
+    console.warn('Environment variables not available:', error);
   }
   
   // Production fallback - replace this with your actual backend URL after deployment
-  return 'https://preact-hms-be.vercel.app//api/v1';
+  return 'https://your-backend-url.vercel.app/api/v1';
 };
 
 export default getEnvironmentConfig;
