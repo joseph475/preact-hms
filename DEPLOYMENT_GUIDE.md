@@ -38,6 +38,7 @@ git push -u origin main
    ```
    mongodb+srv://username:password@cluster.mongodb.net/hotel-management?retryWrites=true&w=majority
    ```
+   **Important**: Make sure to include the database name (`hotel-management`) in the connection string.
 
 ### 3. Deploy Backend to Vercel
 
@@ -186,7 +187,13 @@ Or create an admin user manually through the registration endpoint.
 
 2. **CORS Errors**: Ensure backend CORS is configured correctly
 
-3. **Database Connection**: Verify MongoDB Atlas connection string and IP whitelist
+3. **Database Connection / Timeout Errors**:
+   - **"Operation buffering timed out"**: MongoDB connection is taking too long
+   - **Solution**: Ensure your MongoDB Atlas connection string includes the database name
+   - **Solution**: Verify IP whitelist includes 0.0.0.0/0 for Vercel
+   - **Solution**: Check that your MongoDB Atlas cluster is in the same region or nearby
+   - **Solution**: Use `MONGODB_URI` or `MONGO_URI` environment variable (backend supports both)
+   - **Example**: `mongodb+srv://user:pass@cluster.mongodb.net/hotel-management?retryWrites=true&w=majority`
 
 4. **Build Failures**: Check that all dependencies are in `package.json`
 
