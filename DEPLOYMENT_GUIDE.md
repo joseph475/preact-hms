@@ -55,25 +55,42 @@ git push -u origin main
 
 ### 4. Update Frontend API Configuration
 
-Update the API base URL in the frontend to point to your deployed backend:
+The frontend is now configured with **automatic environment detection**! 
 
-**File: `hotel-management-fe/src/services/api.js`**
+**No manual changes needed** - the system automatically detects:
+- **Development**: Uses `http://localhost:8001/api/v1` when running on localhost
+- **Production**: Uses your deployed backend URL when deployed
+
+**To set your production backend URL:**
+
+**Option 1: Update the configuration file (Recommended)**
+Edit `hotel-management-fe/src/config/environment.js`:
 ```javascript
-// Change this line:
-const API_BASE_URL = 'http://localhost:8001/api/v1';
+// Replace this line:
+return 'https://your-backend-url.vercel.app/api/v1';
 
-// To your deployed backend URL:
-const API_BASE_URL = 'https://your-backend.vercel.app/api/v1';
+// With your actual backend URL:
+return 'https://your-actual-backend.vercel.app/api/v1';
 ```
+
+**Option 2: Use environment variable**
+Set `REACT_APP_API_URL` in your Vercel frontend project settings:
+- Variable: `REACT_APP_API_URL`
+- Value: `https://your-backend.vercel.app/api/v1`
 
 ### 5. Deploy Frontend to Vercel
 
 1. In Vercel Dashboard, click "New Project" again
 2. Import the same GitHub repository
 3. Select the `hotel-management-fe` folder as the root directory
-4. Vercel should automatically detect it as a static site
-5. Deploy the frontend
-6. Your frontend will be available at `https://your-frontend.vercel.app`
+4. **Framework Preset**: Select "Other" (not React/Next.js)
+5. **Build Command**: `npm run build` (should auto-detect)
+6. **Output Directory**: `dist` (should auto-detect)
+7. **Install Command**: `npm install` (should auto-detect)
+8. Deploy the frontend
+9. Your frontend will be available at `https://your-frontend.vercel.app`
+
+**Important**: The frontend uses a custom Webpack + Preact setup, so select "Other" as the framework preset to avoid conflicts with Vercel's built-in React optimizations.
 
 ## Environment Variables for Backend
 
@@ -154,10 +171,25 @@ Or create an admin user manually through the registration endpoint.
 
 ### Common Issues:
 
-1. **CORS Errors**: Ensure backend CORS is configured correctly
-2. **Database Connection**: Verify MongoDB Atlas connection string and IP whitelist
-3. **Build Failures**: Check that all dependencies are in `package.json`
-4. **API Not Found**: Verify the API base URL in frontend matches backend deployment
+1. **Frontend White Screen / "Unexpected token '<'" Error**:
+   - This usually means the JavaScript bundle isn't loading correctly
+   - **Solution**: Ensure you selected "Other" as framework preset (not React/Next.js)
+   - **Solution**: Verify `vercel.json` is properly configured in frontend folder
+   - **Solution**: Check that build command is `npm run build` and output directory is `dist`
+   - **Solution**: Try redeploying after clearing Vercel's build cache
+
+2. **CORS Errors**: Ensure backend CORS is configured correctly
+
+3. **Database Connection**: Verify MongoDB Atlas connection string and IP whitelist
+
+4. **Build Failures**: Check that all dependencies are in `package.json`
+
+5. **API Not Found**: Verify the API base URL in frontend matches backend deployment
+
+6. **Frontend Build Issues**:
+   - Check Vercel build logs for specific error messages
+   - Ensure all dependencies are in `package.json` (not just `devDependencies`)
+   - Verify webpack configuration is compatible with production builds
 
 ### Logs:
 - Backend logs: Available in Vercel dashboard under Functions tab

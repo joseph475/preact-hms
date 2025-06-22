@@ -1,4 +1,6 @@
-const API_BASE_URL = 'http://localhost:8001/api/v1';
+import { getEnvironmentConfig } from '../config/environment.js';
+
+const API_BASE_URL = getEnvironmentConfig().apiBaseUrl;
 
 class ApiService {
   constructor() {
