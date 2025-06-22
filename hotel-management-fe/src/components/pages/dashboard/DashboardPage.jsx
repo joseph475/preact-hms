@@ -1,30 +1,22 @@
 import { h } from 'preact';
-import { useState, useEffect } from 'preact/hooks';
+import { useSimpleCache } from '../../../hooks/useSimpleCache';
 import apiService from '../../../services/api';
 
 const DashboardPage = ({ user }) => {
-  const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-
-  useEffect(() => {
-    loadDashboardStats();
-  }, []);
-
-  const loadDashboardStats = async () => {
-    try {
-      setLoading(true);
-      const response = await apiService.getDashboardStats();
-      if (response.success) {
-        setStats(response.data);
-      }
-    } catch (err) {
-      setError('Failed to load dashboard data');
-      console.error('Dashboard error:', err);
-    } finally {
-      setLoading(false);
+  const {
+    data: statsResponse,
+    loading,
+    error,
+    refresh: loadDashboardStats
+  } = useSimpleCache(
+    '/dashboard/stats',
+    () => apiService.getDashboardStats(),
+    {
+      refreshInterval: 2 * 60 * 1000 // Refresh every 2 minutes
     }
-  };
+  );
+
+  const stats = statsResponse?.data;
 
   if (loading) {
     return (
