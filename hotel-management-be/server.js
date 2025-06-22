@@ -30,24 +30,21 @@ const connectDB = async () => {
       useUnifiedTopology: true,
       serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
       socketTimeoutMS: 45000, // Close sockets after 45s of inactivity
-      bufferCommands: false, // Disable mongoose buffering
-      bufferMaxEntries: 0, // Disable mongoose buffering
       maxPoolSize: 10, // Maintain up to 10 socket connections
       minPoolSize: 5, // Maintain a minimum of 5 socket connections
     });
     
     console.log('MongoDB connected successfully');
+    return true;
   } catch (err) {
     console.error('MongoDB connection error:', err);
     // Don't exit process in serverless environment
     if (process.env.NODE_ENV !== 'production') {
       process.exit(1);
     }
+    return false;
   }
 };
-
-// Connect to database
-connectDB();
 
 // Routes
 app.use('/api/v1/auth', require('./routes/auth'));
@@ -82,8 +79,18 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start server
-const PORT = process.env.PORT || 8001;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+// Start server after database connection
+const startServer = async () => {
+  // Connect to database first
+  await connectDB();
+  
+  const PORT = process.env.PORT || 8001;
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+};
+
+// Start the application
+startServer().catch(err => {
+  console.error('Failed to start server:', err);
 });
