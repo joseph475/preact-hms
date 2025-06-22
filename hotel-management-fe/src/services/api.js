@@ -3,6 +3,11 @@ const API_BASE_URL = 'http://localhost:8001/api/v1';
 class ApiService {
   constructor() {
     this.token = localStorage.getItem('token');
+    this.errorHandler = null;
+  }
+
+  setErrorHandler(handler) {
+    this.errorHandler = handler;
   }
 
   setToken(token) {
@@ -35,14 +40,44 @@ class ApiService {
 
     try {
       const response = await fetch(url, config);
-      const data = await response.json();
+      
+      // Handle non-JSON responses
+      let data;
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        data = await response.json();
+      } else {
+        data = { message: await response.text() };
+      }
 
       if (!response.ok) {
-        throw new Error(data.message || 'Something went wrong');
+        const error = new Error(data.message || 'Something went wrong');
+        error.status = response.status;
+        error.statusText = response.statusText;
+        error.endpoint = endpoint;
+        error.method = options.method || 'GET';
+        
+        // Show error modal if handler is available and not suppressed
+        if (this.errorHandler && !options.suppressErrorModal) {
+          this.errorHandler.showError(error, options.retryCallback);
+        }
+        
+        throw error;
       }
 
       return data;
     } catch (error) {
+      // Handle network errors, timeouts, etc.
+      if (!error.status) {
+        error.endpoint = endpoint;
+        error.method = options.method || 'GET';
+        
+        // Show error modal if handler is available and not suppressed
+        if (this.errorHandler && !options.suppressErrorModal) {
+          this.errorHandler.showError(error, options.retryCallback);
+        }
+      }
+      
       console.error('API Error:', error);
       throw error;
     }
@@ -127,7 +162,7 @@ class ApiService {
   }
 
   async updateRoomStatus(id, status) {
-    return this.request(`/rooms/${id}`, {
+    return this.request(`/rooms/${id}/status`, {
       method: 'PUT',
       body: JSON.stringify({ status }),
     });

@@ -1,8 +1,10 @@
 import { h } from 'preact';
-import { useState } from 'preact/hooks';
+import { useState, useEffect } from 'preact/hooks';
 import Router from 'preact-router';
 import { useAuth } from '../hooks/useAuth';
 import { SearchProvider } from '../hooks/useSearch';
+import { ApiErrorProvider, useApiError } from '../hooks/useApiError';
+import apiService from '../services/api';
 
 // Layout components
 import Header from './layout/Header';
@@ -10,6 +12,7 @@ import Sidebar from './layout/Sidebar';
 
 // Common components
 import ProtectedRoute from './common/ProtectedRoute';
+import ApiErrorModal from './common/ApiErrorModal';
 
 // Page components
 import LoginPage from './pages/auth/LoginPage';
@@ -21,9 +24,16 @@ import UsersPage from './pages/users/UsersPage';
 import ProfilePage from './pages/profile/ProfilePage';
 import SettingsPage from './pages/settings/SettingsPage';
 
-const App = () => {
+// Main App Content Component
+const AppContent = () => {
   const { user, loading, isAuthenticated, login, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const apiError = useApiError();
+
+  // Set up API error handler
+  useEffect(() => {
+    apiService.setErrorHandler(apiError);
+  }, [apiError]);
 
   if (loading) {
     return (
@@ -112,8 +122,25 @@ const App = () => {
             </div>
           </main>
         </div>
+
+        {/* Global API Error Modal */}
+        <ApiErrorModal
+          isOpen={apiError.isModalOpen}
+          onClose={apiError.hideError}
+          error={apiError.error}
+          onRetry={apiError.hasRetry ? apiError.retry : null}
+        />
       </div>
     </SearchProvider>
+  );
+};
+
+// Main App Component with Error Provider
+const App = () => {
+  return (
+    <ApiErrorProvider>
+      <AppContent />
+    </ApiErrorProvider>
   );
 };
 

@@ -194,6 +194,50 @@ exports.deleteRoom = asyncHandler(async (req, res, next) => {
   });
 });
 
+// @desc    Update room status (limited access for users)
+// @route   PUT /api/v1/rooms/:id/status
+// @access  Private (users can only change from maintenance to available)
+exports.updateRoomStatus = asyncHandler(async (req, res, next) => {
+  const { status } = req.body;
+  
+  // Get the current room
+  const room = await Room.findById(req.params.id);
+  
+  if (!room) {
+    return next(
+      new ErrorResponse(`Room not found with id of ${req.params.id}`, 404)
+    );
+  }
+
+  // If user is not admin, restrict status changes
+  if (req.user.role !== 'admin') {
+    // Users can only change from 'Maintenance' to 'Available'
+    if (room.status !== 'Maintenance' || status !== 'Available') {
+      return next(
+        new ErrorResponse('Users can only change room status from Maintenance to Available', 403)
+      );
+    }
+  }
+
+  // Update the room status
+  const updatedRoom = await Room.findByIdAndUpdate(
+    req.params.id, 
+    { status }, 
+    {
+      new: true,
+      runValidators: true
+    }
+  ).populate({
+    path: 'roomType',
+    select: 'name baseCapacity pricing penalty'
+  });
+
+  res.status(200).json({
+    success: true,
+    data: updatedRoom
+  });
+});
+
 // @desc    Get available rooms
 // @route   GET /api/v1/rooms/available
 // @access  Private
