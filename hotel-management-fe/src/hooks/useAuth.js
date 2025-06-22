@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'preact/hooks';
+import { route } from 'preact-router';
 import apiService from '../services/api';
 
 export const useAuth = () => {
@@ -49,6 +50,8 @@ export const useAuth = () => {
     apiService.logout();
     setUser(null);
     setIsAuthenticated(false);
+    // Redirect to root/login page
+    route('/', true);
   };
 
   const updateUser = (userData) => {
