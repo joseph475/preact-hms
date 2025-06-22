@@ -47,8 +47,8 @@ const BookingsPage = ({ user }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 15;
   const [viewMode, setViewMode] = useState(() => {
-    // Load view preference from localStorage, default to 'table'
-    return localStorage.getItem('bookingsViewMode') || 'table';
+    // Load view preference from localStorage, default to 'cards'
+    return localStorage.getItem('bookingsViewMode') || 'cards';
   });
 
   // Form states
