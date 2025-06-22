@@ -160,7 +160,12 @@
   
   /* Enhanced Table Styles */
   .table-container {
-    @apply overflow-hidden rounded-xl border border-gray-200 shadow-lg mb-3;
+    @apply overflow-x-auto rounded-xl border border-gray-200 shadow-lg mb-3;
+  }
+  
+  .table-container-scroll {
+    @apply overflow-x-auto rounded-xl border border-gray-200 shadow-lg mb-3;
+    min-width: 100%;
   }
   
   .table {
@@ -361,27 +366,86 @@
   }
   
   .action-btn {
-    @apply text-xs px-3 py-1 rounded-md font-medium transition-colors duration-150;
+    @apply text-xs px-3 py-1.5 rounded-md font-medium transition-colors duration-150 border;
   }
   
   .action-btn-primary {
-    @apply action-btn text-blue-600 hover:text-blue-800 hover:bg-blue-50;
+    @apply action-btn text-blue-600 hover:text-blue-800 hover:bg-blue-50 border-blue-200 hover:border-blue-300;
   }
   
   .action-btn-success {
-    @apply action-btn text-green-600 hover:text-green-800 hover:bg-green-50;
+    @apply action-btn text-green-600 hover:text-green-800 hover:bg-green-50 border-green-200 hover:border-green-300;
   }
   
   .action-btn-danger {
-    @apply action-btn text-red-600 hover:text-red-800 hover:bg-red-50;
+    @apply action-btn text-red-600 hover:text-red-800 hover:bg-red-50 border-red-200 hover:border-red-300;
   }
   
   .action-btn-warning {
-    @apply action-btn text-yellow-600 hover:text-yellow-800 hover:bg-yellow-50;
+    @apply action-btn text-yellow-600 hover:text-yellow-800 hover:bg-yellow-50 border-yellow-200 hover:border-yellow-300;
   }
   
   .action-btn-info {
-    @apply action-btn text-blue-600 hover:text-blue-800 hover:bg-blue-50;
+    @apply action-btn text-blue-600 hover:text-blue-800 hover:bg-blue-50 border-blue-200 hover:border-blue-300;
+  }
+
+  /* Responsive Table Cards */
+  .booking-card {
+    @apply bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4 hover:shadow-md transition-shadow duration-200;
+  }
+
+  .booking-card-header {
+    @apply flex justify-between items-start mb-3 pb-3 border-b border-gray-100;
+  }
+
+  .booking-card-content {
+    @apply space-y-3;
+  }
+
+  .booking-card-section {
+    @apply space-y-1;
+  }
+
+  .booking-card-label {
+    @apply text-xs font-medium text-gray-500 uppercase tracking-wide;
+  }
+
+  .booking-card-value {
+    @apply text-sm font-medium text-gray-900;
+  }
+
+  .booking-card-actions {
+    @apply flex flex-wrap gap-2 pt-3 border-t border-gray-100;
+  }
+
+  /* Mobile-first responsive design */
+  @media (max-width: 640px) {
+    .page-header {
+      @apply flex-col space-y-3;
+    }
+    
+    .page-header .flex {
+      @apply flex-col space-y-3;
+    }
+    
+    .btn-primary {
+      @apply w-full justify-center;
+    }
+    
+    .action-btn {
+      @apply text-xs px-2 py-1;
+    }
+    
+    .badge {
+      @apply text-xs px-2 py-0.5;
+    }
+  }
+
+  /* Tablet responsive adjustments */
+  @media (min-width: 641px) and (max-width: 1023px) {
+    .booking-card-content {
+      @apply grid grid-cols-2 gap-4;
+    }
   }
 }
 

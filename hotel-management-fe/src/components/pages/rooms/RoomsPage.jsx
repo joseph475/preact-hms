@@ -469,7 +469,7 @@ const RoomsPage = ({ user }) => {
 
       {/* Rooms Table View */}
       {viewMode === 'table' && (
-        <div className="table-container">
+        <div className="table-container-scroll">
           <table className="table">
             <thead className="table-header">
               <tr>

@@ -1,4 +1,4 @@
-import { h } from 'preact';
+import { h, Fragment } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 import { useSearch } from '../../../hooks/useSearch';
 import { useBookings } from '../../../hooks/useBookings';
@@ -9,6 +9,7 @@ import BookingFilters from './components/BookingFilters';
 import BookingTableRow from './components/BookingTableRow';
 import BookingModal from './components/BookingModal/BookingModal';
 import BookingDetailsModal from './components/BookingDetailsModal';
+import TimeRemaining from '../../common/TimeRemaining';
 
 const BookingsPage = ({ user }) => {
   const {
@@ -45,6 +46,10 @@ const BookingsPage = ({ user }) => {
   const [statusFilter, setStatusFilter] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 15;
+  const [viewMode, setViewMode] = useState(() => {
+    // Load view preference from localStorage, default to 'table'
+    return localStorage.getItem('bookingsViewMode') || 'table';
+  });
 
   // Form states
   const [currentStep, setCurrentStep] = useState(1);
@@ -403,6 +408,12 @@ const BookingsPage = ({ user }) => {
     setCurrentPage(page);
   };
 
+  const handleViewModeChange = (mode) => {
+    setViewMode(mode);
+    // Save preference to localStorage
+    localStorage.setItem('bookingsViewMode', mode);
+  };
+
   const getStatusBadge = (status) => {
     const statusClasses = {
       'Confirmed': 'badge-info',
@@ -480,44 +491,216 @@ const BookingsPage = ({ user }) => {
           statusFilter={statusFilter}
           setStatusFilter={setStatusFilter}
           bookingStatuses={bookingStatuses}
+          viewMode={viewMode}
+          onViewModeChange={handleViewModeChange}
         />
       )}
 
       {/* Bookings Table */}
-      <div className="table-container">
-        <table className="table">
-          <thead className="table-header">
-            <tr>
-              <th className="table-header-cell">Guest Information</th>
-              <th className="table-header-cell">Room Details</th>
-              <th className="table-header-cell">Schedule</th>
-              <th className="table-header-cell">Amount</th>
-              <th className="table-header-cell">Status</th>
-              <th className="table-header-cell">Payment</th>
-              <th className="table-header-cell text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="table-body">
-            {getPaginatedBookings().map((booking) => (
-              <BookingTableRow
-                key={booking._id}
-                booking={booking}
-                onEdit={handleEdit}
-                onDelete={handleDeleteClick}
-                onCheckIn={handleCheckIn}
-                onCheckOut={handleCheckOutClick}
-                onMarkNoShow={handleMarkNoShowClick}
-                onViewDetails={handleViewDetails}
-                getStatusBadge={getStatusBadge}
-                getPaymentBadge={getPaymentBadge}
-                formatDateTime={formatDateTime}
-                calculateCheckOutTime={calculateCheckOutTime}
-              />
-            ))}
-          </tbody>
-        </table>
+      {viewMode === 'table' && (
+        <div className="table-container-scroll">
+          <table className="table">
+            <thead className="table-header">
+              <tr>
+                <th className="table-header-cell">Guest Information</th>
+                <th className="table-header-cell">Room Details</th>
+                <th className="table-header-cell">Schedule</th>
+                <th className="table-header-cell">Amount</th>
+                <th className="table-header-cell">Status</th>
+                <th className="table-header-cell">Payment</th>
+                <th className="table-header-cell text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="table-body">
+              {getPaginatedBookings().map((booking) => (
+                <BookingTableRow
+                  key={booking._id}
+                  booking={booking}
+                  onEdit={handleEdit}
+                  onDelete={handleDeleteClick}
+                  onCheckIn={handleCheckIn}
+                  onCheckOut={handleCheckOutClick}
+                  onMarkNoShow={handleMarkNoShowClick}
+                  onViewDetails={handleViewDetails}
+                  getStatusBadge={getStatusBadge}
+                  getPaymentBadge={getPaymentBadge}
+                  formatDateTime={formatDateTime}
+                  calculateCheckOutTime={calculateCheckOutTime}
+                />
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
-        {/* Pagination */}
+      {/* Bookings Cards */}
+      {viewMode === 'cards' && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {getPaginatedBookings().map((booking) => (
+            <div key={booking._id} className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+              {/* Card Header with Status */}
+              <div className={`p-3 ${
+                booking.bookingStatus === 'Confirmed' ? 'bg-gradient-to-r from-blue-50 to-blue-100' :
+                booking.bookingStatus === 'Checked In' ? 'bg-gradient-to-r from-green-50 to-green-100' :
+                booking.bookingStatus === 'Checked Out' ? 'bg-gradient-to-r from-gray-50 to-gray-100' :
+                booking.bookingStatus === 'Cancelled' ? 'bg-gradient-to-r from-red-50 to-red-100' :
+                'bg-gradient-to-r from-yellow-50 to-yellow-100'
+              }`}>
+                <div className="flex justify-between items-start">
+                  <div className="flex items-center space-x-2">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                      booking.bookingStatus === 'Confirmed' ? 'bg-blue-500' :
+                      booking.bookingStatus === 'Checked In' ? 'bg-green-500' :
+                      booking.bookingStatus === 'Checked Out' ? 'bg-gray-500' :
+                      booking.bookingStatus === 'Cancelled' ? 'bg-red-500' :
+                      'bg-yellow-500'
+                    }`}>
+                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        {booking.bookingStatus === 'Confirmed' && (
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        )}
+                        {booking.bookingStatus === 'Checked In' && (
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        )}
+                        {booking.bookingStatus === 'Checked Out' && (
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        )}
+                        {booking.bookingStatus === 'Cancelled' && (
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        )}
+                        {booking.bookingStatus === 'No Show' && (
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                        )}
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="text-base font-bold text-gray-900">
+                        {booking.guest?.firstName} {booking.guest?.lastName}
+                      </h3>
+                      <p className="text-xs text-gray-600">{booking.guest?.phone}</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end space-y-1">
+                    <span className={`badge text-xs ${getStatusBadge(booking.bookingStatus)}`}>
+                      {booking.bookingStatus}
+                    </span>
+                    <div className="text-right">
+                      <TimeRemaining 
+                        checkInDate={booking.checkInDate}
+                        duration={booking.duration}
+                        bookingStatus={booking.bookingStatus}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card Body */}
+              <div className="p-4">
+                {/* Room Information */}
+                <div className="mb-3">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Room</span>
+                    <span className="text-lg font-bold text-gray-900">#{booking.room?.roomNumber}</span>
+                  </div>
+                  <p className="text-sm text-gray-600">{booking.room?.roomType?.name}</p>
+                  <p className="text-xs text-gray-500">{booking.duration}h duration</p>
+                </div>
+
+                {/* Schedule */}
+                <div className="mb-3">
+                  <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Schedule</span>
+                  <div className="bg-gray-50 rounded-md p-2 mt-1">
+                    {booking.bookingStatus === 'Confirmed' ? (
+                      <p className="text-xs font-medium text-gray-900">Expected Check-in: {formatDateTime(booking.checkInDate)}</p>
+                    ) : (
+                      <>
+                        <p className="text-xs font-medium text-gray-900">In: {formatDateTime(booking.checkInDate)}</p>
+                        <p className="text-xs text-gray-600">Out: {calculateCheckOutTime(booking.checkInDate, booking.duration)}</p>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* Amount and Payment */}
+                <div className="mb-3">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Amount</span>
+                      <p className="text-lg font-bold text-gray-900">₱{booking.totalAmount?.toLocaleString()}</p>
+                    </div>
+                    <span className={`badge text-xs ${getPaymentBadge(booking.paymentStatus)}`}>
+                      {booking.paymentStatus}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="grid grid-cols-2 gap-1">
+                  <button
+                    onClick={() => handleViewDetails(booking)}
+                    className="px-2 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 transition-colors duration-150 truncate"
+                  >
+                    Details
+                  </button>
+                  
+                  {booking.bookingStatus === 'Confirmed' && (
+                    <>
+                      <button
+                        onClick={() => handleCheckIn(booking._id)}
+                        className="px-2 py-1.5 text-xs font-medium text-green-600 bg-green-50 border border-green-200 rounded-md hover:bg-green-100 transition-colors duration-150 truncate"
+                      >
+                        Check In
+                      </button>
+                      <button
+                        onClick={() => handleMarkNoShowClick(booking)}
+                        className="px-2 py-1.5 text-xs font-medium text-yellow-600 bg-yellow-50 border border-yellow-200 rounded-md hover:bg-yellow-100 transition-colors duration-150 truncate"
+                      >
+                        No Show
+                      </button>
+                      <button
+                        onClick={() => handleEdit(booking)}
+                        className="px-2 py-1.5 text-xs font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 transition-colors duration-150 truncate"
+                      >
+                        Edit
+                      </button>
+                    </>
+                  )}
+                  
+                  {booking.bookingStatus === 'Checked In' && (
+                    <>
+                      <button
+                        onClick={() => handleCheckOutClick(booking)}
+                        className="px-2 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 transition-colors duration-150 truncate"
+                      >
+                        Check Out
+                      </button>
+                      <button
+                        onClick={() => handleEdit(booking)}
+                        className="px-2 py-1.5 text-xs font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 transition-colors duration-150 truncate"
+                      >
+                        Edit
+                      </button>
+                    </>
+                  )}
+                  
+                  {['Confirmed', 'Checked In'].includes(booking.bookingStatus) && (
+                    <button
+                      onClick={() => handleDeleteClick(booking)}
+                      className="px-2 py-1.5 text-xs font-medium text-red-600 bg-red-50 border border-red-200 rounded-md hover:bg-red-100 transition-colors duration-150 truncate"
+                    >
+                      Cancel
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Pagination */}
+      <div className="mt-6">
         <Pagination
           currentPage={currentPage}
           totalItems={filteredBookings.length}
