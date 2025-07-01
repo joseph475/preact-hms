@@ -133,8 +133,17 @@ exports.getRevenueReports = asyncHandler(async (req, res, next) => {
     },
     { $unwind: '$roomData' },
     {
+      $lookup: {
+        from: 'roomtypes',
+        localField: 'roomData.roomType',
+        foreignField: '_id',
+        as: 'roomTypeData'
+      }
+    },
+    { $unwind: '$roomTypeData' },
+    {
       $group: {
-        _id: '$roomData.roomType',
+        _id: '$roomTypeData.name',
         totalRevenue: { $sum: '$paidAmount' },
         totalBookings: { $sum: 1 }
       }
@@ -191,8 +200,17 @@ exports.getOccupancyReports = asyncHandler(async (req, res, next) => {
   const occupancyByType = await Room.aggregate([
     { $match: { isActive: true } },
     {
+      $lookup: {
+        from: 'roomtypes',
+        localField: 'roomType',
+        foreignField: '_id',
+        as: 'roomTypeData'
+      }
+    },
+    { $unwind: '$roomTypeData' },
+    {
       $group: {
-        _id: '$roomType',
+        _id: '$roomTypeData.name',
         totalRooms: { $sum: 1 },
         occupiedRooms: {
           $sum: {
