@@ -10,6 +10,7 @@ import BookingTableRow from './components/BookingTableRow';
 import BookingModal from './components/BookingModal/BookingModal';
 import BookingDetailsModal from './components/BookingDetailsModal';
 import TimeRemaining from '../../common/TimeRemaining';
+import Receipt from '../../common/Receipt';
 
 const BookingsPage = ({ user }) => {
   const {
@@ -41,6 +42,8 @@ const BookingsPage = ({ user }) => {
   const [bookingToCheckOut, setBookingToCheckOut] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [bookingToViewDetails, setBookingToViewDetails] = useState(null);
+  const [showReceipt, setShowReceipt] = useState(false);
+  const [receiptBooking, setReceiptBooking] = useState(null);
 
   // Filter and pagination states
   const [statusFilter, setStatusFilter] = useState('');
@@ -272,6 +275,16 @@ const BookingsPage = ({ user }) => {
     if (!bookingToCheckOut) return;
     
     await handleCheckOut(bookingToCheckOut._id);
+    
+    // Show receipt after successful checkout
+    const updatedBooking = {
+      ...bookingToCheckOut,
+      bookingStatus: 'Checked Out',
+      paymentStatus: 'Paid'
+    };
+    setReceiptBooking(updatedBooking);
+    setShowReceipt(true);
+    
     setShowCheckOutModal(false);
     setBookingToCheckOut(null);
   };
@@ -815,6 +828,18 @@ const BookingsPage = ({ user }) => {
         formatDateTime={formatDateTime}
         calculateCheckOutTime={calculateCheckOutTime}
       />
+
+      {/* Receipt Modal */}
+      {showReceipt && receiptBooking && (
+        <Receipt
+          booking={receiptBooking}
+          onClose={() => {
+            setShowReceipt(false);
+            setReceiptBooking(null);
+          }}
+          autoPrint={true}
+        />
+      )}
     </div>
   );
 };

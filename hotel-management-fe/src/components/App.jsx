@@ -23,6 +23,7 @@ import ReportsPage from './pages/reports/ReportsPage';
 import UsersPage from './pages/users/UsersPage';
 import ProfilePage from './pages/profile/ProfilePage';
 import SettingsPage from './pages/settings/SettingsPage';
+import ReceiptPage from './pages/receipt/ReceiptPage';
 
 // Main App Content Component
 const AppContent = () => {
@@ -41,6 +42,11 @@ const AppContent = () => {
         <div className="spinner"></div>
       </div>
     );
+  }
+
+  // Handle receipt page separately (no authentication required for printing)
+  if (window.location.pathname === '/receipt') {
+    return <ReceiptPage />;
   }
 
   if (!isAuthenticated) {

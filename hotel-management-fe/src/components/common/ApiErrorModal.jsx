@@ -6,7 +6,7 @@ const ApiErrorModal = ({ isOpen, onClose, error, onRetry }) => {
     if (!error) return 'API Error';
     
     // Check for specific error types
-    if (error.name === 'TypeError' && error.message.includes('fetch')) {
+    if (error.name === 'TypeError' && error.message && error.message.includes('fetch')) {
       return 'Connection Error';
     }
     
@@ -44,12 +44,12 @@ const ApiErrorModal = ({ isOpen, onClose, error, onRetry }) => {
     if (!error) return 'An unexpected error occurred. Please try again.';
     
     // Network/Connection errors
-    if (error.name === 'TypeError' && error.message.includes('fetch')) {
+    if (error.name === 'TypeError' && error.message && error.message.includes('fetch')) {
       return 'Unable to connect to the server. Please check your internet connection and try again.';
     }
     
     // Timeout errors
-    if (error.name === 'AbortError' || error.message.includes('timeout')) {
+    if (error.name === 'AbortError' || (error.message && error.message.includes('timeout'))) {
       return 'The request took too long to complete. Please try again.';
     }
     
@@ -88,7 +88,7 @@ const ApiErrorModal = ({ isOpen, onClose, error, onRetry }) => {
   const getErrorIcon = (error) => {
     if (!error) return 'exclamation-triangle';
     
-    if (error.name === 'TypeError' && error.message.includes('fetch')) {
+    if (error.name === 'TypeError' && error.message && error.message.includes('fetch')) {
       return 'wifi-off';
     }
     

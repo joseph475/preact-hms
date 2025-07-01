@@ -1,6 +1,7 @@
 import { useState } from 'preact/hooks';
 import apiService from '../services/api';
 import { useSimpleCache } from './useSimpleCache';
+import cacheService from '../services/cacheService';
 
 export const useBookings = () => {
   const [error, setError] = useState('');
@@ -55,7 +56,15 @@ export const useBookings = () => {
         checkInDate: actualCheckInTime
       });
       if (response.success) {
-        await loadData();
+        // Invalidate global cache for rooms to ensure all components get fresh data
+        cacheService.invalidate('rooms');
+        
+        // Refresh all data including rooms to update room status
+        await Promise.all([
+          refreshBookings(),
+          refreshRooms(),
+          refreshGuests()
+        ]);
       }
     } catch (err) {
       setError('Failed to check in');
@@ -71,7 +80,15 @@ export const useBookings = () => {
         paidAmount: bookings.find(b => b._id === bookingId)?.totalAmount
       });
       if (response.success) {
-        await loadData();
+        // Invalidate global cache for rooms to ensure all components get fresh data
+        cacheService.invalidate('rooms');
+        
+        // Refresh all data including rooms to update room status
+        await Promise.all([
+          refreshBookings(),
+          refreshRooms(),
+          refreshGuests()
+        ]);
       }
     } catch (err) {
       setError('Failed to check out');
@@ -86,6 +103,8 @@ export const useBookings = () => {
     try {
       const response = await apiService.cancelBooking(bookingId, reason);
       if (response.success) {
+        // Invalidate global cache for rooms since cancellation makes room available
+        cacheService.invalidate('rooms');
         await loadData();
       }
     } catch (err) {
@@ -98,6 +117,8 @@ export const useBookings = () => {
     try {
       const response = await apiService.markNoShow(bookingId, notes);
       if (response.success) {
+        // Invalidate global cache for rooms since no-show makes room available
+        cacheService.invalidate('rooms');
         await loadData();
       }
     } catch (err) {
@@ -110,6 +131,8 @@ export const useBookings = () => {
     try {
       const response = await apiService.deleteBooking(bookingId);
       if (response.success) {
+        // Invalidate global cache for rooms since deletion makes room available
+        cacheService.invalidate('rooms');
         await loadData();
       }
     } catch (err) {
@@ -122,6 +145,8 @@ export const useBookings = () => {
     try {
       const response = await apiService.createBooking(bookingData);
       if (response.success) {
+        // Invalidate global cache for rooms since new booking makes room occupied
+        cacheService.invalidate('rooms');
         await loadData();
         return { success: true };
       }
