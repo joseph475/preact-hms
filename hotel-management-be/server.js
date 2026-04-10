@@ -46,8 +46,15 @@ const connectDB = async () => {
   }
 };
 
+const rateLimit = require('express-rate-limit');
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20,
+  message: { success: false, message: 'Too many requests, please try again later.' }
+});
+
 // Routes
-app.use('/api/v1/auth', require('./routes/auth'));
+app.use('/api/v1/auth', authLimiter, require('./routes/auth'));
 app.use('/api/v1/rooms', require('./routes/rooms'));
 app.use('/api/v1/guests', require('./routes/guests'));
 app.use('/api/v1/bookings', require('./routes/bookings'));
@@ -55,6 +62,7 @@ app.use('/api/v1/dashboard', require('./routes/dashboard'));
 app.use('/api/v1/users', require('./routes/users'));
 app.use('/api/v1/reports', require('./routes/reports'));
 app.use('/api/v1/settings', require('./routes/settings'));
+app.use('/api/v1/food-items', require('./routes/foodItems'));
 
 // Root route
 app.get('/', (req, res) => {
