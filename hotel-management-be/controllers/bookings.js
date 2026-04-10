@@ -470,12 +470,20 @@ exports.addFoodOrder = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse('Can only add food orders to checked-in bookings', 400));
   }
   const { foodItemId, name, category, unitPrice, quantity, notes } = req.body;
+  if (!name || !name.trim()) {
+    return next(new ErrorResponse('Food order name is required', 400));
+  }
+  if (unitPrice === undefined || unitPrice === null || Number(unitPrice) < 0) {
+    return next(new ErrorResponse('A non-negative unitPrice is required', 400));
+  }
+  const qty = (Number.isInteger(quantity) && quantity > 0) ? quantity : 1;
   booking.foodOrders.push({
     foodItem: foodItemId || null,
     name,
     category,
     unitPrice,
-    quantity: quantity || 1,
+    quantity: qty,
+    total: (unitPrice || 0) * qty,
     notes
   });
   await booking.save();
