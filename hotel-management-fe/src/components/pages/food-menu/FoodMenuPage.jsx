@@ -35,6 +35,8 @@ const FoodMenuPage = ({ user }) => {
       const response = await apiService.getFoodItems();
       if (response.success) {
         setItems(response.data);
+      } else {
+        setError('Failed to load menu items');
       }
     } catch (err) {
       setError('Failed to load menu items');
@@ -142,6 +144,8 @@ const FoodMenuPage = ({ user }) => {
             i._id === item._id ? { ...i, isAvailable: !item.isAvailable } : i
           )
         );
+      } else {
+        setError('Failed to update item availability');
       }
     } catch (err) {
       console.error('Toggle availability error:', err);
