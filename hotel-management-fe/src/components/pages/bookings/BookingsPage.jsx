@@ -1,5 +1,5 @@
 import { h, Fragment } from 'preact';
-import { useState, useEffect } from 'preact/hooks';
+import { useState, useEffect, useMemo } from 'preact/hooks';
 import { useSearch } from '../../../hooks/useSearch';
 import { useBookings } from '../../../hooks/useBookings';
 import DeleteConfirmationModal from '../../common/DeleteConfirmationModal';
@@ -402,14 +402,14 @@ const BookingsPage = ({ user }) => {
     }
   };
 
-  const filteredBookings = bookings.filter(booking => {
+  const filteredBookings = useMemo(() => bookings.filter(booking => {
     const searchLower = searchTerm.toLowerCase();
     const matchesSearch = (
       booking.guest?.firstName?.toLowerCase().includes(searchLower) ||
       booking.guest?.lastName?.toLowerCase().includes(searchLower) ||
       booking.room?.roomNumber?.includes(searchTerm)
     );
-    
+
     // Status filtering logic
     let matchesStatus = true;
     if (statusFilter) {
@@ -420,9 +420,9 @@ const BookingsPage = ({ user }) => {
       const hiddenStatuses = ['Checked Out', 'No Show', 'Cancelled'];
       matchesStatus = !hiddenStatuses.includes(booking.bookingStatus);
     }
-    
+
     return matchesSearch && matchesStatus;
-  });
+  }), [bookings, statusFilter, searchTerm]);
 
   // Reset to first page when filters change
   useEffect(() => {
