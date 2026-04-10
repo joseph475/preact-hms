@@ -11,6 +11,7 @@ import BookingModal from './components/BookingModal/BookingModal';
 import BookingDetailsModal from './components/BookingDetailsModal';
 import TimeRemaining from '../../common/TimeRemaining';
 import Receipt from '../../common/Receipt';
+import FoodOrderModal from '../../common/FoodOrderModal';
 
 const BookingsPage = ({ user }) => {
   const {
@@ -25,7 +26,9 @@ const BookingsPage = ({ user }) => {
     handleMarkNoShow,
     handleDelete,
     createBooking,
-    updateBooking
+    updateBooking,
+    handleAddFoodOrder,
+    handleRemoveFoodOrder
   } = useBookings();
 
   const { searchTerm, updateCurrentPage } = useSearch();
@@ -44,6 +47,8 @@ const BookingsPage = ({ user }) => {
   const [bookingToViewDetails, setBookingToViewDetails] = useState(null);
   const [showReceipt, setShowReceipt] = useState(false);
   const [receiptBooking, setReceiptBooking] = useState(null);
+  const [showFoodOrderModal, setShowFoodOrderModal] = useState(false);
+  const [bookingForFoodOrder, setBookingForFoodOrder] = useState(null);
 
   // Filter and pagination states
   const [statusFilter, setStatusFilter] = useState('');
@@ -292,6 +297,11 @@ const BookingsPage = ({ user }) => {
   const handleCheckOutCancel = () => {
     setShowCheckOutModal(false);
     setBookingToCheckOut(null);
+  };
+
+  const handleFoodOrderClick = (booking) => {
+    setBookingForFoodOrder(booking);
+    setShowFoodOrderModal(true);
   };
 
   const handleViewDetails = (booking) => {
@@ -683,6 +693,12 @@ const BookingsPage = ({ user }) => {
                   {booking.bookingStatus === 'Checked In' && (
                     <>
                       <button
+                        onClick={() => handleFoodOrderClick(booking)}
+                        className="px-2 py-1.5 text-xs font-medium text-orange-600 bg-orange-50 border border-orange-200 rounded-md hover:bg-orange-100 transition-colors duration-150 truncate"
+                      >
+                        Food Order
+                      </button>
+                      <button
                         onClick={() => handleCheckOutClick(booking)}
                         className="px-2 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 transition-colors duration-150 truncate"
                       >
@@ -838,6 +854,20 @@ const BookingsPage = ({ user }) => {
             setReceiptBooking(null);
           }}
           autoPrint={true}
+        />
+      )}
+
+      {/* Food Order Modal */}
+      {showFoodOrderModal && bookingForFoodOrder && (
+        <FoodOrderModal
+          isOpen={showFoodOrderModal}
+          onClose={() => {
+            setShowFoodOrderModal(false);
+            setBookingForFoodOrder(null);
+          }}
+          booking={bookings.find(b => b._id === bookingForFoodOrder?._id) || bookingForFoodOrder}
+          onAddFoodOrder={handleAddFoodOrder}
+          onRemoveFoodOrder={handleRemoveFoodOrder}
         />
       )}
     </div>
