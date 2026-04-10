@@ -12,6 +12,7 @@ import BookingDetailsModal from './components/BookingDetailsModal';
 import TimeRemaining from '../../common/TimeRemaining';
 import Receipt from '../../common/Receipt';
 import FoodOrderModal from '../../common/FoodOrderModal';
+import ExtendStayModal from '../../common/ExtendStayModal';
 
 const BookingsPage = ({ user }) => {
   const {
@@ -28,7 +29,8 @@ const BookingsPage = ({ user }) => {
     createBooking,
     updateBooking,
     handleAddFoodOrder,
-    handleRemoveFoodOrder
+    handleRemoveFoodOrder,
+    handleExtendBooking,
   } = useBookings();
 
   const { searchTerm, updateCurrentPage } = useSearch();
@@ -49,6 +51,8 @@ const BookingsPage = ({ user }) => {
   const [receiptBooking, setReceiptBooking] = useState(null);
   const [showFoodOrderModal, setShowFoodOrderModal] = useState(false);
   const [bookingForFoodOrder, setBookingForFoodOrder] = useState(null);
+  const [showExtendModal, setShowExtendModal] = useState(false);
+  const [bookingToExtend, setBookingToExtend] = useState(null);
 
   // Filter and pagination states
   const [statusFilter, setStatusFilter] = useState('');
@@ -302,6 +306,11 @@ const BookingsPage = ({ user }) => {
   const handleFoodOrderClick = (booking) => {
     setBookingForFoodOrder(booking);
     setShowFoodOrderModal(true);
+  };
+
+  const handleExtendClick = (booking) => {
+    setBookingToExtend(booking);
+    setShowExtendModal(true);
   };
 
   const handleViewDetails = (booking) => {
@@ -699,6 +708,12 @@ const BookingsPage = ({ user }) => {
                         Food Order
                       </button>
                       <button
+                        onClick={() => handleExtendClick(booking)}
+                        className="px-2 py-1.5 text-xs font-medium text-purple-600 bg-purple-50 border border-purple-200 rounded-md hover:bg-purple-100 transition-colors duration-150 truncate"
+                      >
+                        Extend
+                      </button>
+                      <button
                         onClick={() => handleCheckOutClick(booking)}
                         className="px-2 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 transition-colors duration-150 truncate"
                       >
@@ -868,6 +883,19 @@ const BookingsPage = ({ user }) => {
           booking={bookings.find(b => b._id === bookingForFoodOrder?._id) || bookingForFoodOrder}
           onAddFoodOrder={handleAddFoodOrder}
           onRemoveFoodOrder={handleRemoveFoodOrder}
+        />
+      )}
+
+      {/* Extend Stay Modal */}
+      {showExtendModal && bookingToExtend && (
+        <ExtendStayModal
+          isOpen={showExtendModal}
+          onClose={() => {
+            setShowExtendModal(false);
+            setBookingToExtend(null);
+          }}
+          booking={bookingToExtend}
+          onExtendBooking={handleExtendBooking}
         />
       )}
     </div>
