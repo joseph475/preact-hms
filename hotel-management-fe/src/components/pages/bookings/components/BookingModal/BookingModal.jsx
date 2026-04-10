@@ -91,7 +91,7 @@ const BookingModal = ({
               </button>
             ) : (
               <button
-                type="submit"
+                type="button"
                 onClick={handleSubmit}
                 className="btn-primary"
                 disabled={loading}

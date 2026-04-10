@@ -160,25 +160,28 @@ exports.createBooking = asyncHandler(async (req, res, next) => {
     await Room.findByIdAndUpdate(req.body.room, { status: 'Occupied' });
   }
 
-  // Create or update guest record from booking data
-  const Guest = require('../models/Guest');
-  const guestData = {
-    firstName: req.body.guest.firstName,
-    lastName: req.body.guest.lastName,
-    phone: req.body.guest.phone,
-    idType: req.body.guest.idType,
-    idNumber: req.body.guest.idNumber
-  };
+  // Create or update guest record from booking data (best-effort, don't fail the booking)
+  try {
+    const Guest = require('../models/Guest');
+    const guestData = {
+      firstName: req.body.guest.firstName,
+      lastName: req.body.guest.lastName,
+      phone: req.body.guest.phone,
+      idType: req.body.guest.idType,
+      idNumber: req.body.guest.idNumber
+    };
 
-  // Check if guest already exists by name and ID number
-  const existingGuest = await Guest.findOne({
-    firstName: guestData.firstName,
-    lastName: guestData.lastName,
-    idNumber: guestData.idNumber
-  });
+    const existingGuest = await Guest.findOne({
+      firstName: guestData.firstName,
+      lastName: guestData.lastName,
+      idNumber: guestData.idNumber
+    });
 
-  if (!existingGuest) {
-    await Guest.create(guestData);
+    if (!existingGuest) {
+      await Guest.create(guestData);
+    }
+  } catch (guestErr) {
+    console.error('Failed to sync guest record after booking creation:', guestErr.message);
   }
 
   res.status(201).json({

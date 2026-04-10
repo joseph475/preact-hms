@@ -145,8 +145,9 @@ export const useBookings = () => {
     try {
       const response = await apiService.createBooking(bookingData);
       if (response.success) {
-        // Invalidate global cache for rooms since new booking makes room occupied
+        // Invalidate global cache for rooms and guests since booking affects both
         cacheService.invalidate('rooms');
+        cacheService.invalidate('guests');
         await loadData();
         return { success: true };
       }
