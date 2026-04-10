@@ -141,6 +141,8 @@ class ApiService {
       cacheService.invalidate('settings');
       cacheService.invalidate('roomTypes');
       cacheService.invalidate('amenities');
+    } else if (endpoint.includes('/food-items')) {
+      cacheService.invalidate('food-items');
     }
   }
 
@@ -476,6 +478,67 @@ class ApiService {
       method: 'DELETE',
     });
     this.invalidateCache('/settings/amenities');
+    return result;
+  }
+
+  // Food item methods
+  async getFoodItems(params = {}) {
+    return this.cachedRequest('/food-items', params);
+  }
+
+  async createFoodItem(itemData) {
+    const result = await this.request('/food-items', {
+      method: 'POST',
+      body: JSON.stringify(itemData),
+    });
+    this.invalidateCache('/food-items');
+    return result;
+  }
+
+  async updateFoodItem(id, itemData) {
+    const result = await this.request(`/food-items/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(itemData),
+    });
+    this.invalidateCache('/food-items');
+    this.invalidateCache(`/food-items/${id}`);
+    return result;
+  }
+
+  async deleteFoodItem(id) {
+    const result = await this.request(`/food-items/${id}`, {
+      method: 'DELETE',
+    });
+    this.invalidateCache('/food-items');
+    return result;
+  }
+
+  async addFoodOrder(bookingId, orderData) {
+    const result = await this.request(`/bookings/${bookingId}/food-orders`, {
+      method: 'POST',
+      body: JSON.stringify(orderData),
+    });
+    this.invalidateCache('/bookings');
+    this.invalidateCache(`/bookings/${bookingId}`);
+    return result;
+  }
+
+  async removeFoodOrder(bookingId, orderId) {
+    const result = await this.request(`/bookings/${bookingId}/food-orders/${orderId}`, {
+      method: 'DELETE',
+    });
+    this.invalidateCache('/bookings');
+    this.invalidateCache(`/bookings/${bookingId}`);
+    return result;
+  }
+
+  async extendBooking(bookingId, extensionData) {
+    const result = await this.request(`/bookings/${bookingId}/extend`, {
+      method: 'PUT',
+      body: JSON.stringify(extensionData),
+    });
+    this.invalidateCache('/bookings');
+    this.invalidateCache(`/bookings/${bookingId}`);
     return result;
   }
 }

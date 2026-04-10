@@ -74,16 +74,18 @@ export const useBookings = () => {
 
   const handleCheckOut = async (bookingId) => {
     try {
-      const response = await apiService.updateBooking(bookingId, { 
+      const booking = bookings.find(b => b._id === bookingId);
+      const foodTotal = (booking?.foodOrders || []).reduce((s, o) => s + (o.total || 0), 0);
+      const extTotal = (booking?.extensionCharges || []).reduce((s, c) => s + (c.charge || 0), 0);
+      const grandTotal = (booking?.totalAmount || 0) + foodTotal + extTotal;
+
+      const response = await apiService.updateBooking(bookingId, {
         bookingStatus: 'Checked Out',
         paymentStatus: 'Paid',
-        paidAmount: bookings.find(b => b._id === bookingId)?.totalAmount
+        paidAmount: grandTotal
       });
       if (response.success) {
-        // Invalidate global cache for rooms to ensure all components get fresh data
         cacheService.invalidate('rooms');
-        
-        // Refresh all data including rooms to update room status
         await Promise.all([
           refreshBookings(),
           refreshRooms(),
@@ -175,6 +177,51 @@ export const useBookings = () => {
   };
 
 
+  const handleAddFoodOrder = async (bookingId, orderData) => {
+    try {
+      const response = await apiService.addFoodOrder(bookingId, orderData);
+      if (response.success) {
+        await refreshBookings();
+        return { success: true, data: response.data };
+      }
+      return { success: false };
+    } catch (err) {
+      setError('Failed to add food order');
+      console.error('Add food order error:', err);
+      return { success: false };
+    }
+  };
+
+  const handleRemoveFoodOrder = async (bookingId, orderId) => {
+    try {
+      const response = await apiService.removeFoodOrder(bookingId, orderId);
+      if (response.success) {
+        await refreshBookings();
+        return { success: true, data: response.data };
+      }
+      return { success: false };
+    } catch (err) {
+      setError('Failed to remove food order');
+      console.error('Remove food order error:', err);
+      return { success: false };
+    }
+  };
+
+  const handleExtendBooking = async (bookingId, extensionData) => {
+    try {
+      const response = await apiService.extendBooking(bookingId, extensionData);
+      if (response.success) {
+        await refreshBookings();
+        return { success: true, data: response.data };
+      }
+      return { success: false };
+    } catch (err) {
+      setError('Failed to extend booking');
+      console.error('Extend booking error:', err);
+      return { success: false };
+    }
+  };
+
   return {
     bookings,
     rooms,
@@ -189,6 +236,9 @@ export const useBookings = () => {
     handleMarkNoShow,
     handleDelete,
     createBooking,
-    updateBooking
+    updateBooking,
+    handleAddFoodOrder,
+    handleRemoveFoodOrder,
+    handleExtendBooking
   };
 };
