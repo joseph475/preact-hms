@@ -53,4 +53,8 @@ GuestSchema.pre('save', function(next) {
   next();
 });
 
+GuestSchema.index({ phone: 1 });
+GuestSchema.index({ idNumber: 1 });
+GuestSchema.index({ lastName: 1, firstName: 1 });
+
 module.exports = mongoose.model('Guest', GuestSchema);

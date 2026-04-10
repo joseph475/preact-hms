@@ -104,6 +104,23 @@ const BookingSchema = new mongoose.Schema({
     amount: Number,
     description: String
   }],
+  foodOrders: [{
+    foodItem: { type: mongoose.Schema.ObjectId, ref: 'FoodItem' },
+    name: { type: String, required: true },
+    category: { type: String },
+    unitPrice: { type: Number, required: true },
+    quantity: { type: Number, default: 1, min: 1 },
+    total: { type: Number, required: true },
+    notes: { type: String },
+    orderedAt: { type: Date, default: Date.now }
+  }],
+  extensionCharges: [{
+    hours: { type: Number, required: true },
+    charge: { type: Number, required: true },
+    newCheckOutDate: { type: Date },
+    extendedAt: { type: Date, default: Date.now },
+    notes: { type: String }
+  }],
   cancellationReason: {
     type: String
   },
@@ -141,35 +158,27 @@ BookingSchema.pre('save', async function(next) {
   }
   
   // Calculate balance
-  this.balance = this.totalAmount - this.paidAmount;
+  const foodTotal = (this.foodOrders || []).reduce((s, o) => s + (o.total || 0), 0);
+  const extTotal = (this.extensionCharges || []).reduce((s, c) => s + (c.charge || 0), 0);
+  const grandTotal = this.totalAmount + foodTotal + extTotal;
+  this.balance = grandTotal - this.paidAmount;
   this.updatedAt = Date.now();
-  
+
   // Update payment status based on amounts
   if (this.paidAmount === 0) {
     this.paymentStatus = 'Pending';
-  } else if (this.paidAmount < this.totalAmount) {
+  } else if (this.paidAmount < grandTotal) {
     this.paymentStatus = 'Partial';
-  } else if (this.paidAmount >= this.totalAmount) {
+  } else if (this.paidAmount >= grandTotal) {
     this.paymentStatus = 'Paid';
   }
-  
+
   next();
 });
 
-// Populate room and user data
-BookingSchema.pre(/^find/, function(next) {
-  this.populate({
-    path: 'room',
-    select: 'roomNumber roomType status',
-    populate: {
-      path: 'roomType',
-      select: 'name pricing'
-    }
-  }).populate({
-    path: 'createdBy',
-    select: 'name email'
-  });
-  next();
-});
+BookingSchema.index({ bookingStatus: 1 });
+BookingSchema.index({ checkInDate: 1, checkOutDate: 1 });
+BookingSchema.index({ room: 1, bookingStatus: 1 });
+BookingSchema.index({ createdAt: -1 });
 
 module.exports = mongoose.model('Booking', BookingSchema);
