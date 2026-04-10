@@ -87,7 +87,7 @@ exports.getBookings = asyncHandler(async (req, res, next) => {
 // @route   GET /api/v1/bookings/:id
 // @access  Private
 exports.getBooking = asyncHandler(async (req, res, next) => {
-  const booking = await Booking.findById(req.params.id);
+  const booking = await Booking.findById(req.params.id).populate({ path: 'room', populate: { path: 'roomType' } });
 
   if (!booking) {
     return next(
@@ -458,4 +458,64 @@ exports.markNoShow = asyncHandler(async (req, res, next) => {
     success: true,
     data: booking
   });
+});
+
+// @desc    Add food order to booking
+// @route   POST /api/v1/bookings/:id/food-orders
+// @access  Private
+exports.addFoodOrder = asyncHandler(async (req, res, next) => {
+  const booking = await Booking.findById(req.params.id).populate({ path: 'room', populate: { path: 'roomType' } });
+  if (!booking) return next(new ErrorResponse(`Booking not found with id of ${req.params.id}`, 404));
+  if (booking.bookingStatus !== 'Checked In') {
+    return next(new ErrorResponse('Can only add food orders to checked-in bookings', 400));
+  }
+  const { foodItemId, name, category, unitPrice, quantity, notes } = req.body;
+  booking.foodOrders.push({
+    foodItem: foodItemId || null,
+    name,
+    category,
+    unitPrice,
+    quantity: quantity || 1,
+    notes
+  });
+  await booking.save();
+  const populated = await Booking.findById(booking._id).populate({ path: 'room', populate: { path: 'roomType' } });
+  res.status(200).json({ success: true, data: populated });
+});
+
+// @desc    Remove food order from booking
+// @route   DELETE /api/v1/bookings/:id/food-orders/:orderId
+// @access  Private
+exports.removeFoodOrder = asyncHandler(async (req, res, next) => {
+  const booking = await Booking.findById(req.params.id);
+  if (!booking) return next(new ErrorResponse(`Booking not found with id of ${req.params.id}`, 404));
+  if (booking.bookingStatus !== 'Checked In') {
+    return next(new ErrorResponse('Can only remove food orders from checked-in bookings', 400));
+  }
+  const orderIndex = booking.foodOrders.findIndex(o => o._id.toString() === req.params.orderId);
+  if (orderIndex === -1) return next(new ErrorResponse('Food order not found', 404));
+  booking.foodOrders.splice(orderIndex, 1);
+  await booking.save();
+  const populated = await Booking.findById(booking._id).populate({ path: 'room', populate: { path: 'roomType' } });
+  res.status(200).json({ success: true, data: populated });
+});
+
+// @desc    Extend booking checkout time
+// @route   PUT /api/v1/bookings/:id/extend
+// @access  Private
+exports.extendBooking = asyncHandler(async (req, res, next) => {
+  const booking = await Booking.findById(req.params.id);
+  if (!booking) return next(new ErrorResponse(`Booking not found with id of ${req.params.id}`, 404));
+  if (booking.bookingStatus !== 'Checked In') {
+    return next(new ErrorResponse('Can only extend checked-in bookings', 400));
+  }
+  const { hours, charge, notes } = req.body;
+  if (!hours || hours <= 0) return next(new ErrorResponse('Hours must be a positive number', 400));
+  if (charge === undefined || charge < 0) return next(new ErrorResponse('Charge must be a non-negative number', 400));
+  const newCheckOutDate = new Date(new Date(booking.checkOutDate).getTime() + (hours * 60 * 60 * 1000));
+  booking.extensionCharges.push({ hours, charge, newCheckOutDate, notes });
+  booking.checkOutDate = newCheckOutDate;
+  await booking.save();
+  const populated = await Booking.findById(booking._id).populate({ path: 'room', populate: { path: 'roomType' } });
+  res.status(200).json({ success: true, data: populated });
 });

@@ -8,7 +8,10 @@ const {
   checkIn,
   checkOut,
   cancelBooking,
-  markNoShow
+  markNoShow,
+  addFoodOrder,
+  removeFoodOrder,
+  extendBooking
 } = require('../controllers/bookings');
 
 const router = express.Router();
@@ -34,5 +37,8 @@ router.put('/:id/checkin', authorize('admin', 'user'), checkIn);
 router.put('/:id/checkout', authorize('admin', 'user'), checkOut);
 router.put('/:id/cancel', authorize('admin', 'user'), cancelBooking);
 router.put('/:id/noshow', authorize('admin', 'user'), markNoShow);
+router.post('/:id/food-orders', authorize('admin', 'user'), addFoodOrder);
+router.delete('/:id/food-orders/:orderId', authorize('admin', 'user'), removeFoodOrder);
+router.put('/:id/extend', authorize('admin', 'user'), extendBooking);
 
 module.exports = router;
