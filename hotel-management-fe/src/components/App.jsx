@@ -24,6 +24,7 @@ import UsersPage from './pages/users/UsersPage';
 import ProfilePage from './pages/profile/ProfilePage';
 import SettingsPage from './pages/settings/SettingsPage';
 import ReceiptPage from './pages/receipt/ReceiptPage';
+import FoodMenuPage from './pages/food-menu/FoodMenuPage';
 
 // Main App Content Component
 const AppContent = () => {
@@ -113,7 +114,12 @@ const AppContent = () => {
                   <ProtectedRoute path="/guests" user={user} allowedRoles={['admin', 'user']}>
                     <GuestsPage user={user} />
                   </ProtectedRoute>
-                  
+
+                  {/* Food Menu - accessible by both admin and user */}
+                  <ProtectedRoute path="/food-menu" user={user} allowedRoles={['admin', 'user']}>
+                    <FoodMenuPage user={user} />
+                  </ProtectedRoute>
+
                   {/* Admin only routes */}
                   
                   <ProtectedRoute path="/users" user={user} allowedRoles={['admin']}>
