@@ -23,6 +23,12 @@ const Receipt = ({ booking, onClose, autoPrint = false }) => {
 
   const handleDirectPrint = (bookingData) => {
     const checkOutTime = calculateCheckOutTime(bookingData.checkInDate, bookingData.duration);
+    const foodOrders = bookingData.foodOrders || [];
+    const extensionCharges = bookingData.extensionCharges || [];
+    const foodTotal = foodOrders.reduce((s, o) => s + (o.total || 0), 0);
+    const extTotal = extensionCharges.reduce((s, c) => s + (c.charge || 0), 0);
+    const grandTotal = (bookingData.totalAmount || 0) + foodTotal + extTotal;
+    const change = Math.max(0, (bookingData.paidAmount || 0) - grandTotal);
     const currentDate = new Date();
     const dateStr = currentDate.toLocaleDateString();
     const timeStr = currentDate.toLocaleTimeString();
@@ -178,11 +184,42 @@ const Receipt = ({ booking, onClose, autoPrint = false }) => {
               <span class="item-price"></span>
             </div>
             
+            ${foodOrders.length > 0 ? `
+              <div class="separator"></div>
+              <div class="bold">FOOD ORDERS:</div>
+              ${foodOrders.map(o => `
+                <div class="item-row">
+                  <span class="item-name">${o.name}</span>
+                  <span class="item-qty">${o.quantity}x</span>
+                  <span class="item-price">₱${(o.total || 0).toLocaleString()}</span>
+                </div>
+              `).join('')}
+              <div class="total-row">
+                <span class="total-label">Food Subtotal:</span>
+                <span class="total-amount">₱${foodTotal.toLocaleString()}</span>
+              </div>
+            ` : ''}
+            ${extensionCharges.length > 0 ? `
+              <div class="separator"></div>
+              <div class="bold">EXTENSIONS:</div>
+              ${extensionCharges.map(e => `
+                <div class="item-row">
+                  <span class="item-name">+${e.hours}hr extension</span>
+                  <span class="item-qty"></span>
+                  <span class="item-price">₱${(e.charge || 0).toLocaleString()}</span>
+                </div>
+              `).join('')}
+              <div class="total-row">
+                <span class="total-label">Extension Subtotal:</span>
+                <span class="total-amount">₱${extTotal.toLocaleString()}</span>
+              </div>
+            ` : ''}
+
             <div class="separator"></div>
-            
+
             <!-- Totals -->
             <div class="total-row">
-              <span class="total-label">Subtotal:</span>
+              <span class="total-label">Room Charge:</span>
               <span class="total-amount">₱${bookingData.totalAmount?.toLocaleString()}</span>
             </div>
             <div class="total-row">
@@ -190,8 +227,8 @@ const Receipt = ({ booking, onClose, autoPrint = false }) => {
               <span class="total-amount">Included</span>
             </div>
             <div class="total-row bold large">
-              <span class="total-label">TOTAL:</span>
-              <span class="total-amount">₱${bookingData.totalAmount?.toLocaleString()}</span>
+              <span class="total-label">GRAND TOTAL:</span>
+              <span class="total-amount">₱${grandTotal.toLocaleString()}</span>
             </div>
             
             <div class="separator"></div>
@@ -203,11 +240,11 @@ const Receipt = ({ booking, onClose, autoPrint = false }) => {
             </div>
             <div class="total-row">
               <span class="total-label">Amount Paid:</span>
-              <span class="total-amount">₱${bookingData.totalAmount?.toLocaleString()}</span>
+              <span class="total-amount">₱${(bookingData.paidAmount || 0).toLocaleString()}</span>
             </div>
             <div class="total-row">
               <span class="total-label">Change:</span>
-              <span class="total-amount">₱0</span>
+              <span class="total-amount">₱${change.toLocaleString()}</span>
             </div>
             
             <div class="separator"></div>
