@@ -2,12 +2,14 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const rateLimit = require('express-rate-limit');
 
 // Load environment variables
 dotenv.config();
 
 // Initialize Express app
 const app = express();
+app.set('trust proxy', 1);
 
 // Middleware
 app.use(cors());
@@ -46,11 +48,12 @@ const connectDB = async () => {
   }
 };
 
-const rateLimit = require('express-rate-limit');
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 20,
-  message: { success: false, message: 'Too many requests, please try again later.' }
+  message: { success: false, message: 'Too many requests, please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 
 // Routes
