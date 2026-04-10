@@ -117,7 +117,7 @@ const BookingSchema = new mongoose.Schema({
   extensionCharges: [{
     hours: { type: Number, required: true },
     charge: { type: Number, required: true },
-    newCheckOutDate: { type: Date },
+    newCheckOutDate: { type: Date, required: true },
     extendedAt: { type: Date, default: Date.now },
     notes: { type: String }
   }],
@@ -158,7 +158,13 @@ BookingSchema.pre('save', async function(next) {
   }
   
   // Calculate balance
-  const foodTotal = (this.foodOrders || []).reduce((s, o) => s + (o.total || 0), 0);
+  // Auto-compute each food order total from unitPrice × quantity
+  if (this.foodOrders && this.foodOrders.length > 0) {
+    this.foodOrders.forEach(o => {
+      o.total = (o.unitPrice || 0) * (o.quantity || 1);
+    });
+  }
+  const foodTotal = (this.foodOrders || []).reduce((s, o) => s + o.total, 0);
   const extTotal = (this.extensionCharges || []).reduce((s, c) => s + (c.charge || 0), 0);
   const grandTotal = this.totalAmount + foodTotal + extTotal;
   this.balance = grandTotal - this.paidAmount;
