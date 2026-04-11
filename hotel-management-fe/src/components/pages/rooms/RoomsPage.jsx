@@ -358,7 +358,7 @@ const RoomsPage = ({ user }) => {
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                 >
                   <option value="">All Statuses</option>
                   {roomStatuses.map(status => (
@@ -373,7 +373,7 @@ const RoomsPage = ({ user }) => {
                 <select
                   value={roomTypeFilter}
                   onChange={(e) => setRoomTypeFilter(e.target.value)}
-                  className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                 >
                   <option value="">All Types</option>
                   {[...new Set(rooms.map(room => getRoomTypeName(room.roomType)))].map(type => (
@@ -389,7 +389,7 @@ const RoomsPage = ({ user }) => {
                     setStatusFilter('');
                     setRoomTypeFilter('');
                   }}
-                  className="inline-flex items-center px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="inline-flex items-center px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-amber-500"
                 >
                   <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -401,11 +401,11 @@ const RoomsPage = ({ user }) => {
               {/* Active Filters Display */}
               <div className="flex items-center space-x-2">
                 {statusFilter && (
-                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
                     Status: {statusFilter}
                     <button
                       onClick={() => setStatusFilter('')}
-                      className="ml-1 text-blue-600 hover:text-blue-800"
+                      className="ml-1 text-amber-600 hover:text-amber-800"
                     >
                       <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -485,7 +485,7 @@ const RoomsPage = ({ user }) => {
               {getPaginatedRooms().map((room) => (
                 <tr 
                   key={room._id} 
-                  className="table-row cursor-pointer hover:bg-blue-50" 
+                  className="table-row cursor-pointer hover:bg-amber-50"
                   onClick={() => {
                     setSelectedRoom(room);
                     setShowDetailsModal(true);
@@ -927,7 +927,7 @@ const RoomsPage = ({ user }) => {
           <div className="max-h-[80vh] overflow-y-auto">
             <div className="space-y-4">
               {/* Header Section */}
-              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
+              <div className="bg-gradient-to-r from-amber-50 to-amber-100 rounded-xl p-4 border border-amber-100">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
@@ -956,7 +956,7 @@ const RoomsPage = ({ user }) => {
               {/* Basic Information */}
               <div className="bg-white rounded-xl border border-gray-200 p-4">
                 <h4 className="text-base text-gray-900 mb-3 flex items-center">
-                  <svg className="w-4 h-4 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 text-amber-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   Basic Information

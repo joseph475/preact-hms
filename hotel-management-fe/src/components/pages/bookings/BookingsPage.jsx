@@ -574,7 +574,7 @@ const BookingsPage = ({ user }) => {
             <div key={booking._id} className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
               {/* Card Header with Status */}
               <div className={`p-3 ${
-                booking.bookingStatus === 'Confirmed' ? 'bg-gradient-to-r from-blue-50 to-blue-100' :
+                booking.bookingStatus === 'Confirmed' ? 'bg-gradient-to-r from-amber-50 to-amber-100' :
                 booking.bookingStatus === 'Checked In' ? 'bg-gradient-to-r from-green-50 to-green-100' :
                 booking.bookingStatus === 'Checked Out' ? 'bg-gradient-to-r from-gray-50 to-gray-100' :
                 booking.bookingStatus === 'Cancelled' ? 'bg-gradient-to-r from-red-50 to-red-100' :
@@ -583,7 +583,7 @@ const BookingsPage = ({ user }) => {
                 <div className="flex justify-between items-start">
                   <div className="flex items-center space-x-2">
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                      booking.bookingStatus === 'Confirmed' ? 'bg-blue-500' :
+                      booking.bookingStatus === 'Confirmed' ? 'bg-amber-500' :
                       booking.bookingStatus === 'Checked In' ? 'bg-green-500' :
                       booking.bookingStatus === 'Checked Out' ? 'bg-gray-500' :
                       booking.bookingStatus === 'Cancelled' ? 'bg-red-500' :
@@ -673,7 +673,7 @@ const BookingsPage = ({ user }) => {
                 <div className="grid grid-cols-2 gap-1">
                   <button
                     onClick={() => handleViewDetails(booking)}
-                    className="px-2 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 transition-colors duration-150 truncate"
+                    className="px-2 py-1.5 text-xs font-medium text-amber-600 bg-amber-50 border border-amber-200 rounded-md hover:bg-amber-100 transition-colors duration-150 truncate"
                   >
                     Details
                   </button>
@@ -717,7 +717,7 @@ const BookingsPage = ({ user }) => {
                       </button>
                       <button
                         onClick={() => handleCheckOutClick(booking)}
-                        className="px-2 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 transition-colors duration-150 truncate"
+                        className="px-2 py-1.5 text-xs font-medium text-amber-600 bg-amber-50 border border-amber-200 rounded-md hover:bg-amber-100 transition-colors duration-150 truncate"
                       >
                         Check Out
                       </button>
@@ -845,7 +845,7 @@ const BookingsPage = ({ user }) => {
         confirmButtonClass="btn-primary"
         isLoading={loading}
         icon={
-          <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         }

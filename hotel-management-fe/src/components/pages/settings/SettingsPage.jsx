@@ -158,8 +158,8 @@ const SettingsPage = () => {
   return (
     <div className="p-6">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
-        <p className="text-gray-600">Manage room types</p>
+        <h1 className="text-2xl font-bold text-primary-900">Settings</h1>
+        <p className="text-primary-800 opacity-70">Manage room types</p>
       </div>
 
       {error && (
@@ -303,7 +303,7 @@ const SettingsPage = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="flex-1 bg-primary-600 text-white py-2 px-4 rounded-md hover:bg-primary-700 disabled:opacity-50"
+                className="flex-1 btn-primary disabled:opacity-50"
               >
                 {loading ? 'Saving...' : editingRoomType ? 'Update' : 'Create'}
               </button>

@@ -132,8 +132,8 @@ const GuestsPage = ({ user }) => {
               <tr key={guest._id} className="table-row">
                 <td className="table-cell">
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                      <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
+                      <svg className="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                       </svg>
                     </div>
@@ -247,9 +247,9 @@ const GuestsPage = ({ user }) => {
           </div>
           <div className="card-body">
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-              <div className="text-center p-4 bg-blue-50 rounded-xl border border-blue-100">
-                <div className="text-2xl font-bold text-blue-600">{filteredGuests.length}</div>
-                <div className="text-sm text-blue-700 font-medium">Total Guests</div>
+              <div className="text-center p-4 bg-amber-50 rounded-xl border border-amber-100">
+                <div className="text-2xl font-bold text-amber-700">{filteredGuests.length}</div>
+                <div className="text-sm text-primary-900 font-medium">Total Guests</div>
               </div>
               <div className="text-center p-4 bg-green-50 rounded-xl border border-green-100">
                 <div className="text-2xl font-bold text-green-600">
@@ -295,8 +295,8 @@ const GuestsPage = ({ user }) => {
         {selectedGuest && (
           <div className="space-y-4">
             <div className="flex items-center space-x-3 p-4 bg-gray-50 rounded-lg">
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center">
+                <svg className="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
               </div>

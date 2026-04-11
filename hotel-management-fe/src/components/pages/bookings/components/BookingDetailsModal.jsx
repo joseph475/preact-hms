@@ -24,7 +24,7 @@ const BookingDetailsModal = ({
       <div className="max-h-[80vh] overflow-y-auto">
         <div className="space-y-4">
           {/* Header Section */}
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
+          <div className="bg-gradient-to-r from-amber-50 to-amber-100 rounded-xl p-4 border border-amber-100">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-lg text-gray-900 mb-1">
@@ -43,7 +43,7 @@ const BookingDetailsModal = ({
           {/* Guest Information */}
           <div className="bg-white rounded-xl border border-gray-200 p-4">
             <h4 className="text-base text-gray-900 mb-3 flex items-center">
-              <svg className="w-4 h-4 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 text-amber-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
               Guest Information

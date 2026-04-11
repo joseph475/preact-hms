@@ -45,41 +45,31 @@ const ReportsPage = ({ user }) => {
         endDate: dateRange.endDate
       };
       
-      console.log('Loading reports for tab:', activeTab, 'with params:', params);
-      
       // Load data based on active tab
       switch (activeTab) {
         case 'bookings':
-          console.log('Fetching booking reports...');
           const bookingRes = await apiService.getBookingReports(params);
-          console.log('Booking reports response:', bookingRes);
           if (bookingRes.success) {
             setBookingReports(bookingRes.data || { bookings: [], summary: {} });
           }
           break;
           
         case 'revenue':
-          console.log('Fetching revenue reports...');
           const revenueRes = await apiService.getRevenueReports(params);
-          console.log('Revenue reports response:', revenueRes);
           if (revenueRes.success) {
             setRevenueReports(revenueRes.data || {});
           }
           break;
           
         case 'occupancy':
-          console.log('Fetching occupancy reports...');
           const occupancyRes = await apiService.getOccupancyReports(params);
-          console.log('Occupancy reports response:', occupancyRes);
           if (occupancyRes.success) {
             setOccupancyReports(occupancyRes.data || {});
           }
           break;
           
         case 'guests':
-          console.log('Fetching guest reports...');
           const guestRes = await apiService.getGuestReports(params);
-          console.log('Guest reports response:', guestRes);
           if (guestRes.success) {
             setGuestReports(guestRes.data || {});
           }
