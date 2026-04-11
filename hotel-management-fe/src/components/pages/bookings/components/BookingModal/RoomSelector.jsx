@@ -19,7 +19,7 @@ const RoomSelector = ({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h4 className="text-lg font-semibold text-gray-900 flex items-center">
-          <svg className="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5 mr-2 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
           </svg>
           Room Selection
@@ -28,7 +28,7 @@ const RoomSelector = ({
           <button
             type="button"
             onClick={() => handleInputChange('room', '')}
-            className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"
+            className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-amber-600 bg-amber-50 border border-amber-200 rounded-lg hover:bg-amber-100 transition-colors"
           >
             <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -40,20 +40,20 @@ const RoomSelector = ({
       
       {/* Selected Room Display */}
       {formData.room && (
-        <div className="relative overflow-hidden bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl p-6 shadow-lg">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-400/20 to-indigo-400/20 rounded-full -mr-16 -mt-16"></div>
+        <div className="relative overflow-hidden bg-gradient-to-br from-amber-50 to-amber-50 border-2 border-amber-200 rounded-2xl p-6 shadow-lg">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-amber-400/20 to-amber-400/20 rounded-full -mr-16 -mt-16"></div>
           {(() => {
             const selectedRoom = rooms.find(room => room._id === formData.room);
             return selectedRoom ? (
               <div className="relative">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center space-x-4">
-                    <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <div className="w-16 h-16 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center shadow-lg">
                       <span className="text-2xl font-bold text-white">{selectedRoom.roomNumber}</span>
                     </div>
                     <div>
                       <h5 className="text-xl font-bold text-gray-900">Room {selectedRoom.roomNumber}</h5>
-                      <p className="text-blue-700 font-medium">
+                      <p className="text-amber-700 font-medium">
                         {typeof selectedRoom.roomType === 'object' ? selectedRoom.roomType?.name : selectedRoom.roomType}
                       </p>
                       <div className="flex items-center mt-1">
@@ -72,7 +72,7 @@ const RoomSelector = ({
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="inline-flex items-center px-3 py-1 bg-blue-600 text-white rounded-full text-sm font-medium">
+                    <div className="inline-flex items-center px-3 py-1 bg-amber-600 text-white rounded-full text-sm font-medium">
                       <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
@@ -204,7 +204,7 @@ const RoomSelector = ({
                         handleInputChange('room', room._id);
                         setRoomSearchTerm('');
                       }}
-                      className="group relative bg-white border-2 border-gray-200 rounded-xl p-5 hover:border-blue-300 hover:shadow-lg cursor-pointer transition-all duration-300 hover:-translate-y-1"
+                      className="group relative bg-white border-2 border-gray-200 rounded-xl p-5 hover:border-amber-300 hover:shadow-lg cursor-pointer transition-all duration-300 hover:-translate-y-1"
                     >
                       <div className="absolute top-4 right-4">
                         {room.status === 'Available' ? (
@@ -221,11 +221,11 @@ const RoomSelector = ({
                       </div>
                       
                       <div className="flex items-start space-x-4 mb-4">
-                        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow">
+                        <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-600 rounded-lg flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow">
                           <span className="text-lg font-bold text-white">{room.roomNumber}</span>
                         </div>
                         <div className="flex-1">
-                          <h6 className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+                          <h6 className="text-lg font-bold text-gray-900 group-hover:text-amber-600 transition-colors">
                             Room {room.roomNumber}
                           </h6>
                           <p className="text-gray-600 font-medium">{roomTypeName}</p>
@@ -233,7 +233,7 @@ const RoomSelector = ({
                       </div>
                       
                       {pricing && (
-                        <div className="bg-gray-50 rounded-lg p-3 group-hover:bg-blue-50 transition-colors">
+                        <div className="bg-gray-50 rounded-lg p-3 group-hover:bg-amber-50 transition-colors">
                           <h6 className="text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">Pricing</h6>
                           <div className="grid grid-cols-2 gap-2">
                             {[
@@ -258,7 +258,7 @@ const RoomSelector = ({
                           </svg>
                           Max occupancy
                         </div>
-                        <button className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-lg group-hover:bg-blue-100 transition-colors">
+                        <button className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-amber-600 bg-amber-50 border border-amber-200 rounded-lg group-hover:bg-amber-100 transition-colors">
                           Select Room
                           <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
