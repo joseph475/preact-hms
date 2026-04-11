@@ -190,22 +190,29 @@ const FoodMenuPage = ({ user }) => {
 
         {error && <div className="alert-error">{error}</div>}
 
-        {/* Category tabs */}
+        {/* Category Pills */}
         <div className="flex flex-wrap gap-2 mb-6">
-          {CATEGORIES.map((cat) => (
-            <button
-              key={cat}
-              type="button"
-              onClick={() => setActiveCategory(cat)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                activeCategory === cat
-                  ? 'bg-primary-600 text-white shadow-sm'
-                  : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
+          {CATEGORIES.map((cat) => {
+            const count = cat === 'All' ? items.length : items.filter((i) => i.category === cat).length;
+            return (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => setActiveCategory(cat)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors
+                  ${activeCategory === cat
+                    ? 'bg-amber-600 text-white border-amber-600'
+                    : 'bg-amber-50 text-amber-800 border-amber-200 hover:bg-amber-100'
+                  }`}
+              >
+                {cat}
+                <span className={`inline-flex items-center justify-center w-4 h-4 rounded-full text-[10px] font-bold
+                  ${activeCategory === cat ? 'bg-white text-amber-700' : 'bg-amber-200 text-amber-800'}`}>
+                  {count}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
         {/* Items grid */}
@@ -236,7 +243,7 @@ const FoodMenuPage = ({ user }) => {
         ) : (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filteredItems.map((item) => (
-              <div key={item._id} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col">
+              <div key={item._id} className={`bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col${!item.isAvailable ? ' opacity-60' : ''}`}>
                 <div className="p-5 flex-1">
                   <div className="flex items-start justify-between mb-3">
                     <h3 className="font-semibold text-gray-900 text-base leading-snug flex-1 mr-2">
@@ -256,22 +263,26 @@ const FoodMenuPage = ({ user }) => {
                   )}
                 </div>
 
-                <div className="px-5 pb-5 flex items-center justify-between gap-2">
-                  {/* Availability toggle */}
-                  <button
-                    type="button"
-                    onClick={() => handleToggleAvailability(item)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                      item.isAvailable
-                        ? 'bg-green-100 text-green-800 hover:bg-green-200'
-                        : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
-                    }`}
-                  >
-                    <span className={`w-2 h-2 rounded-full ${item.isAvailable ? 'bg-green-500' : 'bg-gray-400'}`}></span>
-                    {item.isAvailable ? 'Available' : 'Unavailable'}
-                  </button>
+                <div className="px-5 pb-4 flex flex-col gap-2">
+                  {/* Availability Toggle */}
+                  <div className="flex items-center justify-between pt-3 border-t border-amber-100">
+                    <span className={`text-xs font-medium ${item.isAvailable ? 'text-green-700' : 'text-gray-400'}`}>
+                      {item.isAvailable ? 'Available' : 'Unavailable'}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleToggleAvailability(item)}
+                      className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors
+                        ${item.isAvailable ? 'bg-amber-600' : 'bg-gray-300'}`}
+                      title={item.isAvailable ? 'Mark unavailable' : 'Mark available'}
+                    >
+                      <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform
+                        ${item.isAvailable ? 'translate-x-4' : 'translate-x-1'}`} />
+                    </button>
+                  </div>
 
                   {/* Edit button */}
+                  <div className="flex justify-end">
                   <button
                     type="button"
                     onClick={() => openEditModal(item)}
