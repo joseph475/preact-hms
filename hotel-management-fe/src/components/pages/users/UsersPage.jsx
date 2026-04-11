@@ -13,6 +13,7 @@ const UsersPage = ({ user }) => {
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [roleFilter, setRoleFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
   const { searchTerm, updateCurrentPage } = useSearch();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
@@ -148,13 +149,14 @@ const UsersPage = ({ user }) => {
       userItem.role?.toLowerCase().includes(searchLower)
     );
     const matchesRole = !roleFilter || userItem.role === roleFilter;
-    return matchesSearch && matchesRole;
+    const matchesStatus = !statusFilter || (statusFilter === 'active' ? userItem.isActive : !userItem.isActive);
+    return matchesSearch && matchesRole && matchesStatus;
   });
 
   // Reset to first page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, roleFilter]);
+  }, [searchTerm, roleFilter, statusFilter]);
 
   // Get paginated users
   const getPaginatedUsers = () => {
@@ -168,15 +170,12 @@ const UsersPage = ({ user }) => {
   };
 
   const getRoleBadge = (role) => {
-    const roleClasses = {
-      'admin': 'badge-danger',
-      'user': 'badge-secondary'
-    };
-    return roleClasses[role] || 'badge-secondary';
+    if (role === 'admin') return 'bg-amber-100 text-amber-800 border border-amber-200 badge';
+    return 'bg-amber-50 text-amber-700 border border-amber-100 badge';
   };
 
   const getStatusBadge = (isActive) => {
-    return isActive ? 'badge-success' : 'badge-secondary';
+    return isActive ? 'badge-success' : 'bg-gray-100 text-gray-600 badge';
   };
 
   const formatDate = (dateString) => {
@@ -240,62 +239,35 @@ const UsersPage = ({ user }) => {
         </div>
       ) : (
         <>
-          {/* Filters Section */}
+          {/* Filter Pills */}
           {users.length > 0 && (
-            <div className="bg-white p-4 rounded-lg shadow mb-6">
-              <div className="flex flex-wrap items-center gap-4">
-                <div className="flex items-center space-x-2">
-                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                  </svg>
-                  <span className="text-sm font-medium text-gray-700">Filters:</span>
-                </div>
-                
-                {/* Role Filter */}
-                <div className="flex items-center space-x-2">
-                  <label className="text-sm text-gray-600">Role:</label>
-                  <select
-                    value={roleFilter}
-                    onChange={(e) => setRoleFilter(e.target.value)}
-                    className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  >
-                    <option value="">All Roles</option>
-                    {userRoles.map(role => (
-                      <option key={role} value={role}>{role}</option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Clear Filters */}
-                {roleFilter && (
-                  <button
-                    onClick={() => setRoleFilter('')}
-                    className="inline-flex items-center px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                    Clear Filters
-                  </button>
-                )}
-
-                {/* Active Filters Display */}
-                <div className="flex items-center space-x-2">
-                  {roleFilter && (
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                      Role: {roleFilter}
-                      <button
-                        onClick={() => setRoleFilter('')}
-                        className="ml-1 text-blue-600 hover:text-blue-800"
-                      >
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </button>
-                    </span>
-                  )}
-                </div>
-              </div>
+            <div className="flex flex-wrap gap-2 mb-4">
+              <span className="text-xs text-primary-800 opacity-70 self-center mr-1">Role:</span>
+              {['All', 'admin', 'user'].map(role => (
+                <button
+                  key={role}
+                  onClick={() => setRoleFilter(role === 'All' ? '' : role)}
+                  className={`px-3 py-1 rounded-full text-xs font-semibold border
+                    ${(!roleFilter && role === 'All') || roleFilter === role
+                      ? 'bg-amber-600 text-white border-amber-600'
+                      : 'bg-amber-50 text-amber-800 border-amber-200 hover:bg-amber-100'}`}
+                >
+                  {role === 'All' ? 'All Roles' : role.charAt(0).toUpperCase() + role.slice(1)}
+                </button>
+              ))}
+              <span className="text-xs text-primary-800 opacity-70 self-center ml-3 mr-1">Status:</span>
+              {['All', 'active', 'inactive'].map(status => (
+                <button
+                  key={status}
+                  onClick={() => setStatusFilter(status === 'All' ? '' : status)}
+                  className={`px-3 py-1 rounded-full text-xs font-semibold border
+                    ${(!statusFilter && status === 'All') || statusFilter === status
+                      ? 'bg-amber-600 text-white border-amber-600'
+                      : 'bg-amber-50 text-amber-800 border-amber-200 hover:bg-amber-100'}`}
+                >
+                  {status === 'All' ? 'All' : status.charAt(0).toUpperCase() + status.slice(1)}
+                </button>
+              ))}
             </div>
           )}
 
@@ -304,7 +276,7 @@ const UsersPage = ({ user }) => {
             <table className="table">
               <thead className="table-header">
                 <tr>
-                  <th className="table-header-cell">User Information</th>
+                  <th className="table-header-cell">User</th>
                   <th className="table-header-cell">Role</th>
                   <th className="table-header-cell">Status</th>
                   <th className="table-header-cell">Created Date</th>
@@ -314,30 +286,24 @@ const UsersPage = ({ user }) => {
               <tbody className="table-body">
                 {getPaginatedUsers().map((userItem) => (
                   <tr key={userItem._id} className="table-row">
-                    <td className="table-cell">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                          <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                          </svg>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-amber-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0">
+                          {userItem.name?.charAt(0).toUpperCase() || userItem.email?.charAt(0).toUpperCase() || '?'}
                         </div>
                         <div>
-                          <div className="font-semibold text-gray-900">
-                            {userItem.name}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {userItem.email}
-                          </div>
+                          <p className="text-sm font-semibold text-primary-900">{userItem.name}</p>
+                          <p className="text-xs text-primary-800 opacity-60">{userItem.email}</p>
                         </div>
                       </div>
                     </td>
                     <td className="table-cell">
-                      <span className={`badge ${getRoleBadge(userItem.role)}`}>
+                      <span className={getRoleBadge(userItem.role)}>
                         {userItem.role}
                       </span>
                     </td>
                     <td className="table-cell">
-                      <span className={`badge ${getStatusBadge(userItem.isActive)}`}>
+                      <span className={getStatusBadge(userItem.isActive)}>
                         {userItem.isActive ? 'Active' : 'Inactive'}
                       </span>
                     </td>
