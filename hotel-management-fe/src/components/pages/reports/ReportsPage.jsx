@@ -21,7 +21,9 @@ const ReportsPage = ({ user }) => {
   const { updateCurrentPage } = useSearch();
 
   const tabs = [
-    { id: 'bookings', name: 'Booking Reports', icon: 'calendar' }
+    { id: 'bookings', name: 'Booking Reports', icon: 'calendar' },
+    { id: 'revenue', name: 'Revenue', icon: 'currency' },
+    { id: 'occupancy', name: 'Occupancy', icon: 'chart' }
   ];
 
   useEffect(() => {
@@ -301,219 +303,168 @@ const ReportsPage = ({ user }) => {
     </div>
   );
 
-  const renderRevenueReports = () => (
-    <div className="space-y-6">
-      {/* Revenue Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white p-6 rounded-lg shadow border-l-4 border-green-500">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <svg className="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-              </svg>
-            </div>
-            <div className="ml-5 w-0 flex-1">
-              <dl>
-                <dt className="text-sm text-gray-500 truncate">Total Revenue</dt>
-                <dd className="text-lg text-gray-900">
-                  {formatCurrency(
-                    revenueReports.revenueOverTime?.reduce((sum, r) => sum + (r.totalRevenue || 0), 0) || 0
-                  )}
-                </dd>
-              </dl>
-            </div>
+  const renderRevenueReports = () => {
+    const totalRevenue = revenueReports.revenueOverTime?.reduce((sum, r) => sum + (r.totalRevenue || 0), 0) || 0;
+    const totalBookings = revenueReports.revenueOverTime?.reduce((sum, r) => sum + (r.totalBookings || 0), 0) || 0;
+    const avgRevenue = totalBookings > 0 ? Math.round(totalRevenue / totalBookings) : 0;
+
+    return (
+      <div>
+        {/* Summary stat cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+          <div className="card text-center">
+            <p className="text-xs text-primary-800 opacity-70 mb-1">Total Revenue</p>
+            <p className="text-2xl font-bold text-primary-900">₱{totalRevenue.toLocaleString()}</p>
+          </div>
+          <div className="card text-center">
+            <p className="text-xs text-primary-800 opacity-70 mb-1">Total Bookings</p>
+            <p className="text-2xl font-bold text-primary-900">{totalBookings}</p>
+          </div>
+          <div className="card text-center">
+            <p className="text-xs text-primary-800 opacity-70 mb-1">Avg Revenue / Booking</p>
+            <p className="text-2xl font-bold text-primary-900">₱{avgRevenue.toLocaleString()}</p>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow border-l-4 border-blue-500">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <svg className="h-8 w-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-              </svg>
-            </div>
-            <div className="ml-5 w-0 flex-1">
-              <dl>
-                <dt className="text-sm text-gray-500 truncate">Total Bookings</dt>
-                <dd className="text-lg text-gray-900">
-                  {revenueReports.revenueOverTime?.reduce((sum, r) => sum + (r.totalBookings || 0), 0) || 0}
-                </dd>
-              </dl>
-            </div>
+        {/* Revenue by Room Type table */}
+        {(revenueReports.revenueByRoomType || []).length > 0 && (
+          <div className="card mb-6">
+            <h3 className="text-sm font-semibold text-primary-900 mb-3">Revenue by Room Type</h3>
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="table-header">
+                  <th className="px-4 py-2 text-left">Room Type</th>
+                  <th className="px-4 py-2 text-right">Bookings</th>
+                  <th className="px-4 py-2 text-right">Revenue</th>
+                </tr>
+              </thead>
+              <tbody>
+                {revenueReports.revenueByRoomType.map((row, i) => (
+                  <tr key={i} className="border-t border-amber-100">
+                    <td className="px-4 py-2 font-medium text-primary-900">{row._id}</td>
+                    <td className="px-4 py-2 text-right text-primary-800">{row.totalBookings}</td>
+                    <td className="px-4 py-2 text-right font-semibold text-primary-900">₱{(row.totalRevenue || 0).toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-        </div>
+        )}
 
-        <div className="bg-white p-6 rounded-lg shadow border-l-4 border-purple-500">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <svg className="h-8 w-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-              </svg>
-            </div>
-            <div className="ml-5 w-0 flex-1">
-              <dl>
-                <dt className="text-sm text-gray-500 truncate">Average Revenue</dt>
-                <dd className="text-lg text-gray-900">
-                  {formatCurrency(
-                    revenueReports.revenueOverTime?.reduce((sum, r) => sum + (r.averageBookingValue || 0), 0) / 
-                    (revenueReports.revenueOverTime?.length || 1) || 0
-                  )}
-                </dd>
-              </dl>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Revenue by Room Type */}
-      <div className="bg-white p-6 rounded-lg shadow">
-        <h3 className="text-lg text-gray-900 mb-4">Revenue by Room Type</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {(revenueReports.revenueByRoomType || []).map(item => (
-            <div key={item._id} className="text-center p-4 bg-gray-50 rounded-lg">
-              <div className="text-xl text-gray-900">{formatCurrency(item.totalRevenue)}</div>
-              <div className="text-sm text-gray-600">{item._id}</div>
-              <div className="text-xs text-gray-500">{item.totalBookings} bookings</div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Revenue by Duration */}
-      <div className="bg-white p-6 rounded-lg shadow">
-        <h3 className="text-lg text-gray-900 mb-4">Revenue by Duration</h3>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {(revenueReports.revenueByDuration || []).map(item => (
-            <div key={item._id} className="text-center p-4 bg-gray-50 rounded-lg">
-              <div className="text-xl text-gray-900">{formatCurrency(item.totalRevenue)}</div>
-              <div className="text-sm text-gray-600">{item._id}h Bookings</div>
-              <div className="text-xs text-gray-500">{item.totalBookings} bookings</div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderOccupancyReports = () => (
-    <div className="space-y-6">
-      {/* Overall Occupancy */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white p-6 rounded-lg shadow border-l-4 border-blue-500">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <svg className="h-8 w-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-              </svg>
-            </div>
-            <div className="ml-5 w-0 flex-1">
-              <dl>
-                <dt className="text-sm text-gray-500 truncate">Total Rooms</dt>
-                <dd className="text-lg text-gray-900">{occupancyReports.overall?.totalRooms || 0}</dd>
-              </dl>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow border-l-4 border-green-500">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <svg className="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <div className="ml-5 w-0 flex-1">
-              <dl>
-                <dt className="text-sm text-gray-500 truncate">Occupied Rooms</dt>
-                <dd className="text-lg text-gray-900">{occupancyReports.overall?.occupiedRooms || 0}</dd>
-              </dl>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow border-l-4 border-yellow-500">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <svg className="h-8 w-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <div className="ml-5 w-0 flex-1">
-              <dl>
-                <dt className="text-sm text-gray-500 truncate">Available Rooms</dt>
-                <dd className="text-lg text-gray-900">{occupancyReports.overall?.availableRooms || 0}</dd>
-              </dl>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow border-l-4 border-purple-500">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <svg className="h-8 w-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-              </svg>
-            </div>
-            <div className="ml-5 w-0 flex-1">
-              <dl>
-                <dt className="text-sm text-gray-500 truncate">Occupancy Rate</dt>
-                <dd className="text-lg text-gray-900">{formatPercentage(occupancyReports.overall?.occupancyRate)}</dd>
-              </dl>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Occupancy by Room Type */}
-      <div className="bg-white p-6 rounded-lg shadow">
-        <h3 className="text-lg text-gray-900 mb-4">Occupancy by Room Type</h3>
-        {(occupancyReports.occupancyByType || []).length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {occupancyReports.occupancyByType.map(item => (
-              <div key={item._id} className="p-4 bg-gray-50 rounded-lg">
-                <div className="text-lg text-gray-900 mb-2">{item._id}</div>
-                <div className="space-y-1">
-                  <div className="flex justify-between text-sm">
-                    <span>Total Rooms:</span>
-                    <span>{item.totalRooms}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span>Occupied:</span>
-                    <span>{item.occupiedRooms}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span>Available:</span>
-                    <span>{item.availableRooms}</span>
-                  </div>
-                  <div className="flex justify-between text-sm font-semibold">
-                    <span>Occupancy Rate:</span>
-                    <span>{formatPercentage(item.occupancyRate)}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-8">
-            <div className="text-gray-500">No occupancy data available for the selected date range.</div>
+        {/* Revenue by Duration table */}
+        {(revenueReports.revenueByDuration || []).length > 0 && (
+          <div className="card">
+            <h3 className="text-sm font-semibold text-primary-900 mb-3">Revenue by Duration</h3>
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="table-header">
+                  <th className="px-4 py-2 text-left">Duration</th>
+                  <th className="px-4 py-2 text-right">Bookings</th>
+                  <th className="px-4 py-2 text-right">Revenue</th>
+                </tr>
+              </thead>
+              <tbody>
+                {revenueReports.revenueByDuration.map((row, i) => (
+                  <tr key={i} className="border-t border-amber-100">
+                    <td className="px-4 py-2 font-medium text-primary-900">{row._id}h</td>
+                    <td className="px-4 py-2 text-right text-primary-800">{row.totalBookings}</td>
+                    <td className="px-4 py-2 text-right font-semibold text-primary-900">₱{(row.totalRevenue || 0).toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </div>
+    );
+  };
 
-      {/* Peak Hours */}
-      <div className="bg-white p-6 rounded-lg shadow">
-        <h3 className="text-lg text-gray-900 mb-4">Peak Check-in Hours</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
-          {(occupancyReports.peakHours || []).map(item => (
-            <div key={item._id} className="text-center p-2 bg-gray-50 rounded">
-              <div className="text-sm font-semibold">{item._id}:00</div>
-              <div className="text-xs text-gray-600">{item.checkIns} check-ins</div>
-            </div>
-          ))}
+  const renderOccupancyReports = () => {
+    const overall = occupancyReports.overall || {};
+    const occupancyRate = Number(overall.occupancyRate) || 0;
+
+    return (
+      <div>
+        {/* Summary stat cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+          <div className="card text-center">
+            <p className="text-xs text-primary-800 opacity-70 mb-1">Occupancy Rate</p>
+            <p className="text-2xl font-bold text-primary-900">{occupancyRate.toFixed(1)}%</p>
+          </div>
+          <div className="card text-center">
+            <p className="text-xs text-primary-800 opacity-70 mb-1">Occupied Rooms</p>
+            <p className="text-2xl font-bold text-amber-700">{overall.occupiedRooms || 0}</p>
+          </div>
+          <div className="card text-center">
+            <p className="text-xs text-primary-800 opacity-70 mb-1">Available Rooms</p>
+            <p className="text-2xl font-bold text-green-700">{overall.availableRooms || 0}</p>
+          </div>
         </div>
+
+        {/* Occupancy percentage bar */}
+        <div className="card mb-6">
+          <div className="flex justify-between text-xs text-primary-800 mb-1">
+            <span>Occupancy</span>
+            <span>{occupancyRate.toFixed(1)}%</span>
+          </div>
+          <div className="w-full bg-amber-100 rounded-full h-3">
+            <div
+              className="bg-amber-600 h-3 rounded-full transition-all"
+              style={{ width: `${Math.min(occupancyRate, 100)}%` }}
+            />
+          </div>
+        </div>
+
+        {/* Occupancy by Room Type table */}
+        {(occupancyReports.occupancyByType || []).length > 0 ? (
+          <div className="card">
+            <h3 className="text-sm font-semibold text-primary-900 mb-3">Occupancy by Room Type</h3>
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="table-header">
+                  <th className="px-4 py-2 text-left">Room Type</th>
+                  <th className="px-4 py-2 text-right">Total</th>
+                  <th className="px-4 py-2 text-right">Occupied</th>
+                  <th className="px-4 py-2 text-right">Rate</th>
+                </tr>
+              </thead>
+              <tbody>
+                {occupancyReports.occupancyByType.map((row, i) => (
+                  <tr key={i} className="border-t border-amber-100">
+                    <td className="px-4 py-2 font-medium text-primary-900">{row._id}</td>
+                    <td className="px-4 py-2 text-right text-primary-800">{row.totalRooms}</td>
+                    <td className="px-4 py-2 text-right text-amber-700">{row.occupiedRooms}</td>
+                    <td className="px-4 py-2 text-right font-semibold">
+                      {row.totalRooms > 0 ? Math.round((row.occupiedRooms / row.totalRooms) * 100) : 0}%
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="card text-center py-8">
+            <p className="text-primary-800 opacity-60">No occupancy data available for the selected date range.</p>
+          </div>
+        )}
+
+        {/* Peak Hours */}
+        {(occupancyReports.peakHours || []).length > 0 && (
+          <div className="card mt-6">
+            <h3 className="text-sm font-semibold text-primary-900 mb-3">Peak Check-in Hours</h3>
+            <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-2">
+              {occupancyReports.peakHours.map(item => (
+                <div key={item._id} className="text-center p-2 bg-amber-50 rounded-lg border border-amber-100">
+                  <div className="text-sm font-semibold text-primary-900">{item._id}:00</div>
+                  <div className="text-xs text-primary-800 opacity-70">{item.checkIns} check-ins</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
-    </div>
-  );
+    );
+  };
 
   const renderGuestReports = () => (
     <div className="space-y-6">
@@ -710,6 +661,23 @@ const ReportsPage = ({ user }) => {
         </div>
       </div>
 
+
+      {/* Tab Navigation */}
+      <div className="flex gap-2 mb-6 no-print">
+        {tabs.map(tab => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+              activeTab === tab.id
+                ? 'bg-amber-600 text-white'
+                : 'bg-amber-100 text-primary-800 hover:bg-amber-200'
+            }`}
+          >
+            {tab.name}
+          </button>
+        ))}
+      </div>
 
       {/* Report Content */}
       <div id="report-content">
