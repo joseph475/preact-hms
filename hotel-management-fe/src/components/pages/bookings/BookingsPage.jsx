@@ -554,6 +554,8 @@ const BookingsPage = ({ user }) => {
                   onCheckOut={handleCheckOutClick}
                   onMarkNoShow={handleMarkNoShowClick}
                   onViewDetails={handleViewDetails}
+                  onFoodOrder={handleFoodOrderClick}
+                  onExtend={handleExtendClick}
                   getStatusBadge={getStatusBadge}
                   getPaymentBadge={getPaymentBadge}
                   formatDateTime={formatDateTime}

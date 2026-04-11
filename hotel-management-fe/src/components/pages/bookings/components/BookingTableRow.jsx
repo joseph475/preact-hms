@@ -1,14 +1,16 @@
 import { h, Fragment } from 'preact';
 import TimeRemaining from '../../../common/TimeRemaining';
 
-const BookingTableRow = ({ 
-  booking, 
-  onEdit, 
-  onDelete, 
-  onCheckIn, 
-  onCheckOut, 
-  onMarkNoShow, 
+const BookingTableRow = ({
+  booking,
+  onEdit,
+  onDelete,
+  onCheckIn,
+  onCheckOut,
+  onMarkNoShow,
   onViewDetails,
+  onFoodOrder,
+  onExtend,
   getStatusBadge,
   getPaymentBadge,
   formatDateTime,
@@ -107,13 +109,29 @@ const BookingTableRow = ({
             </>
           )}
           {booking.bookingStatus === 'Checked In' && (
-            <button
-              onClick={() => onCheckOut(booking)}
-              className="action-btn-primary"
-              title="Check Out Guest"
-            >
-              Check Out
-            </button>
+            <>
+              <button
+                onClick={() => onFoodOrder(booking)}
+                className="action-btn-warning"
+                title="Food Order"
+              >
+                Food Order
+              </button>
+              <button
+                onClick={() => onExtend(booking)}
+                className="action-btn-info"
+                title="Extend Stay"
+              >
+                Extend
+              </button>
+              <button
+                onClick={() => onCheckOut(booking)}
+                className="action-btn-primary"
+                title="Check Out Guest"
+              >
+                Check Out
+              </button>
+            </>
           )}
           {booking.bookingStatus === 'Checked Out' && (
             <button

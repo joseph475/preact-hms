@@ -16,10 +16,17 @@ const ExtendStayModal = ({ isOpen, onClose, booking, onExtendBooking }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Auto-suggest charge based on hours and room type pricing
+  // Auto-suggest charge based on tiered room pricing
   useEffect(() => {
-    const hourly3 = booking?.room?.roomType?.pricing?.hourly3 || 0;
-    const suggested = Math.ceil(hourly3 / 3) * Number(hours);
+    const pricing = booking?.room?.roomType?.pricing || {};
+    const penalty = booking?.room?.roomType?.penalty || 0;
+    const h = Number(hours);
+    let suggested = 0;
+    if (h >= 24)      suggested = pricing.daily    || 0;
+    else if (h >= 12) suggested = pricing.hourly12 || 0;
+    else if (h >= 8)  suggested = pricing.hourly8  || 0;
+    else if (h >= 3)  suggested = pricing.hourly3  || 0;
+    else              suggested = penalty * h;
     setCharge(suggested);
   }, [hours, booking]);
 
@@ -67,14 +74,18 @@ const ExtendStayModal = ({ isOpen, onClose, booking, onExtendBooking }) => {
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Extend by (hours)
           </label>
-          <input
-            type="number"
-            min="1"
-            max="12"
+          <select
             value={hours}
-            onInput={(e) => setHours(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-          />
+            onChange={(e) => setHours(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white"
+          >
+            <option value="1">1 hour</option>
+            <option value="2">2 hours</option>
+            <option value="3">3 hours</option>
+            <option value="8">8 hours</option>
+            <option value="12">12 hours</option>
+            <option value="24">24 hours</option>
+          </select>
         </div>
 
         {/* Charge input */}
@@ -89,7 +100,18 @@ const ExtendStayModal = ({ isOpen, onClose, booking, onExtendBooking }) => {
             onInput={(e) => setCharge(e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
           />
-          <p className="text-xs text-gray-500 mt-1">Auto-suggested based on room pricing. You may edit this.</p>
+          <p className="text-xs text-gray-500 mt-1">
+            Applying: <span className="font-medium text-purple-600">{(() => {
+              const h = Number(hours);
+              const pricing = booking?.room?.roomType?.pricing || {};
+              const penalty = booking?.room?.roomType?.penalty || 0;
+              if (h === 24) return `Daily rate (₱${(pricing.daily || 0).toLocaleString()})`;
+              if (h === 12) return `12-hour rate (₱${(pricing.hourly12 || 0).toLocaleString()})`;
+              if (h === 8)  return `8-hour rate (₱${(pricing.hourly8 || 0).toLocaleString()})`;
+              if (h === 3)  return `3-hour rate (₱${(pricing.hourly3 || 0).toLocaleString()})`;
+              return `Penalty rate ₱${penalty.toLocaleString()} × ${h} hr${h > 1 ? 's' : ''}`;
+            })()}</span> — editable
+          </p>
         </div>
 
         {/* Notes textarea */}

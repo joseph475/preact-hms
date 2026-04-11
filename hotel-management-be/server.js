@@ -2,8 +2,6 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const rateLimit = require('express-rate-limit');
-
 // Load environment variables
 dotenv.config();
 
@@ -48,16 +46,8 @@ const connectDB = async () => {
   }
 };
 
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 20,
-  message: { success: false, message: 'Too many requests, please try again later.' },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-
 // Routes
-app.use('/api/v1/auth', authLimiter, require('./routes/auth'));
+app.use('/api/v1/auth', require('./routes/auth'));
 app.use('/api/v1/rooms', require('./routes/rooms'));
 app.use('/api/v1/guests', require('./routes/guests'));
 app.use('/api/v1/bookings', require('./routes/bookings'));
