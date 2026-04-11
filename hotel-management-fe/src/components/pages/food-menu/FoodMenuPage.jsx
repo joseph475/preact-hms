@@ -294,6 +294,7 @@ const FoodMenuPage = ({ user }) => {
                     Edit
                   </button>
                 </div>
+                </div>
               </div>
             ))}
           </div>
