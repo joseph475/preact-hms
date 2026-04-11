@@ -163,13 +163,48 @@ Add a **page-level search bar** above the table, independent of the global heade
 
 ---
 
-## Other Pages
+## Per-Page Structural Improvements
 
-All other pages (Rooms, Bookings, Food Menu, Reports, Users, Settings) receive:
-- Updated color classes (amber replaces blue throughout)
-- New typography (Plus Jakarta Sans via CSS, no component changes needed)
-- Updated `.card`, `.btn-*`, `.table-*`, `.badge-*` classes via the global CSS rewrite
-- No structural/layout changes to these pages — the CSS overhaul carries the visual update
+All pages get amber palette + Plus Jakarta Sans via the global CSS rewrite. These are the additional layout/structure changes per page:
+
+### Rooms (`RoomsPage.jsx`)
+- **Card view redesign**: room number (large, bold) + type badge + floor label + status badge. No pricing shown on the card — rates appear only in the booking flow and details modal.
+- Status badge colors: green = Available, amber = Occupied, red = Maintenance / Out of Order
+- **Table view**: hide Description and Telephone columns by default (too many columns); show them in an expandable row on click
+- Actions on card: "Book" (primary, amber) + "Details" + "Edit"
+
+### Bookings (`BookingsPage.jsx`)
+- **Booking cards**: guest avatar circle + name, room number + duration on one line, status badge prominent, primary action button (Check In / Check Out) highlighted
+- **Multi-step modal**: add a clear numbered step indicator at the top (① Guest Info → ② Room → ③ Details) with done/active/pending states
+- **Status filter pills** above the list (Active / All / Checked Out / Cancelled) replacing the dropdown
+
+### Food Menu (`FoodMenuPage.jsx`)
+- **Category tabs** restyled as amber pill tabs with item count badge per category (e.g. "Breakfast 4")
+- **Item cards**: item name, category badge, price prominent, availability shown as a toggle switch (on/off style)
+- Unavailable items shown at reduced opacity
+
+### Reports (`ReportsPage.jsx`)
+- **All 3 tabs fully implemented**: Bookings, Revenue, Occupancy (Revenue and Occupancy tabs currently render no content)
+- **Summary stats as cards** at the top of each tab (Total Bookings, Total Revenue, Avg/Booking on Bookings tab; Occupancy rate, Available/Occupied counts on Occupancy tab)
+- Revenue tab: stat cards + breakdown table by room type
+- Occupancy tab: visual occupancy percentage bar + breakdown table by room type
+
+### Users (`UsersPage.jsx`)
+- **Table row**: avatar circle + name/email stacked in one column (saves horizontal space)
+- Role badges: Admin = amber filled, Staff = amber outline
+- Status badge: Active = green, Inactive = gray
+- Inline filter pills above the table (Role / Status) instead of hidden dropdown
+
+### Settings (`SettingsPage.jsx`)
+- **Layout change**: full-width form stacked above full-width list (removes cramped 2-col split on medium screens)
+- Pricing fields in a clean labeled 2×2 grid (3 hrs / 8 hrs / 12 hrs / 24 hrs)
+- Room type list cards show all 4 tiers + capacity + penalty in an organized grid
+
+### Profile (`ProfilePage.jsx`)
+- **Full implementation** (currently a placeholder):
+  - Top section: large avatar circle with initials, name, email, role badge
+  - Bottom section: edit form with name field + password change (current → new → confirm)
+  - Save button triggers the existing update-user API
 
 ---
 
@@ -183,8 +218,15 @@ All other pages (Rooms, Bookings, Food Menu, Reports, Users, Settings) receive:
 | `src/components/layout/Sidebar.jsx` | Rewrite as icon-only sidebar (w-16) |
 | `src/components/layout/Header.jsx` | Update colors, layout tweaks |
 | `src/components/App.jsx` | Update grid layout (sidebar width change) |
-| `src/components/pages/dashboard/DashboardPage.jsx` | Room grid with type labels, updated card/table styles |
+| `src/components/pages/dashboard/DashboardPage.jsx` | Room grid with type + status chips |
+| `src/components/pages/rooms/RoomsPage.jsx` | Card redesign (no rates), table column hiding |
+| `src/components/pages/bookings/BookingsPage.jsx` | Card redesign, step indicator, status filter pills |
 | `src/components/pages/guests/GuestsPage.jsx` | Add search bar + filtering logic |
+| `src/components/pages/food/FoodMenuPage.jsx` | Pill tabs with counts, card + toggle redesign |
+| `src/components/pages/reports/ReportsPage.jsx` | Implement Revenue + Occupancy tabs, stats cards |
+| `src/components/pages/users/UsersPage.jsx` | Stacked name/email column, filter pills |
+| `src/components/pages/settings/SettingsPage.jsx` | Stacked layout, pricing grid |
+| `src/components/pages/profile/ProfilePage.jsx` | Full implementation with edit form |
 
 ---
 
@@ -194,6 +236,11 @@ All other pages (Rooms, Bookings, Food Menu, Reports, Users, Settings) receive:
 2. Sidebar shows icons only, tooltips appear on hover, active page highlighted in amber
 3. All pages reflect amber palette (no leftover blue-600 classes for primary actions)
 4. Guests page: typing in search filters the list in real-time, result count updates, clear button works
-5. Dashboard room grid shows room number + type label, occupied vs available chips are visually distinct
-6. Mobile: sidebar hamburger still works, slides in full-width overlay
-7. Print (receipts): no visual regression — `.no-print` classes still function
+5. Dashboard room grid shows room number + type label; occupied vs available chips are visually distinct
+6. Rooms page: cards show no pricing; status badges are color-coded; table hides description/telephone columns
+7. Bookings page: step indicator shows in modal; status pills work above the list
+8. Food menu: category tabs show item counts; availability toggle visible on each card
+9. Reports: all 3 tabs load content; each tab shows summary stat cards
+10. Profile: edit form saves name and password changes
+11. Mobile: sidebar hamburger still works, slides in full-width overlay
+12. Print (receipts): no visual regression — `.no-print` classes still function
