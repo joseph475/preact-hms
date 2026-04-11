@@ -204,4 +204,54 @@
   .quick-actions-grid {
     @apply grid grid-cols-2 gap-3 sm:grid-cols-4;
   }
+
+  /* Badge base class */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold;
+  }
+
+  /* Action button container */
+  .action-buttons {
+    @apply flex items-center gap-1;
+  }
+
+  /* Action button base + variants */
+  .action-btn {
+    @apply inline-flex items-center justify-center w-8 h-8 rounded-lg text-sm transition-colors duration-200;
+  }
+
+  .action-btn-primary {
+    @apply action-btn bg-amber-100 text-amber-700 hover:bg-amber-200;
+  }
+
+  .action-btn-success {
+    @apply action-btn bg-green-100 text-green-700 hover:bg-green-200;
+  }
+
+  .action-btn-warning {
+    @apply action-btn bg-yellow-100 text-yellow-700 hover:bg-yellow-200;
+  }
+
+  .action-btn-info {
+    @apply action-btn bg-amber-50 text-amber-700 hover:bg-amber-100;
+  }
+
+  .action-btn-danger {
+    @apply action-btn bg-red-100 text-red-700 hover:bg-red-200;
+  }
+
+  /* Table scroll container */
+  .table-container-scroll {
+    @apply overflow-x-auto;
+  }
+
+  /* Dashboard section */
+  .dashboard-section {
+    @apply grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6;
+  }
+
+  /* Quick action item */
+  .quick-action-item {
+    @apply flex flex-col items-center justify-center p-4 rounded-xl border border-amber-200 bg-amber-50 hover:bg-amber-100 transition-colors cursor-pointer text-center;
+  }
 }
