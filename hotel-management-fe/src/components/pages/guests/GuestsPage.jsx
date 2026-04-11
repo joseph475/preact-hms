@@ -7,10 +7,10 @@ import Modal from '../../common/Modal';
 
 const GuestsPage = ({ user }) => {
   const [guests, setGuests] = useState([]);
-  const [filteredGuests, setFilteredGuests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [localSearch, setLocalSearch] = useState('');
   const itemsPerPage = 15;
   const { searchTerm, updateCurrentPage } = useSearch();
   const [showNotesModal, setShowNotesModal] = useState(false);
@@ -21,25 +21,20 @@ const GuestsPage = ({ user }) => {
     loadGuests();
   }, []);
 
-  // Filter guests based on search term
+  // Reset to first page when local search changes
   useEffect(() => {
-    if (!searchTerm) {
-      setFilteredGuests(guests);
-    } else {
-      const filtered = guests.filter(guest => {
-        const searchLower = searchTerm.toLowerCase();
-        return (
-          guest.firstName?.toLowerCase().includes(searchLower) ||
-          guest.lastName?.toLowerCase().includes(searchLower) ||
-          guest.phone?.includes(searchTerm) ||
-          guest.idNumber?.includes(searchTerm)
-        );
-      });
-      setFilteredGuests(filtered);
-    }
-    // Reset to first page when search changes
     setCurrentPage(1);
-  }, [guests, searchTerm]);
+  }, [localSearch]);
+
+  // Compute filtered guests from localSearch (client-side, no API calls)
+  const q = localSearch.toLowerCase().trim();
+  const filteredGuests = q
+    ? guests.filter(g =>
+        `${g.firstName} ${g.lastName}`.toLowerCase().includes(q) ||
+        (g.phone || '').includes(q) ||
+        (g.idNumber || '').toLowerCase().includes(q)
+      )
+    : guests;
 
   // Get paginated guests
   const getPaginatedGuests = () => {
@@ -90,6 +85,36 @@ const GuestsPage = ({ user }) => {
           {error}
         </div>
       )}
+
+      {/* Search Bar */}
+      <div className="flex items-center gap-3 mb-4">
+        <div className="relative flex-1 max-w-sm">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-amber-400">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
+            </svg>
+          </span>
+          <input
+            type="text"
+            placeholder="Search by name, phone, or ID..."
+            value={localSearch}
+            onInput={e => setLocalSearch(e.target.value)}
+            className="form-input pl-9 pr-8 py-2 text-sm w-full"
+          />
+          {localSearch && (
+            <button
+              onClick={() => setLocalSearch('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-amber-400 hover:text-amber-600"
+              title="Clear search"
+            >
+              ×
+            </button>
+          )}
+        </div>
+        <span className="text-xs text-primary-800 opacity-70 whitespace-nowrap">
+          Showing {filteredGuests.length} of {guests.length} guests
+        </span>
+      </div>
 
       {/* Guests Table */}
       <div className="table-container">
@@ -189,15 +214,15 @@ const GuestsPage = ({ user }) => {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
           </svg>
           <h3 className="empty-state-title">
-            {searchTerm ? 'No guests found' : 'No guests yet'}
+            {localSearch ? 'No guests found' : 'No guests yet'}
           </h3>
           <p className="empty-state-description">
-            {searchTerm 
-              ? 'Try adjusting your search terms to find the guest you\'re looking for.' 
+            {localSearch
+              ? 'Try adjusting your search terms to find the guest you\'re looking for.'
               : 'Guests will appear here automatically when they make bookings through the reservation system.'
             }
           </p>
-          {!searchTerm && (
+          {!localSearch && (
             <div className="mt-6">
               <a
                 href="/bookings"
