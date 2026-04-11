@@ -56,7 +56,7 @@ const AppContent = () => {
 
   return (
     <SearchProvider>
-      <div className="min-h-screen bg-gray-50 flex">
+      <div className="min-h-screen flex" style={{ backgroundColor: '#fdf8f3' }}>
         {/* Mobile sidebar overlay */}
         {sidebarOpen && (
           <div 
@@ -75,7 +75,7 @@ const AppContent = () => {
         />
 
         {/* Main content area */}
-        <div className="flex-1 flex flex-col min-w-0 lg:ml-64">
+        <div className="flex-1 flex flex-col min-w-0 lg:ml-16">
           <Header 
             user={user}
             onMenuClick={() => setSidebarOpen(true)}
