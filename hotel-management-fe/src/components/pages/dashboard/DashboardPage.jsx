@@ -16,7 +16,16 @@ const DashboardPage = ({ user }) => {
     }
   );
 
+  const { data: roomsResponse } = useSimpleCache(
+    '/rooms',
+    () => apiService.getRooms(),
+    {
+      refreshInterval: 2 * 60 * 1000
+    }
+  );
+
   const stats = statsResponse?.data;
+  const rooms = roomsResponse?.data || [];
 
   if (loading) {
     return (
@@ -114,6 +123,47 @@ const DashboardPage = ({ user }) => {
           }
           color="purple"
         />
+      </div>
+
+      {/* Room Status Grid */}
+      <div class="card mb-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold text-primary-900">Room Status</h2>
+          <div class="flex items-center gap-3 text-xs">
+            <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-sm bg-amber-600"></span> Occupied</span>
+            <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-sm bg-amber-100 border border-amber-200"></span> Available</span>
+            <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-sm bg-red-100 border border-red-200 border-dashed"></span> Maintenance</span>
+          </div>
+        </div>
+        <div class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-2">
+          {rooms.map(room => {
+            const status = room.status;
+            const typeLabel = room.roomType?.name
+              ? room.roomType.name.slice(0, 3).toUpperCase()
+              : '---';
+            let chipClass = '';
+            if (status === 'Occupied') {
+              chipClass = 'bg-amber-600 text-white border-amber-600';
+            } else if (status === 'Available') {
+              chipClass = 'bg-amber-100 text-amber-800 border-amber-200';
+            } else {
+              chipClass = 'bg-red-100 text-red-800 border-red-200 border-dashed';
+            }
+            return (
+              <div
+                key={room._id}
+                class={`border rounded-lg p-2 text-center cursor-default select-none ${chipClass}`}
+                title={`Room ${room.roomNumber} — ${room.roomType?.name || 'Unknown'} — ${status}`}
+              >
+                <div class="text-sm font-bold leading-tight">{room.roomNumber}</div>
+                <div class="text-[10px] leading-tight opacity-80">{typeLabel}</div>
+              </div>
+            );
+          })}
+        </div>
+        {rooms.length === 0 && (
+          <p class="text-sm text-primary-800 opacity-60 text-center py-4">No rooms found.</p>
+        )}
       </div>
 
       {/* Recent bookings and room status */}
