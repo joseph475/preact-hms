@@ -460,10 +460,10 @@ const ReportsPage = ({ user }) => {
     <div className="space-y-6">
       {/* Guest Summary */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white p-6 rounded-lg shadow border-l-4 border-blue-500">
+        <div className="bg-white p-6 rounded-lg shadow border-l-4 border-amber-500">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <svg className="h-8 w-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="h-8 w-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
               </svg>
             </div>
@@ -557,7 +557,7 @@ const ReportsPage = ({ user }) => {
                   </div>
                   <div className="text-xs text-gray-500">{item.guest?.email}</div>
                 </div>
-                <div className="text-sm font-semibold text-blue-600">
+                <div className="text-sm font-semibold text-amber-700">
                   {item.bookingCount} bookings
                 </div>
               </div>
