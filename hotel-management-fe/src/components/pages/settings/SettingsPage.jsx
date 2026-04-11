@@ -175,9 +175,9 @@ const SettingsPage = () => {
       )}
 
       {/* Room Types Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="flex flex-col gap-6">
         {/* Room Type Form */}
-        <div className="bg-white p-6 rounded-lg shadow">
+        <div className="bg-white p-6 rounded-lg shadow w-full">
           <h2 className="text-lg font-semibold mb-4">
             {editingRoomType ? 'Edit Room Type' : 'Add Room Type'}
           </h2>
@@ -229,50 +229,54 @@ const SettingsPage = () => {
               </label>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs text-gray-600 mb-1">3 Hours</label>
+                  <label className="block text-xs font-semibold text-primary-800 mb-1">3 Hours (₱)</label>
                   <input
                     type="number"
                     min="0"
                     step="0.01"
                     value={roomTypeForm.pricing.hourly3}
                     onChange={(e) => handlePricingChange('hourly3', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    className="form-input text-sm w-full"
+                    placeholder="0"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-600 mb-1">8 Hours</label>
+                  <label className="block text-xs font-semibold text-primary-800 mb-1">8 Hours (₱)</label>
                   <input
                     type="number"
                     min="0"
                     step="0.01"
                     value={roomTypeForm.pricing.hourly8}
                     onChange={(e) => handlePricingChange('hourly8', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    className="form-input text-sm w-full"
+                    placeholder="0"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-600 mb-1">12 Hours</label>
+                  <label className="block text-xs font-semibold text-primary-800 mb-1">12 Hours (₱)</label>
                   <input
                     type="number"
                     min="0"
                     step="0.01"
                     value={roomTypeForm.pricing.hourly12}
                     onChange={(e) => handlePricingChange('hourly12', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    className="form-input text-sm w-full"
+                    placeholder="0"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-600 mb-1">24 Hours (Daily)</label>
+                  <label className="block text-xs font-semibold text-primary-800 mb-1">24 Hours (₱)</label>
                   <input
                     type="number"
                     min="0"
                     step="0.01"
                     value={roomTypeForm.pricing.daily}
                     onChange={(e) => handlePricingChange('daily', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    className="form-input text-sm w-full"
+                    placeholder="0"
                     required
                   />
                 </div>
@@ -317,45 +321,62 @@ const SettingsPage = () => {
         </div>
 
         {/* Room Types List */}
-        <div className="bg-white p-6 rounded-lg shadow">
+        <div className="bg-white p-6 rounded-lg shadow w-full">
           <h2 className="text-lg font-semibold mb-4">Room Types</h2>
           <div className="space-y-3">
             {getPaginatedRoomTypes().map((roomType) => (
-              <div key={roomType._id} className="flex items-center justify-between p-3 border rounded">
-                <div>
-                  <h3 className="font-medium">{roomType.name}</h3>
-                  <p className="text-sm text-gray-600">Capacity: {roomType.baseCapacity}</p>
-                  {roomType.pricing && (
-                    <p className="text-sm text-gray-600">
-                      Pricing: ₱{roomType.pricing.hourly3}/3h - ₱{roomType.pricing.daily}/24h
-                    </p>
-                  )}
-                  {roomType.penalty > 0 && (
-                    <p className="text-sm text-gray-600">Penalty: ₱{roomType.penalty}</p>
-                  )}
-                  {roomType.description && (
-                    <p className="text-sm text-gray-500">{roomType.description}</p>
-                  )}
-                </div>
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => editRoomType(roomType)}
-                    className="action-btn-primary"
-                    title="Edit Room Type"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                  </button>
-                  <button
-                    onClick={() => deleteRoomType(roomType._id)}
-                    className="action-btn-danger"
-                    title="Delete Room Type"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                  </button>
+              <div key={roomType._id} className="p-3 border rounded">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-medium">{roomType.name}</h3>
+                    <p className="text-sm text-gray-600">Capacity: {roomType.baseCapacity}</p>
+                    {roomType.penalty > 0 && (
+                      <p className="text-sm text-gray-600">Penalty: ₱{roomType.penalty}</p>
+                    )}
+                    {roomType.description && (
+                      <p className="text-sm text-gray-500">{roomType.description}</p>
+                    )}
+                    {roomType.pricing && (
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2 text-xs">
+                        <div className="bg-amber-50 rounded p-2 text-center">
+                          <p className="text-primary-800 opacity-70 mb-0.5">3 hrs</p>
+                          <p className="font-bold text-primary-900">₱{roomType.pricing.hourly3}</p>
+                        </div>
+                        <div className="bg-amber-50 rounded p-2 text-center">
+                          <p className="text-primary-800 opacity-70 mb-0.5">8 hrs</p>
+                          <p className="font-bold text-primary-900">₱{roomType.pricing.hourly8}</p>
+                        </div>
+                        <div className="bg-amber-50 rounded p-2 text-center">
+                          <p className="text-primary-800 opacity-70 mb-0.5">12 hrs</p>
+                          <p className="font-bold text-primary-900">₱{roomType.pricing.hourly12}</p>
+                        </div>
+                        <div className="bg-amber-50 rounded p-2 text-center">
+                          <p className="text-primary-800 opacity-70 mb-0.5">24 hrs</p>
+                          <p className="font-bold text-primary-900">₱{roomType.pricing.daily}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex space-x-2 ml-3 flex-shrink-0">
+                    <button
+                      onClick={() => editRoomType(roomType)}
+                      className="action-btn-primary"
+                      title="Edit Room Type"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => deleteRoomType(roomType._id)}
+                      className="action-btn-danger"
+                      title="Delete Room Type"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
