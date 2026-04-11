@@ -220,12 +220,12 @@ const RoomsPage = ({ user }) => {
 
   const getStatusBadge = (status) => {
     const statusClasses = {
-      'Available': 'badge-success',
-      'Occupied': 'badge-danger',
-      'Maintenance': 'badge-warning',
-      'Out of Order': 'badge-secondary'
+      'Available': 'bg-green-100 text-green-800',
+      'Occupied': 'bg-amber-100 text-amber-800',
+      'Maintenance': 'bg-red-100 text-red-800',
+      'Out of Order': 'bg-red-100 text-red-800'
     };
-    return statusClasses[status] || 'badge-secondary';
+    return statusClasses[status] || 'bg-gray-100 text-gray-800';
   };
 
   const getRoomTypeName = (roomType) => {
@@ -497,19 +497,14 @@ const RoomsPage = ({ user }) => {
                       <div className="flex-shrink-0 h-10 w-10">
                         <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${
                           room.status === 'Available' ? 'bg-green-100' :
-                          room.status === 'Occupied' ? 'bg-red-100' :
-                          room.status === 'Maintenance' ? 'bg-yellow-100' : 'bg-gray-100'
+                          room.status === 'Occupied' ? 'bg-amber-100' :
+                          room.status === 'Maintenance' ? 'bg-red-100' : 'bg-gray-100'
                         }`}>
                           {getStatusIcon(room.status)}
                         </div>
                       </div>
                       <div className="ml-4">
                         <div className="text-sm font-bold text-gray-900">Room {room.roomNumber}</div>
-                        {room.description && (
-                          <div className="text-xs text-gray-500 truncate max-w-32" title={room.description}>
-                            {room.description}
-                          </div>
-                        )}
                       </div>
                     </div>
                   </td>
@@ -628,117 +623,73 @@ const RoomsPage = ({ user }) => {
         </div>
       )}
 
-      {/* Rooms Cards View - Clean Minimalist Design */}
+      {/* Rooms Cards View - Minimal Redesign */}
       {viewMode === 'cards' && (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {getPaginatedRooms().map((room) => (
-              <div 
-                key={room._id} 
-                className="bg-white rounded-xl shadow-lg border-0 cursor-pointer transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 backdrop-blur-sm"
-                onClick={() => {
-                  setSelectedRoom(room);
-                  setShowDetailsModal(true);
-                }}
+              <div
+                key={room._id}
+                className="card flex flex-col"
               >
-                {/* Card Header */}
-                <div className="p-5 border-b border-gray-100">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center space-x-3">
-                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-md ${
-                        room.status === 'Available' ? 'bg-gradient-to-br from-green-400 to-green-500 text-white' :
-                        room.status === 'Occupied' ? 'bg-gradient-to-br from-red-400 to-red-500 text-white' :
-                        room.status === 'Maintenance' ? 'bg-gradient-to-br from-yellow-400 to-yellow-500 text-white' :
-                        'bg-gradient-to-br from-gray-400 to-gray-500 text-white'
-                      }`}>
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                        </svg>
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-bold text-gray-900">{room.roomNumber}</h3>
-                        <p className="text-sm text-gray-600">{getRoomTypeName(room.roomType)}</p>
-                      </div>
-                    </div>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      room.status === 'Available' ? 'bg-green-100 text-green-800' :
-                      room.status === 'Occupied' ? 'bg-red-100 text-red-800' :
-                      room.status === 'Maintenance' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-gray-100 text-gray-800'
-                    }`}>
-                      {room.status}
-                    </span>
-                  </div>
-                  
-                  {/* Room Info */}
-                  <div className="flex items-center justify-between text-sm text-gray-500">
-                    <span>Floor {room.floor}</span>
-                    {room.status === 'Occupied' && room.currentBooking ? (
-                      <div className="text-right">
-                        <TimeRemaining 
-                          checkInDate={room.currentBooking.checkInDate}
-                          duration={room.currentBooking.duration}
-                          bookingStatus={room.currentBooking.bookingStatus}
-                        />
-                      </div>
-                    ) : room.status === 'Maintenance' ? (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleMarkAvailable(room);
-                        }}
-                        className="inline-flex items-center px-2 py-1 border border-green-300 text-xs font-medium rounded text-green-700 bg-green-50 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-500"
-                        title="Mark as Available"
-                      >
-                        <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        Available
-                      </button>
-                    ) : (
-                      <span>{room.roomType?.baseCapacity || 0} guests</span>
-                    )}
-                  </div>
+                {/* Top row: room number + status badge */}
+                <div className="flex items-start justify-between mb-2">
+                  <span className="text-2xl font-bold text-primary-900">{room.roomNumber}</span>
+                  <span className={`badge ${getStatusBadge(room.status)}`}>{room.status}</span>
                 </div>
 
-                {/* Card Body - Empty for clean design */}
-                {user?.role === 'user' && (
-                  <div className="p-5">
-                    {/* Intentionally minimal - capacity and mark available button are in header */}
+                {/* Type badge + floor */}
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="badge bg-amber-100 text-amber-800 border border-amber-200">
+                    {room.roomType?.name || getRoomTypeName(room.roomType) || 'Unknown'}
+                  </span>
+                  <span className="text-xs text-primary-800 opacity-70">Floor {room.floor}</span>
+                </div>
+
+                {/* Time remaining for occupied rooms */}
+                {room.status === 'Occupied' && room.currentBooking && (
+                  <div className="mb-3">
+                    <TimeRemaining
+                      checkInDate={room.currentBooking.checkInDate}
+                      duration={room.currentBooking.duration}
+                      bookingStatus={room.currentBooking.bookingStatus}
+                    />
                   </div>
                 )}
 
-                {/* Card Actions - Admin only */}
-                {user?.role === 'admin' && (
-                  <div className="px-5 py-3 bg-gray-50 border-t border-gray-100 flex justify-end space-x-2">
+                {/* Actions */}
+                <div className="flex gap-2 flex-wrap mt-auto pt-3">
+                  {room.status === 'Available' && (
                     <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleEdit(room);
-                      }}
-                      className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      title="Edit Room"
+                      className="btn-primary text-xs px-3 py-1.5"
+                      onClick={(e) => { e.stopPropagation(); handleBookRoom(room); }}
                     >
-                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                      </svg>
+                      Book
+                    </button>
+                  )}
+                  {(room.status === 'Maintenance' || room.status === 'Out of Order') && (
+                    <button
+                      className="text-xs px-3 py-1.5 border border-green-300 rounded text-green-700 bg-green-50 hover:bg-green-100 focus:outline-none"
+                      onClick={(e) => { e.stopPropagation(); handleMarkAvailable(room); }}
+                    >
+                      Mark Available
+                    </button>
+                  )}
+                  <button
+                    className="btn-secondary text-xs px-3 py-1.5"
+                    onClick={(e) => { e.stopPropagation(); setSelectedRoom(room); setShowDetailsModal(true); }}
+                  >
+                    Details
+                  </button>
+                  {user?.role === 'admin' && (
+                    <button
+                      className="btn-secondary text-xs px-3 py-1.5"
+                      onClick={(e) => { e.stopPropagation(); handleEdit(room); }}
+                    >
                       Edit
                     </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDelete(room);
-                      }}
-                      className="inline-flex items-center px-3 py-1.5 border border-red-300 text-sm font-medium rounded-md text-red-700 bg-red-50 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500"
-                      title="Delete Room"
-                    >
-                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                      Delete
-                    </button>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             ))}
           </div>
