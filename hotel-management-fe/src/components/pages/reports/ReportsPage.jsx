@@ -630,22 +630,22 @@ const ReportsPage = ({ user }) => {
           </div>
           
           <div className="flex items-center space-x-2">
-            <label className="text-sm text-gray-600">From:</label>
+            <label className="text-sm text-primary-800">From:</label>
             <input
               type="date"
               value={dateRange.startDate}
               onChange={(e) => handleDateRangeChange('startDate', e.target.value)}
-              className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="px-3 py-1 border border-amber-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400"
             />
           </div>
 
           <div className="flex items-center space-x-2">
-            <label className="text-sm text-gray-600">To:</label>
+            <label className="text-sm text-primary-800">To:</label>
             <input
               type="date"
               value={dateRange.endDate}
               onChange={(e) => handleDateRangeChange('endDate', e.target.value)}
-              className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="px-3 py-1 border border-amber-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400"
             />
           </div>
         </div>
