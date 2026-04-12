@@ -2,6 +2,7 @@ import { h, Fragment } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 import Modal from '../../common/Modal';
 import apiService from '../../../services/api';
+import FoodMenuSkeleton from '../../common/skeletons/FoodMenuSkeleton';
 
 const CATEGORIES = ['All', 'Breakfast', 'Lunch', 'Dinner', 'Snacks', 'Drinks'];
 
@@ -166,11 +167,7 @@ const FoodMenuPage = ({ user }) => {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="spinner"></div>
-      </div>
-    );
+    return <FoodMenuSkeleton />;
   }
 
   return (

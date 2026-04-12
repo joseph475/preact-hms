@@ -1,6 +1,7 @@
 import { h } from 'preact';
 import { useSimpleCache } from '../../../hooks/useSimpleCache';
 import apiService from '../../../services/api';
+import DashboardSkeleton from '../../common/skeletons/DashboardSkeleton';
 
 const DashboardPage = ({ user }) => {
   const {
@@ -28,11 +29,7 @@ const DashboardPage = ({ user }) => {
   const rooms = roomsResponse?.data || [];
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="spinner"></div>
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   if (error) {

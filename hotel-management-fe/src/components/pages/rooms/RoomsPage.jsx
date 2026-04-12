@@ -7,6 +7,7 @@ import DeleteConfirmationModal from '../../common/DeleteConfirmationModal';
 import Modal from '../../common/Modal';
 import Pagination from '../../common/Pagination';
 import TimeRemaining from '../../common/TimeRemaining';
+import RoomsSkeleton from '../../common/skeletons/RoomsSkeleton';
 
 const RoomsPage = ({ user }) => {
   const [rooms, setRooms] = useState([]);
@@ -306,11 +307,7 @@ const RoomsPage = ({ user }) => {
   };
 
   if (loading && rooms.length === 0) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="spinner"></div>
-      </div>
-    );
+    return <RoomsSkeleton />;
   }
 
   return (

@@ -4,6 +4,7 @@ import apiService from '../../../services/api';
 import { useSearch } from '../../../hooks/useSearch';
 import Pagination from '../../common/Pagination';
 import Modal from '../../common/Modal';
+import GuestsSkeleton from '../../common/skeletons/GuestsSkeleton';
 
 const GuestsPage = ({ user }) => {
   const [guests, setGuests] = useState([]);
@@ -63,11 +64,7 @@ const GuestsPage = ({ user }) => {
   };
 
   if (loading && guests.length === 0) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="spinner"></div>
-      </div>
-    );
+    return <GuestsSkeleton />;
   }
 
   return (

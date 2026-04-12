@@ -6,6 +6,7 @@ import DeleteConfirmationModal from '../../common/DeleteConfirmationModal';
 import ConfirmationModal from '../../common/ConfirmationModal';
 import Pagination from '../../common/Pagination';
 import BookingFilters from './components/BookingFilters';
+import BookingsSkeleton from '../../common/skeletons/BookingsSkeleton';
 import BookingTableRow from './components/BookingTableRow';
 import BookingModal from './components/BookingModal/BookingModal';
 import BookingDetailsModal from './components/BookingDetailsModal';
@@ -484,11 +485,7 @@ const BookingsPage = ({ user }) => {
   };
 
   if (loading && bookings.length === 0) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="spinner"></div>
-      </div>
-    );
+    return <BookingsSkeleton />;
   }
 
   return (

@@ -5,6 +5,7 @@ import { useSearch } from '../../../hooks/useSearch';
 import Modal from '../../common/Modal';
 import DeleteConfirmationModal from '../../common/DeleteConfirmationModal';
 import Pagination from '../../common/Pagination';
+import UsersSkeleton from '../../common/skeletons/UsersSkeleton';
 
 const UsersPage = ({ user }) => {
   const [users, setUsers] = useState([]);
@@ -183,11 +184,7 @@ const UsersPage = ({ user }) => {
   };
 
   if (loading && users.length === 0) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="spinner"></div>
-      </div>
-    );
+    return <UsersSkeleton />;
   }
 
   return (

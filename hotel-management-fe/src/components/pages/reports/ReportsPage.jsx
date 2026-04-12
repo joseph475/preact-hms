@@ -3,6 +3,7 @@ import { useState, useEffect } from 'preact/hooks';
 import apiService from '../../../services/api';
 import { useSearch } from '../../../hooks/useSearch';
 import Pagination from '../../common/Pagination';
+import ReportsSkeleton from '../../common/skeletons/ReportsSkeleton';
 
 const ReportsPage = ({ user }) => {
   const [loading, setLoading] = useState(true);
@@ -643,11 +644,7 @@ const ReportsPage = ({ user }) => {
   };
 
   if (loading && getCurrentData().length === 0) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="spinner"></div>
-      </div>
-    );
+    return <ReportsSkeleton />;
   }
 
   return (
