@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { useState, useEffect } from 'preact/hooks';
 import Modal from '../../../common/Modal';
 
 const BookingDetailsModal = ({
@@ -10,253 +11,245 @@ const BookingDetailsModal = ({
   formatDateTime,
   calculateCheckOutTime
 }) => {
+  const [activeTab, setActiveTab] = useState('overview');
+
+  // Reset to Overview whenever a different booking is opened
+  useEffect(() => {
+    setActiveTab('overview');
+  }, [bookingToViewDetails?._id]);
+
   if (!bookingToViewDetails) return null;
 
-  const isCheckedOut = bookingToViewDetails.bookingStatus === 'Checked Out';
+  const b = bookingToViewDetails;
+  const roomType = typeof b.room?.roomType === 'object'
+    ? b.room?.roomType?.name
+    : b.room?.roomType;
+  const hasExtensions = b.extensionCharges?.length > 0;
+  const extensionTotal = hasExtensions
+    ? b.extensionCharges.reduce((s, e) => s + (e.charge || 0), 0)
+    : 0;
+
+  // Use actual check-in/out times if recorded; fall back to booked duration
+  let stayDuration;
+  if (b.actualCheckIn && b.actualCheckOut) {
+    const ms = new Date(b.actualCheckOut) - new Date(b.actualCheckIn);
+    const hours = Math.floor(ms / 3600000);
+    const minutes = Math.floor((ms % 3600000) / 60000);
+    stayDuration = `${hours}h ${minutes}m`;
+  } else {
+    stayDuration = `${b.duration}h`;
+  }
+
+  const tabs = [
+    { id: 'overview', label: 'Overview' },
+    { id: 'timing',   label: 'Timing'   },
+    { id: 'payment',  label: 'Payment'  },
+  ];
 
   return (
     <Modal
       isOpen={showDetailsModal}
       onClose={handleDetailsModalClose}
-      title="Booking Details"
+      title=""
       size="large"
     >
-      <div className="max-h-[80vh] overflow-y-auto">
-        <div className="space-y-4">
-          {/* Header Section */}
-          <div className="bg-gradient-to-r from-amber-50 to-amber-100 rounded-xl p-4 border border-amber-100">
-            <div className="flex items-center justify-between">
+      {/* Amber gradient header — bleeds to modal edges via negative margins matching modal-body px-6 py-4 */}
+      <div className="-mx-6 -mt-4 bg-gradient-to-r from-amber-400 to-amber-600 px-6 py-5">
+        <div className="text-xs font-semibold text-amber-100 uppercase tracking-widest mb-1">
+          Booking #{b.bookingNumber || b._id?.slice(-8)}
+        </div>
+        <div className="text-2xl font-extrabold text-white mb-3">
+          Room {b.room?.roomNumber} — {roomType}
+        </div>
+        <div className="flex items-center gap-3 flex-wrap">
+          <span className="bg-white/20 border border-white/30 text-white text-xs font-bold uppercase tracking-wide px-3 py-1 rounded-full">
+            {b.bookingStatus}
+          </span>
+          <span className="text-amber-100 text-xs">
+            {formatDateTime(b.checkInDate)} → {formatDateTime(b.checkOutDate)}
+          </span>
+        </div>
+      </div>
+
+      {/* Tab bar — also bleeds to edges */}
+      <div className="flex border-b border-amber-100 bg-amber-50 -mx-6">
+        {tabs.map(tab => (
+          <button
+            key={tab.id}
+            type="button"
+            onClick={() => setActiveTab(tab.id)}
+            className={`px-6 py-3 text-sm font-semibold transition-colors focus:outline-none ${
+              activeTab === tab.id
+                ? 'text-amber-900 border-b-2 border-amber-500 bg-white'
+                : 'text-amber-600 hover:text-amber-800 hover:bg-amber-100'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Tab content */}
+      <div className="pt-5">
+
+        {/* ── Overview ── */}
+        {activeTab === 'overview' && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <h3 className="text-lg text-gray-900 mb-1">
-                  Booking #{bookingToViewDetails.bookingNumber || bookingToViewDetails._id?.slice(-8)}
-                </h3>
-                <p className="text-sm text-gray-600">
-                  {isCheckedOut ? 'Checkout Completed' : 'Active Booking'}
+                <p className="text-xs font-bold text-amber-600 uppercase tracking-widest mb-1">Room</p>
+                <p className="text-xl font-extrabold text-stone-900">{b.room?.roomNumber}</p>
+                <p className="text-xs text-stone-500">
+                  {roomType} · {b.guestCount} guest{b.guestCount !== 1 ? 's' : ''}
                 </p>
               </div>
-              <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm ${getStatusBadge(bookingToViewDetails.bookingStatus)}`}>
-                {bookingToViewDetails.bookingStatus}
-              </span>
+              <div>
+                <p className="text-xs font-bold text-amber-600 uppercase tracking-widest mb-1">Guest</p>
+                <p className="text-base font-bold text-stone-900">
+                  {b.guest?.firstName} {b.guest?.lastName}
+                </p>
+                <p className="text-xs text-stone-500">{b.guest?.phone}</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-xs font-bold text-amber-600 uppercase tracking-widest mb-1">ID</p>
+                <p className="text-sm font-bold text-stone-900">{b.guest?.idType}</p>
+                <p className="text-xs text-stone-500">{b.guest?.idNumber}</p>
+              </div>
+              <div>
+                <p className="text-xs font-bold text-amber-600 uppercase tracking-widest mb-1">Payment</p>
+                <p className="text-sm font-bold text-emerald-600">{b.paymentStatus}</p>
+                <p className="text-xs text-stone-500">
+                  ₱{b.totalAmount?.toLocaleString()} · {b.paymentMethod || 'Not specified'}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+              <span className="text-sm text-amber-800">Total stay</span>
+              <span className="text-base font-extrabold text-amber-900">{stayDuration}</span>
             </div>
           </div>
+        )}
 
-          {/* Guest Information */}
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <h4 className="text-base text-gray-900 mb-3 flex items-center">
-              <svg className="w-4 h-4 text-amber-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-              Guest Information
-            </h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-3">
+        {/* ── Timing ── */}
+        {activeTab === 'timing' && (
+          <div className="space-y-4">
+            <div className="divide-y divide-amber-100">
+              <div className="flex items-start gap-3 pb-4">
+                <span className="mt-1.5 w-2.5 h-2.5 rounded-full bg-emerald-500 flex-shrink-0" />
                 <div>
-                  <label className="text-xs text-gray-500 block mb-1">Full Name</label>
-                  <p className="text-sm text-gray-900">{bookingToViewDetails.guest?.firstName} {bookingToViewDetails.guest?.lastName}</p>
-                </div>
-                <div>
-                  <label className="text-xs text-gray-500 block mb-1">Phone Number</label>
-                  <p className="text-sm text-gray-900">{bookingToViewDetails.guest?.phone}</p>
+                  <p className="text-xs font-bold text-amber-600 uppercase tracking-widest mb-1">Check-in</p>
+                  <p className="text-sm font-bold text-stone-900">{formatDateTime(b.checkInDate)}</p>
+                  {b.actualCheckIn && (
+                    <p className="text-xs text-stone-500 mt-0.5">Actual: {formatDateTime(b.actualCheckIn)}</p>
+                  )}
                 </div>
               </div>
-              <div className="space-y-3">
+              <div className="flex items-start gap-3 pt-4">
+                <span className="mt-1.5 w-2.5 h-2.5 rounded-full bg-amber-400 flex-shrink-0" />
                 <div>
-                  <label className="text-xs text-gray-500 block mb-1">ID Type</label>
-                  <p className="text-sm text-gray-900">{bookingToViewDetails.guest?.idType}</p>
-                </div>
-                <div>
-                  <label className="text-xs text-gray-500 block mb-1">ID Number</label>
-                  <p className="text-sm text-gray-900">{bookingToViewDetails.guest?.idNumber}</p>
+                  <p className="text-xs font-bold text-amber-600 uppercase tracking-widest mb-1">Check-out</p>
+                  <p className="text-sm font-bold text-stone-900">{formatDateTime(b.checkOutDate)}</p>
+                  {b.actualCheckOut
+                    ? <p className="text-xs text-stone-500 mt-0.5">Actual: {formatDateTime(b.actualCheckOut)}</p>
+                    : <p className="text-xs text-stone-400 mt-0.5">Not yet checked out</p>
+                  }
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Room Information */}
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <h4 className="text-base text-gray-900 mb-3 flex items-center">
-              <svg className="w-4 h-4 text-purple-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-              </svg>
-              Room Information
-            </h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-3">
-                <div>
-                  <label className="text-xs text-gray-500 block mb-1">Room Number</label>
-                  <p className="text-sm text-gray-900">#{bookingToViewDetails.room?.roomNumber}</p>
-                </div>
-                <div>
-                  <label className="text-xs text-gray-500 block mb-1">Room Type</label>
-                  <p className="text-sm text-gray-900">{typeof bookingToViewDetails.room?.roomType === 'object' ? bookingToViewDetails.room?.roomType?.name : bookingToViewDetails.room?.roomType}</p>
-                </div>
-              </div>
-              <div className="space-y-3">
-                <div>
-                  <label className="text-xs text-gray-500 block mb-1">Duration</label>
-                  <p className="text-sm text-gray-900">{bookingToViewDetails.duration} hours</p>
-                </div>
-                <div>
-                  <label className="text-xs text-gray-500 block mb-1">Guest Count</label>
-                  <p className="text-sm text-gray-900">{bookingToViewDetails.guestCount} guest{bookingToViewDetails.guestCount > 1 ? 's' : ''}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Timing Information */}
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <h4 className="text-base text-gray-900 mb-3 flex items-center">
-              <svg className="w-4 h-4 text-emerald-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Timing Details
-            </h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-3">
-                <div>
-                  <label className="text-xs text-gray-500 block mb-1">Scheduled Check-in</label>
-                  <p className="text-sm text-gray-900">{formatDateTime(bookingToViewDetails.checkInDate)}</p>
-                </div>
-                <div>
-                  <label className="text-xs text-gray-500 block mb-1">Actual Check-in</label>
-                  <p className={`text-sm ${bookingToViewDetails.actualCheckIn ? 'text-gray-900' : 'text-gray-400'}`}>
-                    {bookingToViewDetails.actualCheckIn ? formatDateTime(bookingToViewDetails.actualCheckIn) : 'Not recorded'}
-                  </p>
-                </div>
-              </div>
-              <div className="space-y-3">
-                <div>
-                  <label className="text-xs text-gray-500 block mb-1">Scheduled Check-out</label>
-                  <p className="text-sm text-gray-900">{calculateCheckOutTime(bookingToViewDetails.checkInDate, bookingToViewDetails.duration)}</p>
-                </div>
-                <div>
-                  <label className="text-xs text-gray-500 block mb-1">Actual Check-out</label>
-                  <p className={`text-sm ${bookingToViewDetails.actualCheckOut ? 'text-gray-900' : 'text-gray-400'}`}>
-                    {bookingToViewDetails.actualCheckOut ? formatDateTime(bookingToViewDetails.actualCheckOut) : 'Not recorded'}
-                  </p>
-                </div>
-              </div>
-            </div>
-            
-            {/* Duration Summary */}
-            {bookingToViewDetails.actualCheckIn && bookingToViewDetails.actualCheckOut && (
-              <div className="mt-4 pt-4 border-t border-gray-200">
-                <div className="bg-emerald-50 rounded-lg p-3 border border-emerald-200">
-                  <label className="text-xs text-emerald-700 block mb-1">Total Stay Duration</label>
-                  <p className="text-lg text-emerald-800">
-                    {(() => {
-                      const checkIn = new Date(bookingToViewDetails.actualCheckIn);
-                      const checkOut = new Date(bookingToViewDetails.actualCheckOut);
-                      const durationMs = checkOut.getTime() - checkIn.getTime();
-                      const hours = Math.floor(durationMs / (1000 * 60 * 60));
-                      const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
-                      return `${hours}h ${minutes}m`;
-                    })()}
-                  </p>
+            {hasExtensions && (
+              <div>
+                <p className="text-xs font-bold text-amber-600 uppercase tracking-widest mb-2">
+                  Extensions (+{b.extensionCharges.reduce((s, e) => s + e.hours, 0)}h total)
+                </p>
+                <div className="space-y-2">
+                  {b.extensionCharges.map((ext, i) => (
+                    <div key={i} className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-amber-900">
+                          +{ext.hours}h{ext.notes ? ` · ${ext.notes}` : ''}
+                        </span>
+                        <span className="text-sm font-bold text-amber-800">
+                          +₱{ext.charge?.toLocaleString()}
+                        </span>
+                      </div>
+                      <p className="text-xs text-stone-500 mt-1">
+                        New checkout: {formatDateTime(ext.newCheckOutDate)}
+                      </p>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
           </div>
+        )}
 
-          {/* Payment Information */}
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <h4 className="text-base text-gray-900 mb-3 flex items-center">
-              <svg className="w-4 h-4 text-amber-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-              </svg>
-              Payment Information
-            </h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-3">
-                <div>
-                  <label className="text-xs text-gray-500 block mb-1">Total Amount</label>
-                  <p className="text-sm text-gray-900">₱{bookingToViewDetails.totalAmount?.toLocaleString()}</p>
-                </div>
-                <div>
-                  <label className="text-xs text-gray-500 block mb-1">Paid Amount</label>
-                  <p className="text-sm text-emerald-600">₱{bookingToViewDetails.paidAmount?.toLocaleString() || '0'}</p>
-                </div>
+        {/* ── Payment ── */}
+        {activeTab === 'payment' && (
+          <div className="space-y-3">
+            <div className="divide-y divide-amber-100">
+              <div className="flex justify-between py-2.5">
+                <span className="text-sm text-stone-500">Base rate</span>
+                <span className="text-sm font-bold text-stone-900">
+                  ₱{(b.totalAmount - extensionTotal)?.toLocaleString()}
+                </span>
               </div>
-              <div className="space-y-3">
-                <div>
-                  <label className="text-xs text-gray-500 block mb-1">Payment Status</label>
-                  <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs ${getPaymentBadge(bookingToViewDetails.paymentStatus)}`}>
-                    {bookingToViewDetails.paymentStatus}
+              {hasExtensions && (
+                <div className="flex justify-between py-2.5">
+                  <span className="text-sm text-stone-500">Extension charges</span>
+                  <span className="text-sm font-bold text-stone-900">
+                    ₱{extensionTotal.toLocaleString()}
                   </span>
                 </div>
-                <div>
-                  <label className="text-xs text-gray-500 block mb-1">Payment Method</label>
-                  <p className="text-sm text-gray-900">{bookingToViewDetails.paymentMethod || 'Not specified'}</p>
-                </div>
+              )}
+              <div className="flex justify-between py-2.5">
+                <span className="text-sm text-stone-500">Payment method</span>
+                <span className="text-sm font-bold text-stone-900">
+                  {b.paymentMethod || 'Not specified'}
+                </span>
+              </div>
+              <div className="flex justify-between py-2.5">
+                <span className="text-sm text-stone-500">Amount paid</span>
+                <span className="text-sm font-bold text-emerald-600">
+                  ₱{b.paidAmount?.toLocaleString() || '0'}
+                </span>
               </div>
             </div>
-          </div>
 
-          {/* Additional Information */}
-          {(bookingToViewDetails.specialRequests || bookingToViewDetails.notes) && (
-            <div className="bg-white rounded-xl border border-gray-200 p-4">
-              <h4 className="text-base text-gray-900 mb-3 flex items-center">
-                <svg className="w-4 h-4 text-slate-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                Additional Information
-              </h4>
-              <div className="space-y-3">
-                {bookingToViewDetails.specialRequests && (
+            <div className="flex justify-between items-center bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+              <span className="text-sm font-bold text-amber-900">Total</span>
+              <span className="text-xl font-extrabold text-amber-900">
+                ₱{b.totalAmount?.toLocaleString()}
+              </span>
+            </div>
+
+            {(b.specialRequests || b.notes) && (
+              <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 space-y-2">
+                {b.specialRequests && (
                   <div>
-                    <label className="text-xs text-gray-500 block mb-1">Special Requests</label>
-                    <div className="bg-gray-50 rounded-lg p-3 border">
-                      <p className="text-sm text-gray-900 leading-relaxed">{bookingToViewDetails.specialRequests}</p>
-                    </div>
+                    <p className="text-xs font-bold text-amber-600 uppercase tracking-widest mb-1">
+                      Special Requests
+                    </p>
+                    <p className="text-sm text-amber-900">{b.specialRequests}</p>
                   </div>
                 )}
-                {bookingToViewDetails.notes && (
+                {b.notes && (
                   <div>
-                    <label className="text-xs text-gray-500 block mb-1">Notes</label>
-                    <div className="bg-gray-50 rounded-lg p-3 border">
-                      <p className="text-sm text-gray-900 leading-relaxed">{bookingToViewDetails.notes}</p>
-                    </div>
+                    <p className="text-xs font-bold text-amber-600 uppercase tracking-widest mb-1">
+                      Notes
+                    </p>
+                    <p className="text-sm text-amber-900">{b.notes}</p>
                   </div>
                 )}
               </div>
-            </div>
-          )}
-
-          {/* Booking Metadata */}
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <h4 className="text-base text-gray-900 mb-3 flex items-center">
-              <svg className="w-4 h-4 text-gray-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Booking Information
-            </h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-3">
-                <div>
-                  <label className="text-xs text-gray-500 block mb-1">Status</label>
-                  <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs ${getStatusBadge(bookingToViewDetails.bookingStatus)}`}>
-                    {bookingToViewDetails.bookingStatus}
-                  </span>
-                </div>
-                <div>
-                  <label className="text-xs text-gray-500 block mb-1">Created By</label>
-                  <p className="text-sm text-gray-900">{bookingToViewDetails.createdBy?.name || 'System'}</p>
-                </div>
-              </div>
-              <div className="space-y-3">
-                <div>
-                  <label className="text-xs text-gray-500 block mb-1">Created</label>
-                  <p className="text-sm text-gray-900">{formatDateTime(bookingToViewDetails.createdAt)}</p>
-                </div>
-                <div>
-                  <label className="text-xs text-gray-500 block mb-1">Updated</label>
-                  <p className="text-sm text-gray-900">{formatDateTime(bookingToViewDetails.updatedAt)}</p>
-                </div>
-              </div>
-            </div>
+            )}
           </div>
-        </div>
+        )}
+
       </div>
     </Modal>
   );
