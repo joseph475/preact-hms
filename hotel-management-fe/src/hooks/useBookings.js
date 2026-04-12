@@ -49,17 +49,9 @@ export const useBookings = () => {
 
   const handleCheckIn = async (bookingId) => {
     try {
-      // Set check-in time to current time when button is clicked
-      const actualCheckInTime = new Date().toISOString();
-      const response = await apiService.updateBooking(bookingId, { 
-        bookingStatus: 'Checked In',
-        checkInDate: actualCheckInTime
-      });
+      const response = await apiService.checkInGuest(bookingId);
       if (response.success) {
-        // Invalidate global cache for rooms to ensure all components get fresh data
         cacheService.invalidate('rooms');
-        
-        // Refresh all data including rooms to update room status
         await Promise.all([
           refreshBookings(),
           refreshRooms(),
@@ -79,12 +71,14 @@ export const useBookings = () => {
       const extTotal = (booking?.extensionCharges || []).reduce((s, c) => s + (c.charge || 0), 0);
       const grandTotal = (booking?.totalAmount || 0) + foodTotal + extTotal;
 
-      const response = await apiService.updateBooking(bookingId, {
-        bookingStatus: 'Checked Out',
-        paymentStatus: 'Paid',
-        paidAmount: grandTotal
-      });
-      if (response.success) {
+      // Use dedicated checkout endpoint (sets actualCheckOut + room to Needs Cleaning)
+      const checkOutResponse = await apiService.checkOutGuest(bookingId);
+      if (checkOutResponse.success) {
+        // Record payment separately
+        await apiService.updateBooking(bookingId, {
+          paymentStatus: 'Paid',
+          paidAmount: grandTotal
+        });
         cacheService.invalidate('rooms');
         await Promise.all([
           refreshBookings(),

@@ -248,7 +248,7 @@ const BookingsPage = ({ user }) => {
         isVip: booking.guest?.isVip || false
       },
       room: booking.room._id,
-      checkInDate: checkInDate.toISOString().split('T')[0],
+      checkInDate: `${checkInDate.getFullYear()}-${String(checkInDate.getMonth() + 1).padStart(2, '0')}-${String(checkInDate.getDate()).padStart(2, '0')}`,
       checkInTime: checkInDate.toTimeString().slice(0, 5),
       duration: booking.duration.toString(),
       bookingStatus: booking.bookingStatus,
@@ -352,7 +352,7 @@ const BookingsPage = ({ user }) => {
   const resetForm = () => {
     // Get current date and time
     const now = new Date();
-    const currentDate = now.toISOString().split('T')[0]; // YYYY-MM-DD format
+    const currentDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     const currentTime = now.toTimeString().slice(0, 5); // HH:MM format
     
     setFormData({

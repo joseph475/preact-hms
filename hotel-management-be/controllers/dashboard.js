@@ -216,3 +216,29 @@ exports.getRevenueAnalytics = asyncHandler(async (req, res, next) => {
     data: revenueData
   });
 });
+
+// @desc    Get today's arrivals and departures
+// @route   GET /api/v1/dashboard/today
+// @access  Private
+exports.getTodayPanel = asyncHandler(async (req, res, next) => {
+  const today = new Date();
+  const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const endOfToday   = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+
+  const [arriving, departing] = await Promise.all([
+    Booking.find({
+      checkInDate:   { $gte: startOfToday, $lt: endOfToday },
+      bookingStatus: 'Confirmed'
+    }).populate('room', 'roomNumber roomType').sort({ checkInDate: 1 }),
+
+    Booking.find({
+      checkOutDate:  { $gte: startOfToday, $lt: endOfToday },
+      bookingStatus: 'Checked In'
+    }).populate('room', 'roomNumber roomType').sort({ checkOutDate: 1 })
+  ]);
+
+  res.status(200).json({
+    success: true,
+    data: { arriving, departing }
+  });
+});

@@ -5,6 +5,65 @@ import { useSearch } from '../../../hooks/useSearch';
 import Pagination from '../../common/Pagination';
 import ReportsSkeleton from '../../common/skeletons/ReportsSkeleton';
 
+const RevenueBarChart = ({ data }) => {
+  if (!data || data.length === 0) {
+    return (
+      <div className="card mb-6 text-center py-6">
+        <p className="text-sm text-gray-400">No revenue data for this period</p>
+      </div>
+    );
+  }
+
+  const maxRevenue = Math.max(...data.map(d => d.totalRevenue || 0), 1);
+  const WIDTH = 400;
+  const HEIGHT = 120;
+  const BAR_GAP = 4;
+  const barWidth = Math.max(4, Math.floor((WIDTH - BAR_GAP) / data.length) - BAR_GAP);
+
+  const formatLabel = (id) => {
+    if (!id) return '';
+    if (id.day) {
+      return new Date(id.year, id.month - 1, id.day)
+        .toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+    return new Date(id.year, id.month - 1, 1)
+      .toLocaleDateString('en-US', { month: 'short' });
+  };
+
+  return (
+    <div className="card mb-6">
+      <h3 className="text-sm font-semibold text-primary-900 mb-3">Revenue Over Time</h3>
+      <svg
+        viewBox={`0 0 ${WIDTH} ${HEIGHT + 20}`}
+        preserveAspectRatio="xMidYMid meet"
+        className="w-full"
+        style={{ height: '160px' }}
+        role="img"
+        aria-label="Revenue bar chart"
+      >
+        {data.map((item, i) => {
+          const barH = Math.max(2, Math.round(((item.totalRevenue || 0) / maxRevenue) * HEIGHT));
+          const x = i * (barWidth + BAR_GAP) + BAR_GAP;
+          const y = HEIGHT - barH;
+          const label = formatLabel(item._id);
+          return (
+            <g key={i}>
+              <rect x={x} y={y} width={barWidth} height={barH} fill="#f59e0b" rx="2">
+                <title>{label}: ₱{(item.totalRevenue || 0).toLocaleString()} ({item.totalBookings} booking{item.totalBookings !== 1 ? 's' : ''})</title>
+              </rect>
+              {data.length <= 14 && (
+                <text x={x + barWidth / 2} y={HEIGHT + 14} textAnchor="middle" fontSize="7" fill="#92400e">
+                  {label}
+                </text>
+              )}
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+  );
+};
+
 const ReportsPage = ({ user }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -376,6 +435,9 @@ const ReportsPage = ({ user }) => {
             ))}
           </div>
         </div>
+
+        {/* Revenue Over Time bar chart */}
+        <RevenueBarChart data={revenueReports.revenueOverTime || []} />
 
         {/* Revenue by Room Type table */}
         {(revenueReports.revenueByRoomType || []).length > 0 && (

@@ -290,6 +290,10 @@ class ApiService {
     return this.cachedRequest('/guests/search', { q: query });
   }
 
+  async getGuestBookings(guestId) {
+    return this.request(`/guests/${guestId}/bookings`);
+  }
+
   // Booking methods
   async getBookings(params = {}) {
     return this.cachedRequest('/bookings', params);
@@ -372,6 +376,10 @@ class ApiService {
 
   async getRevenueAnalytics(params = {}) {
     return this.cachedRequest('/dashboard/revenue', params);
+  }
+
+  async getDashboardToday() {
+    return this.request('/dashboard/today');
   }
 
   // User methods

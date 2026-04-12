@@ -111,6 +111,37 @@ See `DEPLOYMENT_GUIDE.md` for full step-by-step instructions.
 
 ---
 
+## UI Design System
+
+### Skeleton Loading Pattern
+- All full-page loading states use skeleton components, NOT spinners
+- Skeletons live in `src/components/common/skeletons/` — one per page
+- Use `.bone` CSS class (defined in `src/styles/index.css`) for shimmer placeholders
+- Button/inline spinners are kept for form submissions and modal actions
+
+### Color Palette
+- Design uses warm **amber** throughout — amber-50/100/200/300/400/500/600/700
+- No blue anywhere in the UI — all blues have been replaced with amber equivalents
+- Focus rings: `focus:ring-amber-400`, active states: `bg-amber-500`
+
+### CSS Utilities (`src/styles/index.css`)
+- `.bone` — amber shimmer animation for skeleton screens
+- `.action-btn` — standard action button style
+- `.badge` — pill badge style
+- `.dashboard-section` — dashboard card section wrapper
+- `.custom-scrollbar` — amber-tinted slim scrollbar
+- `.status-dot`, `.status-dot-green/yellow/red/amber/gray` — colored status indicators
+
+### Modal Behavior
+- `Modal.jsx` locks `document.body.style.overflow = 'hidden'` when open — no double-scrollbar issues
+- All modals use the shared `Modal` component from `src/components/common/Modal.jsx`
+
+### Notifications
+- `src/hooks/useNotifications.js` — polls bookings every 60s, surfaces check-ins within 30-min window
+- Shown in `Header.jsx` notification bell
+
+---
+
 ## Important Notes
 - Frontend uses **Preact**, not React — same JSX API but different import paths in some cases
 - Do NOT select React/Next.js framework preset on Vercel for the frontend — use "Other"
@@ -130,6 +161,14 @@ All implemented and working:
 3. **CSV Export on Reports** — "Download CSV" button, tab-aware columns (Bookings / Revenue / Occupancy)
 4. **ADR & RevPAR in Revenue Report tab** — compact single-row summary bar with all 5 metrics
 5. **VIP & Nationality on Guests** — fields on Guest model; input in booking form Step 1; VIP badge + nationality shown in guest list
+
+## Completed Upgrades (UI Redesign)
+
+1. **Amber design system** — full amber palette, icon-only sidebar, warm boutique aesthetic
+2. **Skeleton screens** — `.bone` shimmer skeletons on all 7 pages replace full-page spinners
+3. **BookingDetailsModal redesign** — tabbed layout with amber gradient header
+4. **SettingsPage redesign** — modal-based settings with stacked layout
+5. **Notifications** — bell icon in header, polls bookings, 30-min arrival alerts (`useNotifications.js`)
 
 ---
 

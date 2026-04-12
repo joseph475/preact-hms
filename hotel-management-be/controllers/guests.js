@@ -1,6 +1,7 @@
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 const Guest = require('../models/Guest');
+const Booking = require('../models/Booking');
 
 // @desc    Get all guests
 // @route   GET /api/v1/guests
@@ -172,5 +173,31 @@ exports.searchGuests = asyncHandler(async (req, res, next) => {
     success: true,
     count: guests.length,
     data: guests
+  });
+});
+
+// @desc    Get all bookings for a guest
+// @route   GET /api/v1/guests/:id/bookings
+// @access  Private
+exports.getGuestBookings = asyncHandler(async (req, res, next) => {
+  const guest = await Guest.findById(req.params.id);
+
+  if (!guest) {
+    return next(new ErrorResponse(`Guest not found with id of ${req.params.id}`, 404));
+  }
+
+  const bookings = await Booking.find({
+    'guest.phone':    guest.phone,
+    'guest.idNumber': guest.idNumber
+  })
+    .populate('room', 'roomNumber roomType')
+    .sort({ checkInDate: -1 });
+
+  res.status(200).json({
+    success: true,
+    data: {
+      bookings,
+      guest: { firstName: guest.firstName, lastName: guest.lastName }
+    }
   });
 });

@@ -5,7 +5,8 @@ const {
   createGuest,
   updateGuest,
   deleteGuest,
-  searchGuests
+  searchGuests,
+  getGuestBookings
 } = require('../controllers/guests');
 
 const router = express.Router();
@@ -21,6 +22,8 @@ router
   .route('/')
   .get(authorize('admin', 'user'), getGuests)
   .post(authorize('admin', 'user'), createGuest);
+
+router.get('/:id/bookings', authorize('admin', 'user'), getGuestBookings);
 
 router
   .route('/:id')

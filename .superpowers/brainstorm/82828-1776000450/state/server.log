@@ -1,3 +1,4 @@
 {"type":"server-started","port":60155,"host":"127.0.0.1","url_host":"localhost","url":"http://localhost:60155","screen_dir":"/Users/joseph-macbookpro-m3/Documents/Apps/practice/HMS/.superpowers/brainstorm/82828-1776000450/content","state_dir":"/Users/joseph-macbookpro-m3/Documents/Apps/practice/HMS/.superpowers/brainstorm/82828-1776000450/state"}
 {"type":"screen-added","file":"/Users/joseph-macbookpro-m3/Documents/Apps/practice/HMS/.superpowers/brainstorm/82828-1776000450/content/settings-redesign.html"}
 {"type":"screen-added","file":"/Users/joseph-macbookpro-m3/Documents/Apps/practice/HMS/.superpowers/brainstorm/82828-1776000450/content/settings-redesign-v2.html"}
+{"type":"server-stopped","reason":"idle timeout"}

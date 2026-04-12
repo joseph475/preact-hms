@@ -131,6 +131,15 @@ const BookingSchema = new mongoose.Schema({
     type: String,
     maxlength: [1000, 'Notes cannot be more than 1000 characters']
   },
+  auditLog: [{
+    action: {
+      type: String,
+      enum: ['Created', 'Checked In', 'Checked Out', 'Cancelled', 'No Show', 'Extended', 'Food Order Added']
+    },
+    performedBy: { type: String },
+    timestamp: { type: Date, default: Date.now },
+    notes: { type: String }
+  }],
   createdBy: {
     type: mongoose.Schema.ObjectId,
     ref: 'User',

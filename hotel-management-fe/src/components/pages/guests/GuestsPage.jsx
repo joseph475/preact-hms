@@ -6,6 +6,77 @@ import Pagination from '../../common/Pagination';
 import Modal from '../../common/Modal';
 import GuestsSkeleton from '../../common/skeletons/GuestsSkeleton';
 
+const GuestBookingHistoryModal = ({ isOpen, onClose, guest, bookings, loading }) => {
+  const formatDate = (d) => d
+    ? new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    : '—';
+
+  const badgeClass = (status) => ({
+    'Confirmed':   'badge-info',
+    'Checked In':  'badge-success',
+    'Checked Out': 'badge-secondary',
+    'Cancelled':   'badge-danger',
+    'No Show':     'badge-warning'
+  }[status] || 'badge-secondary');
+
+  return (
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={guest ? `Booking History — ${guest.firstName} ${guest.lastName}` : 'Booking History'}
+      size="large"
+      footer={
+        <button type="button" onClick={onClose} className="btn-outline">Close</button>
+      }
+    >
+      {loading ? (
+        <div className="space-y-3 py-4">
+          {[1, 2, 3].map(i => (
+            <div key={i} className="flex gap-3 items-center">
+              <div className="bone h-4 flex-1" />
+              <div className="bone h-4 w-16" />
+              <div className="bone h-4 w-16" />
+              <div className="bone h-4 w-20" />
+            </div>
+          ))}
+        </div>
+      ) : bookings.length === 0 ? (
+        <div className="text-center py-8">
+          <p className="text-sm font-medium text-gray-500">No bookings yet</p>
+          <p className="text-xs text-gray-400 mt-1">This guest has no recorded bookings.</p>
+        </div>
+      ) : (
+        <div className="table-container">
+          <table className="table">
+            <thead className="table-header">
+              <tr>
+                <th className="table-header-cell">Date</th>
+                <th className="table-header-cell">Room</th>
+                <th className="table-header-cell">Duration</th>
+                <th className="table-header-cell">Amount</th>
+                <th className="table-header-cell">Status</th>
+              </tr>
+            </thead>
+            <tbody className="table-body">
+              {bookings.map(b => (
+                <tr key={b._id} className="table-row">
+                  <td className="table-cell text-xs">{formatDate(b.checkInDate)}</td>
+                  <td className="table-cell text-xs">Room {b.room?.roomNumber}</td>
+                  <td className="table-cell text-xs">{b.duration}h</td>
+                  <td className="table-cell text-xs">₱{(b.totalAmount || 0).toLocaleString()}</td>
+                  <td className="table-cell">
+                    <span className={`badge ${badgeClass(b.bookingStatus)}`}>{b.bookingStatus}</span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </Modal>
+  );
+};
+
 const GuestsPage = ({ user }) => {
   const [guests, setGuests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -16,6 +87,10 @@ const GuestsPage = ({ user }) => {
   const { searchTerm, updateCurrentPage } = useSearch();
   const [showNotesModal, setShowNotesModal] = useState(false);
   const [selectedGuest, setSelectedGuest] = useState(null);
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [historyGuest, setHistoryGuest] = useState(null);
+  const [guestBookings, setGuestBookings] = useState([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
 
   useEffect(() => {
     updateCurrentPage('/guests');
@@ -46,6 +121,24 @@ const GuestsPage = ({ user }) => {
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
+  };
+
+  const openHistory = async (guest) => {
+    setHistoryLoading(true);
+    setGuestBookings([]);
+    setHistoryGuest(null);
+    setShowHistoryModal(true);
+    try {
+      const res = await apiService.getGuestBookings(guest._id);
+      if (res.success) {
+        setGuestBookings(res.data.bookings);
+        setHistoryGuest(res.data.guest);
+      }
+    } catch (err) {
+      // error modal shown by apiService
+    } finally {
+      setHistoryLoading(false);
+    }
   };
 
   const loadGuests = async () => {
@@ -122,6 +215,7 @@ const GuestsPage = ({ user }) => {
               <th className="table-header-cell">Contact</th>
               <th className="table-header-cell">Identification</th>
               <th className="table-header-cell">Registration Date</th>
+              <th className="table-header-cell"></th>
             </tr>
           </thead>
           <tbody className="table-body">
@@ -196,6 +290,18 @@ const GuestsPage = ({ user }) => {
                       })}
                     </div>
                   </div>
+                </td>
+                <td className="table-cell text-right">
+                  <button
+                    onClick={() => openHistory(guest)}
+                    className="action-btn action-btn-info"
+                    title="View booking history"
+                  >
+                    <svg className="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    History
+                  </button>
                 </td>
               </tr>
             ))}
@@ -279,6 +385,15 @@ const GuestsPage = ({ user }) => {
           </div>
         </div>
       )}
+
+      {/* Booking History Modal */}
+      <GuestBookingHistoryModal
+        isOpen={showHistoryModal}
+        onClose={() => setShowHistoryModal(false)}
+        guest={historyGuest}
+        bookings={guestBookings}
+        loading={historyLoading}
+      />
 
       {/* Notes Modal */}
       <Modal

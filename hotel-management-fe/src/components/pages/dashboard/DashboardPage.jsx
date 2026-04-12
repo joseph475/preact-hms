@@ -25,8 +25,31 @@ const DashboardPage = ({ user }) => {
     }
   );
 
+  const {
+    data: todayResponse,
+    refresh: refreshToday
+  } = useSimpleCache(
+    '/dashboard/today',
+    () => apiService.getDashboardToday(),
+    { refreshInterval: 60 * 1000 }
+  );
+
   const stats = statsResponse?.data;
   const rooms = roomsResponse?.data || [];
+  const todayData = todayResponse?.data || { arriving: [], departing: [] };
+
+  const handleQuickAction = async (action, bookingId) => {
+    try {
+      if (action === 'checkin') {
+        await apiService.checkInGuest(bookingId);
+      } else {
+        await apiService.checkOutGuest(bookingId);
+      }
+      refreshToday();
+    } catch (err) {
+      // error modal shown by apiService errorHandler
+    }
+  };
 
   if (loading) {
     return <DashboardSkeleton />;
@@ -144,6 +167,85 @@ const DashboardPage = ({ user }) => {
           }
           iconBg="bg-indigo-500"
         />
+      </div>
+
+      {/* Today's Arrivals & Departures */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        {/* Arriving Today */}
+        <div className="card">
+          <div className="flex items-center gap-2 mb-3">
+            <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14" />
+            </svg>
+            <h3 className="text-sm font-semibold text-primary-900">Arriving Today</h3>
+            <span className="ml-auto text-xs text-gray-400">{todayData.arriving.length}</span>
+          </div>
+          {todayData.arriving.length === 0 ? (
+            <p className="text-sm text-gray-400 text-center py-4">None today</p>
+          ) : (
+            <table className="w-full">
+              <tbody>
+                {todayData.arriving.map(b => (
+                  <tr key={b._id} className="table-row">
+                    <td className="table-cell">
+                      <div className="font-medium text-gray-900 text-sm">{b.guest.firstName} {b.guest.lastName}</div>
+                      <div className="text-xs text-gray-500">Room {b.room?.roomNumber}</div>
+                    </td>
+                    <td className="table-cell text-xs text-gray-500 whitespace-nowrap">
+                      {new Date(b.checkInDate).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                    </td>
+                    <td className="table-cell text-right">
+                      <button
+                        onClick={() => handleQuickAction('checkin', b._id)}
+                        className="action-btn action-btn-success text-xs"
+                      >
+                        Check In
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+
+        {/* Departing Today */}
+        <div className="card">
+          <div className="flex items-center gap-2 mb-3">
+            <svg className="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+            <h3 className="text-sm font-semibold text-primary-900">Departing Today</h3>
+            <span className="ml-auto text-xs text-gray-400">{todayData.departing.length}</span>
+          </div>
+          {todayData.departing.length === 0 ? (
+            <p className="text-sm text-gray-400 text-center py-4">None today</p>
+          ) : (
+            <table className="w-full">
+              <tbody>
+                {todayData.departing.map(b => (
+                  <tr key={b._id} className="table-row">
+                    <td className="table-cell">
+                      <div className="font-medium text-gray-900 text-sm">{b.guest.firstName} {b.guest.lastName}</div>
+                      <div className="text-xs text-gray-500">Room {b.room?.roomNumber}</div>
+                    </td>
+                    <td className="table-cell text-xs text-gray-500 whitespace-nowrap">
+                      {new Date(b.checkOutDate).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                    </td>
+                    <td className="table-cell text-right">
+                      <button
+                        onClick={() => handleQuickAction('checkout', b._id)}
+                        className="action-btn action-btn-warning text-xs"
+                      >
+                        Check Out
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
       </div>
 
       {/* Room Status Grid */}

@@ -3,6 +3,13 @@ const asyncHandler = require('../middleware/async');
 const Booking = require('../models/Booking');
 const Room = require('../models/Room');
 
+const makeAuditEntry = (action, req, notes) => ({
+  action,
+  performedBy: req.user?.name || req.user?.email || 'System',
+  timestamp: new Date(),
+  ...(notes ? { notes } : {})
+});
+
 // @desc    Get all bookings
 // @route   GET /api/v1/bookings
 // @access  Private
@@ -154,6 +161,10 @@ exports.createBooking = asyncHandler(async (req, res, next) => {
   }
 
   const booking = await Booking.create(req.body);
+
+  // Record audit entry
+  booking.auditLog.push(makeAuditEntry('Created', req));
+  await booking.save();
 
   // Update room status to Occupied if booking is confirmed
   if (booking.bookingStatus === 'Confirmed') {
@@ -310,6 +321,7 @@ exports.deleteBooking = asyncHandler(async (req, res, next) => {
   booking.bookingStatus = 'Cancelled';
   booking.cancellationDate = new Date();
   booking.cancellationReason = req.body.reason || 'Booking deleted by user';
+  booking.auditLog.push(makeAuditEntry('Cancelled', req, booking.cancellationReason));
   await booking.save();
 
   // Update room status back to Available
@@ -339,6 +351,7 @@ exports.checkIn = asyncHandler(async (req, res, next) => {
 
   booking.bookingStatus = 'Checked In';
   booking.actualCheckIn = new Date();
+  booking.auditLog.push(makeAuditEntry('Checked In', req));
   await booking.save();
 
   // Update room status
@@ -368,6 +381,7 @@ exports.checkOut = asyncHandler(async (req, res, next) => {
 
   booking.bookingStatus = 'Checked Out';
   booking.actualCheckOut = new Date();
+  booking.auditLog.push(makeAuditEntry('Checked Out', req));
   await booking.save();
 
   // Update room status to Needs Cleaning after checkout
@@ -398,6 +412,7 @@ exports.cancelBooking = asyncHandler(async (req, res, next) => {
   booking.bookingStatus = 'Cancelled';
   booking.cancellationDate = new Date();
   booking.cancellationReason = req.body.reason || 'No reason provided';
+  booking.auditLog.push(makeAuditEntry('Cancelled', req, booking.cancellationReason));
   await booking.save();
 
   // Update room status back to Available
@@ -427,6 +442,7 @@ exports.markNoShow = asyncHandler(async (req, res, next) => {
 
   booking.bookingStatus = 'No Show';
   booking.notes = req.body.notes || booking.notes;
+  booking.auditLog.push(makeAuditEntry('No Show', req, req.body.notes || undefined));
   await booking.save();
 
   // Update room status back to Available
@@ -493,6 +509,7 @@ exports.addFoodOrder = asyncHandler(async (req, res, next) => {
     total: (unitPrice || 0) * qty,
     notes
   });
+  booking.auditLog.push(makeAuditEntry('Food Order Added', req, name));
   await booking.save();
   const populated = await Booking.findById(booking._id).populate({ path: 'room', populate: { path: 'roomType' } });
   res.status(200).json({ success: true, data: populated });
@@ -530,6 +547,7 @@ exports.extendBooking = asyncHandler(async (req, res, next) => {
   const newCheckOutDate = new Date(new Date(booking.checkOutDate).getTime() + (hours * 60 * 60 * 1000));
   booking.extensionCharges.push({ hours, charge, newCheckOutDate, notes });
   booking.checkOutDate = newCheckOutDate;
+  booking.auditLog.push(makeAuditEntry('Extended', req, `+${hours}h`));
   await booking.save();
   const populated = await Booking.findById(booking._id).populate({ path: 'room', populate: { path: 'roomType' } });
   res.status(200).json({ success: true, data: populated });

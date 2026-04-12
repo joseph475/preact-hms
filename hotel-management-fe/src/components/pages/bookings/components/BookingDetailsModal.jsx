@@ -41,6 +41,7 @@ const BookingDetailsModal = ({
     { id: 'overview', label: 'Overview' },
     { id: 'timing',   label: 'Timing'   },
     { id: 'payment',  label: 'Payment'  },
+    { id: 'audit',    label: 'Activity' },
   ];
 
   return (
@@ -255,6 +256,54 @@ const BookingDetailsModal = ({
                   </div>
                 )}
               </div>
+            )}
+          </div>
+        )}
+
+        {/* ── Activity / Audit ── */}
+        {activeTab === 'audit' && (
+          <div>
+            {(!b.auditLog || b.auditLog.length === 0) ? (
+              <div className="text-center py-8">
+                <p className="text-sm text-gray-400">No activity recorded</p>
+                <p className="text-xs text-gray-300 mt-1">Old bookings may not have an activity log.</p>
+              </div>
+            ) : (
+              <ol className="relative border-l border-amber-200 ml-3 space-y-4">
+                {[...b.auditLog].reverse().map((entry, i) => {
+                  const dotColor = {
+                    'Created':          'bg-blue-500',
+                    'Checked In':       'bg-green-500',
+                    'Checked Out':      'bg-amber-500',
+                    'Cancelled':        'bg-red-500',
+                    'No Show':          'bg-red-400',
+                    'Extended':         'bg-gray-400',
+                    'Food Order Added': 'bg-gray-400',
+                  }[entry.action] || 'bg-gray-300';
+                  return (
+                    <li key={i} className="ml-4">
+                      <span className={`absolute -left-1.5 mt-1.5 w-3 h-3 rounded-full border-2 border-white ${dotColor}`} />
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <p className="text-sm font-bold text-stone-900">{entry.action}</p>
+                          <p className="text-xs text-stone-500">{entry.performedBy}</p>
+                          {entry.notes && (
+                            <p className="text-xs text-stone-400 mt-0.5 italic">{entry.notes}</p>
+                          )}
+                        </div>
+                        <time className="text-xs text-stone-400 whitespace-nowrap flex-shrink-0">
+                          {entry.timestamp
+                            ? new Date(entry.timestamp).toLocaleString('en-US', {
+                                month: 'short', day: 'numeric',
+                                hour: '2-digit', minute: '2-digit'
+                              })
+                            : '—'}
+                        </time>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ol>
             )}
           </div>
         )}
