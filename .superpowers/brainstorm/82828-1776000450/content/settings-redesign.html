@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Settings Page Redesign</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f3ef; color: #1a1209; }
+
+  .page-shell { display: flex; min-height: 100vh; }
+  .sidebar { width: 200px; background: #1a1209; padding: 20px 0; flex-shrink: 0; }
+  .sidebar-logo { color: #f59e0b; font-weight: 700; font-size: 16px; padding: 0 16px 20px; border-bottom: 1px solid #333; }
+  .sidebar-item { padding: 10px 16px; color: #aaa; font-size: 13px; cursor: pointer; }
+  .sidebar-item.active { background: rgba(245,158,11,0.15); color: #f59e0b; border-right: 3px solid #f59e0b; }
+  .main { flex: 1; display: flex; flex-direction: column; }
+  .topbar { background: white; border-bottom: 1px solid #e5e0d5; padding: 12px 24px; display: flex; align-items: center; gap: 8px; }
+  .topbar-title { font-weight: 600; font-size: 15px; color: #1a1209; }
+
+  .content { padding: 24px; }
+
+  .page-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 20px; }
+  .page-header h1 { font-size: 22px; font-weight: 700; color: #1a1209; }
+  .page-header p { font-size: 13px; color: #78716c; margin-top: 2px; }
+
+  .btn-add {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white; font-weight: 600; font-size: 14px;
+    padding: 9px 18px; border-radius: 8px; border: none; cursor: pointer;
+    box-shadow: 0 2px 6px rgba(245,158,11,0.35);
+  }
+  .btn-add:hover { opacity: 0.9; }
+
+  .card { background: white; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); overflow: hidden; }
+  .card-header { padding: 16px 20px; border-bottom: 1px solid #f0ece4; display: flex; align-items: center; justify-content: space-between; }
+  .card-header h2 { font-size: 15px; font-weight: 600; color: #1a1209; }
+  .badge { background: #fef3c7; color: #92400e; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 12px; }
+
+  .room-type-row { padding: 14px 20px; border-bottom: 1px solid #f5f3ef; display: flex; align-items: flex-start; gap: 12px; }
+  .room-type-row:last-child { border-bottom: none; }
+  .rt-info { flex: 1; min-width: 0; }
+  .rt-name { font-weight: 600; font-size: 14px; color: #1a1209; }
+  .rt-meta { font-size: 12px; color: #78716c; margin-top: 2px; }
+  .rt-pricing { display: flex; gap: 6px; margin-top: 8px; }
+  .price-chip { background: #fef9ee; border: 1px solid #fde68a; border-radius: 6px; padding: 4px 10px; text-align: center; }
+  .price-chip .label { font-size: 10px; color: #92400e; display: block; }
+  .price-chip .amount { font-size: 12px; font-weight: 700; color: #1a1209; display: block; }
+  .rt-actions { display: flex; gap: 6px; flex-shrink: 0; }
+  .action-btn { width: 32px; height: 32px; border-radius: 7px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .action-btn.edit { background: #fef3c7; color: #d97706; }
+  .action-btn.del { background: #fee2e2; color: #ef4444; }
+  .action-btn svg { width: 15px; height: 15px; }
+
+  /* === MODAL OVERLAY === */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.45);
+    backdrop-filter: blur(2px);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100;
+  }
+  .modal-box {
+    background: white; border-radius: 16px;
+    width: 480px; max-width: 95vw;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    overflow: hidden;
+  }
+  .modal-head {
+    background: linear-gradient(135deg, #1a1209 0%, #2d1f0a 100%);
+    padding: 18px 22px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .modal-head h3 { color: #f59e0b; font-size: 16px; font-weight: 700; }
+  .modal-close { background: rgba(255,255,255,0.12); border: none; border-radius: 6px; color: #f59e0b; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; }
+  .modal-body { padding: 20px 22px; }
+  .form-row { margin-bottom: 14px; }
+  .form-label { display: block; font-size: 12px; font-weight: 600; color: #78716c; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 5px; }
+  .form-input { width: 100%; border: 1.5px solid #e5e0d5; border-radius: 8px; padding: 8px 12px; font-size: 14px; color: #1a1209; outline: none; }
+  .form-input:focus { border-color: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,0.12); }
+  .pricing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .pricing-cell .form-label { font-size: 11px; }
+  .modal-footer { padding: 14px 22px; background: #fafaf9; border-top: 1px solid #f0ece4; display: flex; gap: 10px; justify-content: flex-end; }
+  .btn-cancel { padding: 8px 16px; border: 1.5px solid #e5e0d5; border-radius: 8px; background: white; color: #78716c; font-size: 13px; font-weight: 500; cursor: pointer; }
+  .btn-save { padding: 8px 20px; background: linear-gradient(135deg, #f59e0b, #d97706); border: none; border-radius: 8px; color: white; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 6px rgba(245,158,11,0.35); }
+
+  .label-tag { display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 2px 8px; border-radius: 4px; margin-bottom: 12px; }
+  .tag-current { background: #fee2e2; color: #b91c1c; }
+  .tag-new { background: #d1fae5; color: #065f46; }
+
+  .split-view { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+  .mockup-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #78716c; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+<div style="padding: 32px; background: #f5f3ef; min-height: 100vh;">
+  <div style="max-width: 980px; margin: 0 auto;">
+    <h2 style="font-size: 20px; font-weight: 700; color: #1a1209; margin-bottom: 6px;">Settings Page Redesign</h2>
+    <p style="color: #78716c; font-size: 14px; margin-bottom: 28px;">Before (form always visible) vs. After (form in modal popup)</p>
+
+    <div class="split-view">
+      <!-- BEFORE -->
+      <div>
+        <p class="mockup-title">Before — form always on page</p>
+        <span class="label-tag tag-current">Current</span>
+        <div style="border: 2px solid #fca5a5; border-radius: 12px; overflow: hidden; background: white;">
+          <div style="background: #1a1209; padding: 10px 14px;">
+            <span style="color: #f59e0b; font-size: 12px; font-weight: 600;">Settings</span>
+          </div>
+          <div style="padding: 14px;">
+            <!-- Always-visible form -->
+            <div style="background: #f9fafb; border: 1px solid #e5e0d5; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+              <p style="font-size: 11px; font-weight: 600; color: #78716c; margin-bottom: 8px;">ADD ROOM TYPE</p>
+              <div style="background: white; border: 1px solid #ddd; border-radius: 5px; height: 22px; margin-bottom: 6px;"></div>
+              <div style="background: white; border: 1px solid #ddd; border-radius: 5px; height: 44px; margin-bottom: 6px;"></div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 6px;">
+                <div style="background: white; border: 1px solid #ddd; border-radius: 5px; height: 22px;"></div>
+                <div style="background: white; border: 1px solid #ddd; border-radius: 5px; height: 22px;"></div>
+                <div style="background: white; border: 1px solid #ddd; border-radius: 5px; height: 22px;"></div>
+                <div style="background: white; border: 1px solid #ddd; border-radius: 5px; height: 22px;"></div>
+              </div>
+              <div style="background: #f59e0b; border-radius: 5px; height: 24px; text-align: center; line-height: 24px; color: white; font-size: 10px; font-weight: 600;">Create Room Type</div>
+            </div>
+            <!-- List -->
+            <div style="background: #f9fafb; border: 1px solid #e5e0d5; border-radius: 8px; padding: 12px;">
+              <p style="font-size: 11px; font-weight: 600; color: #78716c; margin-bottom: 8px;">ROOM TYPES</p>
+              <div style="background: white; border: 1px solid #eee; border-radius: 5px; padding: 7px; margin-bottom: 5px; font-size: 10px; color: #1a1209; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <div style="font-weight: 600;">Standard</div>
+                  <div style="color: #78716c;">Capacity: 2 · ₱500/3h</div>
+                </div>
+                <div style="display: flex; gap: 3px;">
+                  <div style="background: #fef3c7; width: 18px; height: 18px; border-radius: 4px;"></div>
+                  <div style="background: #fee2e2; width: 18px; height: 18px; border-radius: 4px;"></div>
+                </div>
+              </div>
+              <div style="background: white; border: 1px solid #eee; border-radius: 5px; padding: 7px; font-size: 10px; color: #1a1209; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <div style="font-weight: 600;">Deluxe</div>
+                  <div style="color: #78716c;">Capacity: 3 · ₱800/3h</div>
+                </div>
+                <div style="display: flex; gap: 3px;">
+                  <div style="background: #fef3c7; width: 18px; height: 18px; border-radius: 4px;"></div>
+                  <div style="background: #fee2e2; width: 18px; height: 18px; border-radius: 4px;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p style="font-size: 11px; color: #b91c1c; margin-top: 8px;">Form takes up space even when not needed. Edit scrolls page back to top.</p>
+      </div>
+
+      <!-- AFTER -->
+      <div>
+        <p class="mockup-title">After — clean page + modal</p>
+        <span class="label-tag tag-new">Proposed</span>
+        <div style="border: 2px solid #6ee7b7; border-radius: 12px; overflow: hidden; background: white; position: relative;">
+          <div style="background: #1a1209; padding: 10px 14px;">
+            <span style="color: #f59e0b; font-size: 12px; font-weight: 600;">Settings</span>
+          </div>
+          <div style="padding: 14px;">
+            <!-- Header with Add button -->
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+              <div>
+                <p style="font-size: 13px; font-weight: 700; color: #1a1209;">Room Types</p>
+                <p style="font-size: 10px; color: #78716c;">Manage pricing & capacity</p>
+              </div>
+              <div style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; font-size: 10px; font-weight: 600; padding: 5px 10px; border-radius: 6px; display: flex; align-items: center; gap: 4px;">
+                <span>+</span> Add Room Type
+              </div>
+            </div>
+            <!-- List only -->
+            <div style="background: #f9fafb; border: 1px solid #e5e0d5; border-radius: 8px; padding: 10px;">
+              <div style="background: white; border: 1px solid #eee; border-radius: 5px; padding: 7px; margin-bottom: 5px; font-size: 10px; color: #1a1209; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <div style="font-weight: 600;">Standard</div>
+                  <div style="color: #78716c;">Capacity: 2 · Penalty: ₱0</div>
+                  <div style="display: flex; gap: 4px; margin-top: 4px;">
+                    <div style="background: #fef9ee; border: 1px solid #fde68a; border-radius: 4px; padding: 2px 5px; font-size: 9px; font-weight: 600;">3h ₱500</div>
+                    <div style="background: #fef9ee; border: 1px solid #fde68a; border-radius: 4px; padding: 2px 5px; font-size: 9px; font-weight: 600;">8h ₱900</div>
+                    <div style="background: #fef9ee; border: 1px solid #fde68a; border-radius: 4px; padding: 2px 5px; font-size: 9px; font-weight: 600;">12h ₱1.2k</div>
+                    <div style="background: #fef9ee; border: 1px solid #fde68a; border-radius: 4px; padding: 2px 5px; font-size: 9px; font-weight: 600;">24h ₱1.8k</div>
+                  </div>
+                </div>
+                <div style="display: flex; gap: 3px; flex-shrink: 0; margin-left: 8px;">
+                  <div style="background: #fef3c7; width: 18px; height: 18px; border-radius: 4px;"></div>
+                  <div style="background: #fee2e2; width: 18px; height: 18px; border-radius: 4px;"></div>
+                </div>
+              </div>
+              <div style="background: white; border: 1px solid #eee; border-radius: 5px; padding: 7px; font-size: 10px; color: #1a1209; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <div style="font-weight: 600;">Deluxe</div>
+                  <div style="color: #78716c;">Capacity: 3 · Penalty: ₱200</div>
+                  <div style="display: flex; gap: 4px; margin-top: 4px;">
+                    <div style="background: #fef9ee; border: 1px solid #fde68a; border-radius: 4px; padding: 2px 5px; font-size: 9px; font-weight: 600;">3h ₱800</div>
+                    <div style="background: #fef9ee; border: 1px solid #fde68a; border-radius: 4px; padding: 2px 5px; font-size: 9px; font-weight: 600;">8h ₱1.4k</div>
+                    <div style="background: #fef9ee; border: 1px solid #fde68a; border-radius: 4px; padding: 2px 5px; font-size: 9px; font-weight: 600;">12h ₱1.8k</div>
+                    <div style="background: #fef9ee; border: 1px solid #fde68a; border-radius: 4px; padding: 2px 5px; font-size: 9px; font-weight: 600;">24h ₱2.5k</div>
+                  </div>
+                </div>
+                <div style="display: flex; gap: 3px; flex-shrink: 0; margin-left: 8px;">
+                  <div style="background: #fef3c7; width: 18px; height: 18px; border-radius: 4px;"></div>
+                  <div style="background: #fee2e2; width: 18px; height: 18px; border-radius: 4px;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Floating modal overlay preview -->
+          <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.45); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+            <div style="background: white; border-radius: 10px; width: 82%; box-shadow: 0 8px 32px rgba(0,0,0,0.25); overflow: hidden;">
+              <div style="background: linear-gradient(135deg, #1a1209, #2d1f0a); padding: 10px 12px; display: flex; align-items: center; justify-content: space-between;">
+                <span style="color: #f59e0b; font-size: 11px; font-weight: 700;">Add Room Type</span>
+                <div style="background: rgba(255,255,255,0.15); width: 16px; height: 16px; border-radius: 3px; display: flex; align-items: center; justify-content: center; color: #f59e0b; font-size: 9px;">✕</div>
+              </div>
+              <div style="padding: 10px 12px;">
+                <div style="margin-bottom: 7px;">
+                  <p style="font-size: 9px; font-weight: 700; color: #78716c; text-transform: uppercase; margin-bottom: 3px;">Name</p>
+                  <div style="border: 1px solid #e5e0d5; border-radius: 5px; height: 18px; background: white;"></div>
+                </div>
+                <div style="margin-bottom: 7px;">
+                  <p style="font-size: 9px; font-weight: 700; color: #78716c; text-transform: uppercase; margin-bottom: 3px;">Description</p>
+                  <div style="border: 1px solid #e5e0d5; border-radius: 5px; height: 28px; background: white;"></div>
+                </div>
+                <div style="margin-bottom: 7px;">
+                  <p style="font-size: 9px; font-weight: 700; color: #78716c; text-transform: uppercase; margin-bottom: 3px;">Pricing (₱)</p>
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px;">
+                    <div>
+                      <p style="font-size: 8px; color: #92400e; font-weight: 600; margin-bottom: 2px;">3 Hours</p>
+                      <div style="border: 1px solid #e5e0d5; border-radius: 4px; height: 16px; background: white;"></div>
+                    </div>
+                    <div>
+                      <p style="font-size: 8px; color: #92400e; font-weight: 600; margin-bottom: 2px;">8 Hours</p>
+                      <div style="border: 1px solid #e5e0d5; border-radius: 4px; height: 16px; background: white;"></div>
+                    </div>
+                    <div>
+                      <p style="font-size: 8px; color: #92400e; font-weight: 600; margin-bottom: 2px;">12 Hours</p>
+                      <div style="border: 1px solid #e5e0d5; border-radius: 4px; height: 16px; background: white;"></div>
+                    </div>
+                    <div>
+                      <p style="font-size: 8px; color: #92400e; font-weight: 600; margin-bottom: 2px;">24 Hours</p>
+                      <div style="border: 1px solid #e5e0d5; border-radius: 4px; height: 16px; background: white;"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div style="padding: 8px 12px; background: #fafaf9; border-top: 1px solid #f0ece4; display: flex; gap: 6px; justify-content: flex-end;">
+                <div style="border: 1px solid #e5e0d5; border-radius: 5px; padding: 4px 10px; font-size: 9px; color: #78716c; font-weight: 500;">Cancel</div>
+                <div style="background: linear-gradient(135deg, #f59e0b, #d97706); border-radius: 5px; padding: 4px 12px; font-size: 9px; color: white; font-weight: 700;">Create</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p style="font-size: 11px; color: #065f46; margin-top: 8px;">Clean list view. Modal opens for both Add and Edit actions.</p>
+      </div>
+    </div>
+
+    <div style="margin-top: 28px; background: white; border-radius: 12px; padding: 20px; border: 1px solid #e5e0d5;">
+      <h3 style="font-size: 14px; font-weight: 700; color: #1a1209; margin-bottom: 12px;">What changes</h3>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 13px;">
+        <div>
+          <p style="font-weight: 600; color: #1a1209; margin-bottom: 6px;">Page</p>
+          <ul style="list-style: none; color: #78716c; line-height: 1.8;">
+            <li>✅ Page header with title + subtitle</li>
+            <li>✅ Amber "Add Room Type" button (top-right)</li>
+            <li>✅ Room types list is the only content</li>
+            <li>✅ Edit button opens modal (pre-filled)</li>
+          </ul>
+        </div>
+        <div>
+          <p style="font-weight: 600; color: #1a1209; margin-bottom: 6px;">Modal</p>
+          <ul style="list-style: none; color: #78716c; line-height: 1.8;">
+            <li>✅ Dark amber gradient header</li>
+            <li>✅ All existing form fields preserved</li>
+            <li>✅ Cancel + Create/Update footer buttons</li>
+            <li>✅ Uses existing Modal.jsx component</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

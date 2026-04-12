@@ -1,0 +1,141 @@
+<h2>Skeleton Animation Style</h2>
+<p class="subtitle">How should the skeleton bones animate while loading?</p>
+
+<style>
+  /* Pulse animation */
+  @keyframes pulse-anim {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+  /* Shimmer animation */
+  @keyframes shimmer-anim {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  .bone-pulse {
+    background-color: #f0e4c8;
+    border-radius: 6px;
+    animation: pulse-anim 1.8s ease-in-out infinite;
+  }
+  .bone-shimmer {
+    background: linear-gradient(90deg, #f0e4c8 30%, #fdf3dc 50%, #f0e4c8 70%);
+    background-size: 200% 100%;
+    border-radius: 6px;
+    animation: shimmer-anim 2s linear infinite;
+  }
+
+  .skeleton-demo {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #f0e4c8;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .row { display: flex; gap: 12px; margin-bottom: 12px; align-items: center; }
+  .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
+  .stat-card { background: #fffaf0; border-radius: 10px; padding: 14px; border: 1px solid #f0e4c8; }
+  .table-row { display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px solid #fdf6e3; }
+  .table-row:last-child { border-bottom: none; }
+</style>
+
+<div class="cards">
+
+  <div class="card" data-choice="pulse" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="skeleton-demo">
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="bone-pulse" style="height:10px;width:60%;margin-bottom:8px"></div>
+            <div class="bone-pulse" style="height:20px;width:80%"></div>
+          </div>
+          <div class="stat-card">
+            <div class="bone-pulse" style="height:10px;width:60%;margin-bottom:8px"></div>
+            <div class="bone-pulse" style="height:20px;width:80%"></div>
+          </div>
+          <div class="stat-card">
+            <div class="bone-pulse" style="height:10px;width:60%;margin-bottom:8px"></div>
+            <div class="bone-pulse" style="height:20px;width:80%"></div>
+          </div>
+          <div class="stat-card">
+            <div class="bone-pulse" style="height:10px;width:60%;margin-bottom:8px"></div>
+            <div class="bone-pulse" style="height:20px;width:80%"></div>
+          </div>
+        </div>
+        <div class="table-row">
+          <div class="bone-pulse" style="height:12px;width:15%;border-radius:20px"></div>
+          <div class="bone-pulse" style="height:12px;width:25%"></div>
+          <div class="bone-pulse" style="height:12px;width:20%"></div>
+          <div class="bone-pulse" style="height:12px;width:30%"></div>
+        </div>
+        <div class="table-row">
+          <div class="bone-pulse" style="height:12px;width:15%;border-radius:20px"></div>
+          <div class="bone-pulse" style="height:12px;width:25%"></div>
+          <div class="bone-pulse" style="height:12px;width:20%"></div>
+          <div class="bone-pulse" style="height:12px;width:30%"></div>
+        </div>
+        <div class="table-row">
+          <div class="bone-pulse" style="height:12px;width:15%;border-radius:20px"></div>
+          <div class="bone-pulse" style="height:12px;width:25%"></div>
+          <div class="bone-pulse" style="height:12px;width:20%"></div>
+          <div class="bone-pulse" style="height:12px;width:30%"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Pulse</h3>
+      <p>Gentle fade in/out. Calm, subtle. Classic skeleton feel.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="shimmer" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="skeleton-demo">
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="bone-shimmer" style="height:10px;width:60%;margin-bottom:8px"></div>
+            <div class="bone-shimmer" style="height:20px;width:80%"></div>
+          </div>
+          <div class="stat-card">
+            <div class="bone-shimmer" style="height:10px;width:60%;margin-bottom:8px"></div>
+            <div class="bone-shimmer" style="height:20px;width:80%"></div>
+          </div>
+          <div class="stat-card">
+            <div class="bone-shimmer" style="height:10px;width:60%;margin-bottom:8px"></div>
+            <div class="bone-shimmer" style="height:20px;width:80%"></div>
+          </div>
+          <div class="stat-card">
+            <div class="bone-shimmer" style="height:10px;width:60%;margin-bottom:8px"></div>
+            <div class="bone-shimmer" style="height:20px;width:80%"></div>
+          </div>
+        </div>
+        <div class="table-row">
+          <div class="bone-shimmer" style="height:12px;width:15%;border-radius:20px"></div>
+          <div class="bone-shimmer" style="height:12px;width:25%"></div>
+          <div class="bone-shimmer" style="height:12px;width:20%"></div>
+          <div class="bone-shimmer" style="height:12px;width:30%"></div>
+        </div>
+        <div class="table-row">
+          <div class="bone-shimmer" style="height:12px;width:15%;border-radius:20px"></div>
+          <div class="bone-shimmer" style="height:12px;width:25%"></div>
+          <div class="bone-shimmer" style="height:12px;width:20%"></div>
+          <div class="bone-shimmer" style="height:12px;width:30%"></div>
+        </div>
+        <div class="table-row">
+          <div class="bone-shimmer" style="height:12px;width:15%;border-radius:20px"></div>
+          <div class="bone-shimmer" style="height:12px;width:25%"></div>
+          <div class="bone-shimmer" style="height:12px;width:20%"></div>
+          <div class="bone-shimmer" style="height:12px;width:30%"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Shimmer</h3>
+      <p>Light sweep across bones. More dynamic, modern feel.</p>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:16px">Both use amber tones to match the HMS theme. Click to select.</p>

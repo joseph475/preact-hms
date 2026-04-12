@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Settings Modal Redesign v2</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f3ef; color: #1a1209; padding: 32px; }
+  .wrap { max-width: 940px; margin: 0 auto; }
+
+  h2 { font-size: 20px; font-weight: 700; color: #1a1209; margin-bottom: 4px; }
+  .sub { color: #78716c; font-size: 13px; margin-bottom: 28px; }
+
+  /* ── Page mockup ── */
+  .page-frame { border: 2px solid #6ee7b7; border-radius: 14px; overflow: hidden; background: white; margin-bottom: 28px; }
+  .topbar { background: #1a1209; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; }
+  .topbar-logo { color: #f59e0b; font-size: 12px; font-weight: 700; }
+  .page-content { padding: 18px; }
+  .page-header-row { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 14px; }
+  .page-title { font-size: 16px; font-weight: 700; color: #1a1209; }
+  .page-sub { font-size: 11px; color: #78716c; margin-top: 2px; }
+  .btn-add { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; font-size: 11px; font-weight: 600; padding: 6px 12px; border-radius: 7px; display: flex; align-items: center; gap: 5px; border: none; cursor: pointer; box-shadow: 0 2px 6px rgba(245,158,11,0.35); }
+
+  .list-card { background: #fafaf9; border: 1px solid #e5e0d5; border-radius: 10px; overflow: hidden; }
+  .list-row { padding: 10px 14px; border-bottom: 1px solid #f0ece4; display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+  .list-row:last-child { border-bottom: none; }
+  .rt-name { font-size: 12px; font-weight: 600; color: #1a1209; }
+  .rt-meta { font-size: 10px; color: #78716c; margin-top: 1px; }
+  .price-row { display: flex; gap: 4px; margin-top: 5px; }
+  .chip { background: #fef9ee; border: 1px solid #fde68a; border-radius: 4px; padding: 2px 6px; font-size: 9px; font-weight: 700; color: #92400e; }
+  .act-btn { width: 22px; height: 22px; border-radius: 5px; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .act-edit { background: #fef3c7; }
+  .act-del  { background: #fee2e2; }
+  .actions { display: flex; gap: 4px; flex-shrink: 0; }
+
+  /* ── MODAL: amber gradient header matching BookingDetailsModal ── */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.45);
+    backdrop-filter: blur(3px);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 50;
+  }
+  .modal-box {
+    background: white;
+    border-radius: 16px;
+    width: 480px; max-width: 94vw;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.22);
+    overflow: hidden;
+  }
+  /* Matches: bg-gradient-to-r from-amber-400 to-amber-600 */
+  .modal-head {
+    background: linear-gradient(to right, #fbbf24, #d97706);
+    padding: 18px 22px 16px;
+    position: relative;
+  }
+  .modal-close-btn {
+    position: absolute; top: 14px; right: 16px;
+    background: none; border: none; cursor: pointer;
+    color: rgba(255,255,255,0.7);
+    line-height: 1;
+    font-size: 18px;
+    transition: color 0.15s;
+  }
+  .modal-close-btn:hover { color: white; }
+  /* Matches: text-xs font-semibold text-amber-100 uppercase tracking-widest */
+  .modal-eyebrow {
+    font-size: 11px; font-weight: 600;
+    color: rgba(255,255,255,0.75);
+    text-transform: uppercase; letter-spacing: 0.12em;
+    margin-bottom: 4px;
+  }
+  /* Matches: text-2xl font-extrabold text-white */
+  .modal-title {
+    font-size: 20px; font-weight: 800;
+    color: white;
+  }
+
+  .modal-body { padding: 20px 22px; }
+  .form-row { margin-bottom: 14px; }
+  .form-label {
+    display: block; font-size: 11px; font-weight: 700;
+    color: #78716c; text-transform: uppercase; letter-spacing: 0.05em;
+    margin-bottom: 5px;
+  }
+  .form-input {
+    width: 100%; border: 1.5px solid #e5e0d5; border-radius: 8px;
+    padding: 8px 12px; font-size: 13px; color: #1a1209;
+    outline: none; background: white;
+  }
+  .form-input.focus { border-color: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,0.12); }
+  .form-textarea { resize: none; height: 60px; }
+  .pricing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .modal-footer {
+    padding: 14px 22px; background: #fafaf9;
+    border-top: 1px solid #f0ece4;
+    display: flex; gap: 10px; justify-content: flex-end;
+  }
+  .btn-cancel {
+    padding: 8px 16px; border: 1.5px solid #e5e0d5; border-radius: 8px;
+    background: white; color: #78716c; font-size: 13px; font-weight: 500; cursor: pointer;
+  }
+  .btn-save {
+    padding: 8px 22px;
+    background: linear-gradient(to right, #fbbf24, #d97706);
+    border: none; border-radius: 8px;
+    color: white; font-size: 13px; font-weight: 600; cursor: pointer;
+    box-shadow: 0 2px 6px rgba(245,158,11,0.35);
+  }
+
+  .section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #78716c; margin-bottom: 10px; }
+  .comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px; font-size: 12px; }
+  .cmp-old { color: #b91c1c; }
+  .cmp-new { color: #065f46; }
+  li { line-height: 1.9; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h2>Settings Page Redesign — v2</h2>
+  <p class="sub">Modal header now matches the amber gradient used across BookingDetailsModal, FoodOrderModal, ExtendStayModal</p>
+
+  <!-- Page mockup -->
+  <div class="page-frame">
+    <div class="topbar">
+      <span class="topbar-logo">HMS</span>
+    </div>
+    <div class="page-content">
+      <div class="page-header-row">
+        <div>
+          <div class="page-title">Settings</div>
+          <div class="page-sub">Manage room types</div>
+        </div>
+        <button class="btn-add">
+          <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"/>
+          </svg>
+          Add Room Type
+        </button>
+      </div>
+
+      <div class="list-card">
+        <div class="list-row">
+          <div>
+            <div class="rt-name">Standard</div>
+            <div class="rt-meta">Capacity: 2 · Penalty: ₱0</div>
+            <div class="price-row">
+              <span class="chip">3h ₱500</span>
+              <span class="chip">8h ₱900</span>
+              <span class="chip">12h ₱1,200</span>
+              <span class="chip">24h ₱1,800</span>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="act-btn act-edit">
+              <svg width="12" height="12" fill="none" stroke="#d97706" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+              </svg>
+            </button>
+            <button class="act-btn act-del">
+              <svg width="12" height="12" fill="none" stroke="#ef4444" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="list-row">
+          <div>
+            <div class="rt-name">Deluxe</div>
+            <div class="rt-meta">Capacity: 3 · Penalty: ₱200</div>
+            <div class="price-row">
+              <span class="chip">3h ₱800</span>
+              <span class="chip">8h ₱1,400</span>
+              <span class="chip">12h ₱1,800</span>
+              <span class="chip">24h ₱2,500</span>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="act-btn act-edit">
+              <svg width="12" height="12" fill="none" stroke="#d97706" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+              </svg>
+            </button>
+            <button class="act-btn act-del">
+              <svg width="12" height="12" fill="none" stroke="#ef4444" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal mockup standalone -->
+  <div style="margin-bottom: 28px;">
+    <p class="section-label">Modal — Add Room Type (amber gradient, matches existing modals)</p>
+    <div class="modal-box" style="margin: 0 auto; box-shadow: 0 8px 32px rgba(0,0,0,0.15);">
+      <div class="modal-head">
+        <button class="modal-close-btn">✕</button>
+        <div class="modal-eyebrow">Room Type</div>
+        <div class="modal-title">Add Room Type</div>
+      </div>
+      <div class="modal-body">
+        <div class="form-row">
+          <label class="form-label">Name</label>
+          <input class="form-input focus" placeholder="e.g. Deluxe Suite" style="pointer-events:none;" readonly/>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Description</label>
+          <textarea class="form-input form-textarea" placeholder="Optional description..." style="pointer-events:none;" readonly></textarea>
+        </div>
+        <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div>
+            <label class="form-label">Base Capacity</label>
+            <input class="form-input" value="2" style="pointer-events:none;" readonly/>
+          </div>
+          <div>
+            <label class="form-label">Penalty (₱)</label>
+            <input class="form-input" value="0" style="pointer-events:none;" readonly/>
+          </div>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Pricing (₱)</label>
+          <div class="pricing-grid">
+            <div>
+              <label class="form-label" style="color:#92400e;">3 Hours</label>
+              <input class="form-input" placeholder="0" style="pointer-events:none;" readonly/>
+            </div>
+            <div>
+              <label class="form-label" style="color:#92400e;">8 Hours</label>
+              <input class="form-input" placeholder="0" style="pointer-events:none;" readonly/>
+            </div>
+            <div>
+              <label class="form-label" style="color:#92400e;">12 Hours</label>
+              <input class="form-input" placeholder="0" style="pointer-events:none;" readonly/>
+            </div>
+            <div>
+              <label class="form-label" style="color:#92400e;">24 Hours</label>
+              <input class="form-input" placeholder="0" style="pointer-events:none;" readonly/>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel">Cancel</button>
+        <button class="btn-save">Create Room Type</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit state -->
+  <div>
+    <p class="section-label" style="margin-bottom:10px;">Modal — Edit Room Type (same header, title changes, button says "Update")</p>
+    <div class="modal-box" style="margin: 0 auto; box-shadow: 0 8px 32px rgba(0,0,0,0.15);">
+      <div class="modal-head">
+        <button class="modal-close-btn">✕</button>
+        <div class="modal-eyebrow">Room Type</div>
+        <div class="modal-title">Edit Standard</div>
+      </div>
+      <div class="modal-body">
+        <div class="form-row">
+          <label class="form-label">Name</label>
+          <input class="form-input" value="Standard" style="pointer-events:none;" readonly/>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Description</label>
+          <textarea class="form-input form-textarea" style="pointer-events:none;" readonly>Comfortable standard room</textarea>
+        </div>
+        <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div>
+            <label class="form-label">Base Capacity</label>
+            <input class="form-input" value="2" style="pointer-events:none;" readonly/>
+          </div>
+          <div>
+            <label class="form-label">Penalty (₱)</label>
+            <input class="form-input" value="0" style="pointer-events:none;" readonly/>
+          </div>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Pricing (₱)</label>
+          <div class="pricing-grid">
+            <div>
+              <label class="form-label" style="color:#92400e;">3 Hours</label>
+              <input class="form-input" value="500" style="pointer-events:none;" readonly/>
+            </div>
+            <div>
+              <label class="form-label" style="color:#92400e;">8 Hours</label>
+              <input class="form-input" value="900" style="pointer-events:none;" readonly/>
+            </div>
+            <div>
+              <label class="form-label" style="color:#92400e;">12 Hours</label>
+              <input class="form-input" value="1200" style="pointer-events:none;" readonly/>
+            </div>
+            <div>
+              <label class="form-label" style="color:#92400e;">24 Hours</label>
+              <input class="form-input" value="1800" style="pointer-events:none;" readonly/>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel">Cancel</button>
+        <button class="btn-save">Update Room Type</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

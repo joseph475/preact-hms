@@ -51,30 +51,30 @@ const BookingDetailsModal = ({
       showCloseButton={false}
       size="large"
     >
-      {/* Amber gradient header — bleeds to modal edges via negative margins matching modal-body px-6 py-4 */}
-      <div className="-mx-6 -mt-4 bg-gradient-to-r from-amber-400 to-amber-600 px-6 py-5 rounded-t-2xl">
+      {/* Modal header — bg-amber-50 to match modal-header style */}
+      <div className="-mx-6 -mt-4 bg-amber-50 border-b border-amber-100 px-6 py-5 rounded-t-2xl">
         <div className="flex justify-end mb-1">
           <button
             type="button"
             onClick={handleDetailsModalClose}
-            className="text-white/70 hover:text-white transition-colors focus:outline-none"
+            className="text-amber-400 hover:text-amber-600 transition-colors focus:outline-none"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
-        <div className="text-xs font-semibold text-amber-100 uppercase tracking-widest mb-1">
+        <div className="text-xs font-semibold text-amber-500 uppercase tracking-widest mb-1">
           Booking #{b.bookingNumber || b._id?.slice(-8)}
         </div>
-        <div className="text-2xl font-extrabold text-white mb-3">
+        <div className="text-2xl font-extrabold text-amber-900 mb-3">
           Room {b.room?.roomNumber} — {roomType}
         </div>
         <div className="flex items-center gap-3 flex-wrap">
-          <span className="bg-white/20 border border-white/30 text-white text-xs font-bold uppercase tracking-wide px-3 py-1 rounded-full">
+          <span className="bg-amber-200 border border-amber-300 text-amber-900 text-xs font-bold uppercase tracking-wide px-3 py-1 rounded-full">
             {b.bookingStatus}
           </span>
-          <span className="text-amber-100 text-xs">
+          <span className="text-amber-600 text-xs">
             {formatDateTime(b.checkInDate)} → {formatDateTime(b.checkOutDate)}
           </span>
         </div>

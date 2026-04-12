@@ -1,0 +1,5 @@
+{"type":"server-started","port":60976,"host":"127.0.0.1","url_host":"localhost","url":"http://localhost:60976","screen_dir":"/Users/joseph-macbookpro-m3/Documents/Apps/practice/HMS/.superpowers/brainstorm/67623-1775998382/content","state_dir":"/Users/joseph-macbookpro-m3/Documents/Apps/practice/HMS/.superpowers/brainstorm/67623-1775998382/state"}
+{"type":"screen-added","file":"/Users/joseph-macbookpro-m3/Documents/Apps/practice/HMS/.superpowers/brainstorm/67623-1775998382/content/animation-style.html"}
+{"type":"screen-added","file":"/Users/joseph-macbookpro-m3/Documents/Apps/practice/HMS/.superpowers/brainstorm/67623-1775998382/content/skeleton-layouts.html"}
+{"type":"screen-added","file":"/Users/joseph-macbookpro-m3/Documents/Apps/practice/HMS/.superpowers/brainstorm/67623-1775998382/content/waiting.html"}
+{"type":"server-stopped","reason":"idle timeout"}
