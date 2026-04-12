@@ -23,6 +23,7 @@ const FoodMenuPage = ({ user }) => {
   const [form, setForm] = useState(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     loadItems();
@@ -46,10 +47,11 @@ const FoodMenuPage = ({ user }) => {
     }
   };
 
-  const filteredItems =
-    activeCategory === 'All'
-      ? items
-      : items.filter((item) => item.category === activeCategory);
+  const filteredItems = items.filter((item) => {
+    const matchesCategory = activeCategory === 'All' || item.category === activeCategory;
+    const matchesSearch = !searchQuery.trim() || item.name.toLowerCase().includes(searchQuery.trim().toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
 
   const openAddModal = () => {
     setEditingItem(null);
@@ -190,8 +192,21 @@ const FoodMenuPage = ({ user }) => {
 
         {error && <div className="alert-error">{error}</div>}
 
-        {/* Category Pills */}
-        <div className="flex flex-wrap gap-2 mb-6">
+        {/* Search + Category row */}
+        <div className="flex flex-wrap items-center gap-3 mb-4">
+          <div className="relative flex-1 min-w-[180px] max-w-xs">
+            <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
+            </svg>
+            <input
+              type="text"
+              value={searchQuery}
+              onInput={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by name..."
+              className="input-field w-full pl-8 pr-3 py-1.5 text-sm"
+            />
+          </div>
+          <div className="flex flex-wrap gap-2">
           {CATEGORIES.map((cat) => {
             const count = cat === 'All' ? items.length : items.filter((i) => i.category === cat).length;
             return (
@@ -213,6 +228,7 @@ const FoodMenuPage = ({ user }) => {
               </button>
             );
           })}
+          </div>
         </div>
 
         {/* Items grid */}
@@ -222,14 +238,16 @@ const FoodMenuPage = ({ user }) => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
             <h3 className="empty-state-title">
-              {activeCategory === 'All' ? 'No menu items yet' : `No ${activeCategory} items`}
+              {searchQuery.trim() ? 'No results found' : activeCategory === 'All' ? 'No menu items yet' : `No ${activeCategory} items`}
             </h3>
             <p className="empty-state-description">
-              {activeCategory === 'All'
-                ? 'No menu items yet. Add your first item.'
-                : `No items in the ${activeCategory} category. Add your first item.`}
+              {searchQuery.trim()
+                ? `No items match "${searchQuery}".`
+                : activeCategory === 'All'
+                  ? 'No menu items yet. Add your first item.'
+                  : `No items in the ${activeCategory} category.`}
             </p>
-            {activeCategory === 'All' && (
+            {!searchQuery.trim() && activeCategory === 'All' && (
               <div className="mt-6">
                 <button type="button" onClick={openAddModal} className="btn-primary">
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -241,59 +259,54 @@ const FoodMenuPage = ({ user }) => {
             )}
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filteredItems.map((item) => (
-              <div key={item._id} className={`bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col${!item.isAvailable ? ' opacity-60' : ''}`}>
-                <div className="p-5 flex-1">
-                  <div className="flex items-start justify-between mb-3">
-                    <h3 className="font-semibold text-gray-900 text-base leading-snug flex-1 mr-2">
+              <div key={item._id} className={`bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden${!item.isAvailable ? ' opacity-60' : ''}`}>
+                <div className="px-4 py-3">
+                  <div className="flex items-center justify-between gap-2 mb-1">
+                    <h3 className="font-semibold text-gray-900 text-sm leading-snug truncate flex-1">
                       {item.name}
                     </h3>
-                    <span className={`badge text-xs px-2 py-1 rounded-full font-medium whitespace-nowrap ${getCategoryBadgeClass(item.category)}`}>
+                    <span className={`badge text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap shrink-0 ${getCategoryBadgeClass(item.category)}`}>
                       {item.category}
                     </span>
                   </div>
 
-                  <div className="text-lg font-bold text-primary-600 mb-2">
+                  <div className="text-base font-bold text-primary-600 mb-1">
                     ₱{Number(item.price).toLocaleString('en-PH', { minimumFractionDigits: 2 })}
                   </div>
 
                   {item.description && (
-                    <p className="text-sm text-gray-500 line-clamp-2 mb-3">{item.description}</p>
+                    <p className="text-xs text-gray-400 line-clamp-1 mb-2">{item.description}</p>
                   )}
-                </div>
 
-                <div className="px-5 pb-4 flex flex-col gap-2">
-                  {/* Availability Toggle */}
-                  <div className="flex items-center justify-between pt-3 border-t border-amber-100">
-                    <span className={`text-xs font-medium ${item.isAvailable ? 'text-green-700' : 'text-gray-400'}`}>
-                      {item.isAvailable ? 'Available' : 'Unavailable'}
-                    </span>
+                  <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => handleToggleAvailability(item)}
+                        className={`relative inline-flex h-4 w-8 items-center rounded-full transition-colors
+                          ${item.isAvailable ? 'bg-amber-600' : 'bg-gray-300'}`}
+                        title={item.isAvailable ? 'Mark unavailable' : 'Mark available'}
+                      >
+                        <span className={`inline-block h-3 w-3 transform rounded-full bg-white shadow transition-transform
+                          ${item.isAvailable ? 'translate-x-4' : 'translate-x-0.5'}`} />
+                      </button>
+                      <span className={`text-xs font-medium ${item.isAvailable ? 'text-green-700' : 'text-gray-400'}`}>
+                        {item.isAvailable ? 'Available' : 'Unavailable'}
+                      </span>
+                    </div>
                     <button
                       type="button"
-                      onClick={() => handleToggleAvailability(item)}
-                      className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors
-                        ${item.isAvailable ? 'bg-amber-600' : 'bg-gray-300'}`}
-                      title={item.isAvailable ? 'Mark unavailable' : 'Mark available'}
+                      onClick={() => openEditModal(item)}
+                      className="btn-secondary text-xs px-2 py-1"
                     >
-                      <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform
-                        ${item.isAvailable ? 'translate-x-4' : 'translate-x-1'}`} />
+                      <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                      Edit
                     </button>
                   </div>
-
-                  {/* Edit button */}
-                  <div className="flex justify-end">
-                  <button
-                    type="button"
-                    onClick={() => openEditModal(item)}
-                    className="btn-secondary text-xs px-3 py-1.5"
-                  >
-                    <svg className="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                    Edit
-                  </button>
-                </div>
                 </div>
               </div>
             ))}

@@ -117,3 +117,61 @@ See `DEPLOYMENT_GUIDE.md` for full step-by-step instructions.
 - Backend supports both `MONGO_URI` and `MONGODB_URI` env var names
 - CORS is open (`origin: true`) — restrict in production if needed
 - Vercel serverless timeout is 10s — keep DB queries efficient
+- A Next.js validator hook fires on every file edit and suggests `"use client"` — **ignore all of these**, this is a Preact/Webpack project
+
+---
+
+## Completed Upgrades (Tier 1)
+
+All implemented and working:
+
+1. **ADR & RevPAR on Dashboard** — two new stat cards using `revenue.adr` / `revenue.revpar` from `controllers/dashboard.js`
+2. **Needs Cleaning status** — checkout sets rooms to `'Needs Cleaning'`; blue badge in Rooms + Dashboard; "Mark Clean" button calls `PUT /rooms/:id/clean`
+3. **CSV Export on Reports** — "Download CSV" button, tab-aware columns (Bookings / Revenue / Occupancy)
+4. **ADR & RevPAR in Revenue Report tab** — compact single-row summary bar with all 5 metrics
+5. **VIP & Nationality on Guests** — fields on Guest model; input in booking form Step 1; VIP badge + nationality shown in guest list
+
+---
+
+## Pending Upgrades (Tier 2)
+
+Resume these in the next session. Implement in priority order:
+
+### T2-A: Today's Arrivals & Departures Panel (Dashboard)
+**Priority: High — most-requested front desk feature**
+- Add a two-column panel below the stat cards on `DashboardPage.jsx`
+- Left column: **Arriving Today** — bookings with `bookingStatus: 'Confirmed'` and `checkInDate` = today
+- Right column: **Departing Today** — bookings with `bookingStatus: 'Checked In'` and checkout time = today
+- Each row shows: guest name, room number, time, quick action button (Check In / Check Out)
+- Backend: add `GET /api/v1/dashboard/today` endpoint in `controllers/dashboard.js` and `routes/dashboard.js`
+- Response shape: `{ arriving: [...bookings], departing: [...bookings] }`
+
+### T2-B: Guest Booking History Modal (Guests Page)
+**Priority: Medium**
+- On `GuestsPage.jsx`, add a "History" button per guest row
+- Opens a modal showing all bookings for that guest (match by phone + name)
+- Show: booking date, room, duration, amount, status — sorted newest first
+- Backend: add `GET /api/v1/guests/:id/bookings` in guests controller/routes
+- Or query client-side: filter bookings by `guest.phone === selectedGuest.phone`
+
+### T2-C: Revenue Bar Chart (Reports Page)
+**Priority: Medium**
+- In `ReportsPage.jsx` Revenue tab, add a bar chart below the summary row
+- Pure inline SVG — no chart library needed
+- X-axis: period labels from `revenueOverTime` array
+- Y-axis: revenue values, scaled to max
+- Bars colored amber, hover shows tooltip with exact value
+- Keep it simple: fixed height (200px), computed bar widths as percentages
+
+### T2-D: Booking Audit Trail
+**Priority: Low**
+- Add `auditLog: [{ action, performedBy, timestamp, notes }]` array to Booking model
+- Populate on: create, check-in, check-out, cancel, no-show, extend, food order
+- Show in `BookingDetailsModal.jsx` as a timeline at the bottom
+- No new API endpoint needed — include `auditLog` in the existing booking response
+
+---
+
+## Migrations
+
+- `hotel-management-be/migrations/addRooms.js` — adds rooms to reach 25 total (safe to rerun)

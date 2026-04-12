@@ -1,0 +1,112 @@
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Plus Jakarta Sans', sans-serif; }
+  .section { margin-bottom: 8px; }
+  .room-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-top: 8px; }
+
+  /* Option A — color by type */
+  .chip { border-radius: 8px; padding: 8px 4px; text-align: center; font-size: 10px; font-weight: 600; position: relative; }
+  .num { font-size: 11px; font-weight: 700; }
+  .type-label { font-size: 8px; font-weight: 500; margin-top: 1px; opacity: 0.8; }
+
+  /* standard occupied */  .s-occ { background: #d97706; color: #fff; }
+  /* deluxe occupied */    .d-occ { background: #92400e; color: #fde68a; }
+  /* suite occupied */     .su-occ { background: #7c2d12; color: #fde68a; }
+  /* standard avail */     .s-av { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+  /* deluxe avail */       .d-av { background: #fde68a; color: #78350f; border: 1px solid #d97706; }
+  /* suite avail */        .su-av { background: #fed7aa; color: #7c2d12; border: 1px solid #fb923c; }
+
+  /* Option B — label inside chip */
+  .chip-b { border-radius: 8px; padding: 7px 4px; text-align: center; border: 1px solid #fde68a; }
+  .chip-b.occ { background: #d97706; color: #fff; border-color: #d97706; }
+  .chip-b.avail { background: #fef3c7; color: #92400e; }
+  .chip-b .room-num { font-size: 11px; font-weight: 700; }
+  .chip-b .room-type { font-size: 7px; font-weight: 600; letter-spacing: 0.3px; margin-top: 1px; opacity: 0.85; }
+
+  /* Legend */
+  .legend { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .legend-item { display: flex; align-items: center; gap: 4px; font-size: 10px; color: #92400e; }
+  .dot { width: 10px; height: 10px; border-radius: 3px; }
+</style>
+
+<h2>How should room type show in the status grid?</h2>
+<p class="subtitle">Three approaches — from lightest to most informative</p>
+
+<div class="options">
+
+  <!-- Option A -->
+  <div class="option" data-choice="color-by-type" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Color-coded by type</h3>
+      <p>Each room <em>type</em> gets its own shade of amber — Standard (light), Deluxe (medium), Suite (deep). Occupancy shown by fill. No extra text needed once you learn the legend.</p>
+
+      <div style="margin-top:12px;">
+        <div class="room-grid">
+          <div class="chip s-occ"><div class="num">101</div><div class="type-label">STD</div></div>
+          <div class="chip d-occ"><div class="num">102</div><div class="type-label">DLX</div></div>
+          <div class="chip s-av"><div class="num">103</div><div class="type-label">STD</div></div>
+          <div class="chip su-occ"><div class="num">104</div><div class="type-label">STE</div></div>
+          <div class="chip d-av"><div class="num">105</div><div class="type-label">DLX</div></div>
+          <div class="chip s-av"><div class="num">106</div><div class="type-label">STD</div></div>
+          <div class="chip d-occ"><div class="num">201</div><div class="type-label">DLX</div></div>
+          <div class="chip s-occ"><div class="num">202</div><div class="type-label">STD</div></div>
+          <div class="chip su-av"><div class="num">203</div><div class="type-label">STE</div></div>
+          <div class="chip s-occ"><div class="num">204</div><div class="type-label">STD</div></div>
+          <div class="chip d-av"><div class="num">205</div><div class="type-label">DLX</div></div>
+          <div class="chip su-occ"><div class="num">206</div><div class="type-label">STE</div></div>
+        </div>
+        <div class="legend">
+          <div class="legend-item"><div class="dot" style="background:#fef3c7;border:1px solid #fde68a;"></div>Standard avail.</div>
+          <div class="legend-item"><div class="dot" style="background:#d97706;"></div>Standard occ.</div>
+          <div class="legend-item"><div class="dot" style="background:#fde68a;border:1px solid #d97706;"></div>Deluxe avail.</div>
+          <div class="legend-item"><div class="dot" style="background:#92400e;"></div>Deluxe occ.</div>
+          <div class="legend-item"><div class="dot" style="background:#fed7aa;border:1px solid #fb923c;"></div>Suite avail.</div>
+          <div class="legend-item"><div class="dot" style="background:#7c2d12;"></div>Suite occ.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option B -->
+  <div class="option" data-choice="label-in-chip" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Type label inside chip</h3>
+      <p>Room number on top, type abbreviation below. Single amber color for available, filled amber for occupied. Simple, readable, no legend needed.</p>
+
+      <div style="margin-top:12px;">
+        <div class="room-grid">
+          <div class="chip-b occ"><div class="room-num">101</div><div class="room-type">Standard</div></div>
+          <div class="chip-b occ"><div class="room-num">102</div><div class="room-type">Deluxe</div></div>
+          <div class="chip-b avail"><div class="room-num">103</div><div class="room-type">Standard</div></div>
+          <div class="chip-b occ"><div class="room-num">104</div><div class="room-type">Suite</div></div>
+          <div class="chip-b avail"><div class="room-num">105</div><div class="room-type">Deluxe</div></div>
+          <div class="chip-b avail"><div class="room-num">106</div><div class="room-type">Standard</div></div>
+          <div class="chip-b occ"><div class="room-num">201</div><div class="room-type">Deluxe</div></div>
+          <div class="chip-b occ"><div class="room-num">202</div><div class="room-type">Standard</div></div>
+          <div class="chip-b avail"><div class="room-num">203</div><div class="room-type">Suite</div></div>
+          <div class="chip-b occ"><div class="room-num">204</div><div class="room-type">Standard</div></div>
+          <div class="chip-b avail"><div class="room-num">205</div><div class="room-type">Deluxe</div></div>
+          <div class="chip-b occ"><div class="room-num">206</div><div class="room-type">Suite</div></div>
+        </div>
+        <div class="legend">
+          <div class="legend-item"><div class="dot" style="background:#fef3c7;border:1px solid #fde68a;"></div>Available</div>
+          <div class="legend-item"><div class="dot" style="background:#d97706;"></div>Occupied</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option C -->
+  <div class="option" data-choice="keep-simple" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Keep it simple — room number only</h3>
+      <p>Dashboard stays a quick glance. Full room type details live on the Rooms page where staff go to assign. Staff learn the rooms quickly anyway.</p>
+      <p style="margin-top:8px; font-size:12px; color:#a16207;">Best for small properties (&lt;20 rooms) where staff knows the inventory.</p>
+    </div>
+  </div>
+
+</div>

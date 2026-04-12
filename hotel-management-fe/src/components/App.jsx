@@ -25,6 +25,7 @@ import ProfilePage from './pages/profile/ProfilePage';
 import SettingsPage from './pages/settings/SettingsPage';
 import ReceiptPage from './pages/receipt/ReceiptPage';
 import FoodMenuPage from './pages/food-menu/FoodMenuPage';
+import DashboardPage from './pages/dashboard/DashboardPage';
 
 // Main App Content Component
 const AppContent = () => {
@@ -75,7 +76,7 @@ const AppContent = () => {
         />
 
         {/* Main content area */}
-        <div className="flex-1 flex flex-col min-w-0 lg:ml-16">
+        <div className="flex-1 flex flex-col min-w-0 lg:ml-48">
           <Header 
             user={user}
             onMenuClick={() => setSidebarOpen(true)}
@@ -86,11 +87,15 @@ const AppContent = () => {
             <div className="py-8">
               <div className="max-w-none mx-auto px-6 sm:px-8 lg:px-10">
                 <Router>
-                  {/* Rooms as default landing page - accessible by both admin and user */}
+                  {/* Dashboard as default landing page */}
                   <ProtectedRoute path="/" user={user} allowedRoles={['admin', 'user']}>
-                    <RoomsPage user={user} />
+                    <DashboardPage user={user} />
                   </ProtectedRoute>
-                  
+
+                  <ProtectedRoute path="/dashboard" user={user} allowedRoles={['admin', 'user']}>
+                    <DashboardPage user={user} />
+                  </ProtectedRoute>
+
                   <ProtectedRoute path="/rooms" user={user} allowedRoles={['admin', 'user']}>
                     <RoomsPage user={user} />
                   </ProtectedRoute>

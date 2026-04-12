@@ -6,7 +6,8 @@ const {
   updateRoom,
   deleteRoom,
   getAvailableRooms,
-  updateRoomStatus
+  updateRoomStatus,
+  markRoomClean
 } = require('../controllers/rooms');
 
 const router = express.Router();
@@ -26,6 +27,9 @@ router
 
 // Room status update - accessible by both admin and user (with restrictions)
 router.put('/:id/status', authorize('admin', 'user'), updateRoomStatus);
+
+// Mark room clean (Needs Cleaning -> Available)
+router.put('/:id/clean', authorize('admin', 'user'), markRoomClean);
 
 router
   .route('/:id')

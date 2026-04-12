@@ -238,6 +238,29 @@ exports.updateRoomStatus = asyncHandler(async (req, res, next) => {
   });
 });
 
+// @desc    Mark a room as clean (Needs Cleaning -> Available)
+// @route   PUT /api/v1/rooms/:id/clean
+// @access  Private
+exports.markRoomClean = asyncHandler(async (req, res, next) => {
+  const room = await Room.findById(req.params.id);
+
+  if (!room) {
+    return next(new ErrorResponse(`Room not found with id of ${req.params.id}`, 404));
+  }
+
+  if (room.status !== 'Needs Cleaning') {
+    return next(new ErrorResponse('Room must have "Needs Cleaning" status to be marked clean', 400));
+  }
+
+  const updatedRoom = await Room.findByIdAndUpdate(
+    req.params.id,
+    { status: 'Available' },
+    { new: true, runValidators: true }
+  ).populate({ path: 'roomType', select: 'name baseCapacity pricing penalty' });
+
+  res.status(200).json({ success: true, data: updatedRoom });
+});
+
 // @desc    Get available rooms
 // @route   GET /api/v1/rooms/available
 // @access  Private

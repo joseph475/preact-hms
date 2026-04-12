@@ -168,7 +168,7 @@ class ApiService {
   }
 
   async getCurrentUser() {
-    return this.request('/auth/me');
+    return this.request('/auth/me', { suppressErrorModal: true });
   }
 
   async updateProfile(userData) {
@@ -241,9 +241,17 @@ class ApiService {
     return result;
   }
 
+  async markRoomClean(id) {
+    const result = await this.request(`/rooms/${id}/clean`, { method: 'PUT' });
+    this.invalidateCache('/rooms');
+    this.invalidateCache(`/rooms/${id}`);
+    this.invalidateCache('/rooms/available');
+    return result;
+  }
+
   // Guest methods
-  async getGuests(params = {}) {
-    return this.cachedRequest('/guests', params);
+  async getGuests(params = {}, options = {}) {
+    return this.cachedRequest('/guests', params, options);
   }
 
   async getGuest(id) {

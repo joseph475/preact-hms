@@ -1,0 +1,136 @@
+<h2>What design direction feels right for the HMS?</h2>
+<p class="subtitle">Hotel management systems range from luxury & dark to clean & modern. Pick the vibe that matches your vision.</p>
+
+<div class="cards">
+
+  <!-- Option A: Luxury Dark -->
+  <div class="card" data-choice="luxury-dark" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0f172a; padding:16px; font-family:system-ui; border-radius:8px 8px 0 0;">
+      <!-- Mini sidebar -->
+      <div style="display:flex; gap:10px; height:140px;">
+        <div style="background:#1e293b; border-radius:8px; width:52px; display:flex; flex-direction:column; align-items:center; padding:10px 0; gap:12px;">
+          <div style="width:28px; height:28px; background:#c9a84c; border-radius:6px;"></div>
+          <div style="width:22px; height:3px; background:#c9a84c; border-radius:2px;"></div>
+          <div style="width:22px; height:3px; background:#475569; border-radius:2px;"></div>
+          <div style="width:22px; height:3px; background:#475569; border-radius:2px;"></div>
+          <div style="width:22px; height:3px; background:#475569; border-radius:2px;"></div>
+        </div>
+        <!-- Main -->
+        <div style="flex:1; display:flex; flex-direction:column; gap:8px;">
+          <div style="display:flex; gap:8px;">
+            <div style="flex:1; background:#1e293b; border-radius:8px; padding:8px;">
+              <div style="font-size:9px; color:#c9a84c; font-weight:700; letter-spacing:1px;">OCCUPANCY</div>
+              <div style="font-size:20px; color:#f1f5f9; font-weight:800; margin-top:2px;">87%</div>
+            </div>
+            <div style="flex:1; background:#1e293b; border-radius:8px; padding:8px;">
+              <div style="font-size:9px; color:#94a3b8; font-weight:700; letter-spacing:1px;">REVENUE</div>
+              <div style="font-size:20px; color:#c9a84c; font-weight:800; margin-top:2px;">$12.4k</div>
+            </div>
+          </div>
+          <div style="background:#1e293b; border-radius:8px; padding:8px; flex:1;">
+            <div style="font-size:9px; color:#94a3b8; margin-bottom:6px; letter-spacing:1px;">ROOMS</div>
+            <div style="display:flex; gap:3px; flex-wrap:wrap;">
+              <div style="width:16px;height:16px;background:#c9a84c;border-radius:3px;"></div>
+              <div style="width:16px;height:16px;background:#c9a84c;border-radius:3px;"></div>
+              <div style="width:16px;height:16px;background:#334155;border-radius:3px;"></div>
+              <div style="width:16px;height:16px;background:#c9a84c;border-radius:3px;"></div>
+              <div style="width:16px;height:16px;background:#334155;border-radius:3px;"></div>
+              <div style="width:16px;height:16px;background:#c9a84c;border-radius:3px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Luxury Dark</h3>
+      <p>Deep navy/charcoal backgrounds with gold accents. Premium, sophisticated feel. Inspired by luxury hotel brands like Four Seasons, Aman.</p>
+    </div>
+  </div>
+
+  <!-- Option B: Modern Clean -->
+  <div class="card" data-choice="modern-clean" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f0f4ff; padding:16px; font-family:system-ui; border-radius:8px 8px 0 0;">
+      <div style="display:flex; gap:10px; height:140px;">
+        <div style="background:#4f46e5; border-radius:8px; width:52px; display:flex; flex-direction:column; align-items:center; padding:10px 0; gap:12px;">
+          <div style="width:28px; height:28px; background:#fff; border-radius:6px; opacity:0.9;"></div>
+          <div style="width:22px; height:3px; background:#fff; border-radius:2px;"></div>
+          <div style="width:22px; height:3px; background:rgba(255,255,255,0.4); border-radius:2px;"></div>
+          <div style="width:22px; height:3px; background:rgba(255,255,255,0.4); border-radius:2px;"></div>
+          <div style="width:22px; height:3px; background:rgba(255,255,255,0.4); border-radius:2px;"></div>
+        </div>
+        <div style="flex:1; display:flex; flex-direction:column; gap:8px;">
+          <div style="display:flex; gap:8px;">
+            <div style="flex:1; background:#fff; border-radius:8px; padding:8px; box-shadow:0 1px 4px rgba(79,70,229,0.12);">
+              <div style="font-size:9px; color:#6366f1; font-weight:700; letter-spacing:1px;">OCCUPANCY</div>
+              <div style="font-size:20px; color:#1e1b4b; font-weight:800; margin-top:2px;">87%</div>
+            </div>
+            <div style="flex:1; background:#fff; border-radius:8px; padding:8px; box-shadow:0 1px 4px rgba(79,70,229,0.12);">
+              <div style="font-size:9px; color:#6366f1; font-weight:700; letter-spacing:1px;">REVENUE</div>
+              <div style="font-size:20px; color:#4f46e5; font-weight:800; margin-top:2px;">$12.4k</div>
+            </div>
+          </div>
+          <div style="background:#fff; border-radius:8px; padding:8px; flex:1; box-shadow:0 1px 4px rgba(79,70,229,0.12);">
+            <div style="font-size:9px; color:#6366f1; margin-bottom:6px; letter-spacing:1px; font-weight:700;">ROOMS</div>
+            <div style="display:flex; gap:3px; flex-wrap:wrap;">
+              <div style="width:16px;height:16px;background:#4f46e5;border-radius:3px;"></div>
+              <div style="width:16px;height:16px;background:#4f46e5;border-radius:3px;"></div>
+              <div style="width:16px;height:16px;background:#e0e7ff;border-radius:3px;"></div>
+              <div style="width:16px;height:16px;background:#4f46e5;border-radius:3px;"></div>
+              <div style="width:16px;height:16px;background:#e0e7ff;border-radius:3px;"></div>
+              <div style="width:16px;height:16px;background:#4f46e5;border-radius:3px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Modern Indigo</h3>
+      <p>Clean white surfaces with a bold indigo/violet primary. Crisp, contemporary SaaS feel. Inspired by tools like Linear, Notion.</p>
+    </div>
+  </div>
+
+  <!-- Option C: Warm Boutique -->
+  <div class="card" data-choice="warm-boutique" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#fdf8f3; padding:16px; font-family:system-ui; border-radius:8px 8px 0 0;">
+      <div style="display:flex; gap:10px; height:140px;">
+        <div style="background:#92400e; border-radius:8px; width:52px; display:flex; flex-direction:column; align-items:center; padding:10px 0; gap:12px;">
+          <div style="width:28px; height:28px; background:#fde68a; border-radius:6px;"></div>
+          <div style="width:22px; height:3px; background:#fde68a; border-radius:2px;"></div>
+          <div style="width:22px; height:3px; background:rgba(253,230,138,0.4); border-radius:2px;"></div>
+          <div style="width:22px; height:3px; background:rgba(253,230,138,0.4); border-radius:2px;"></div>
+          <div style="width:22px; height:3px; background:rgba(253,230,138,0.4); border-radius:2px;"></div>
+        </div>
+        <div style="flex:1; display:flex; flex-direction:column; gap:8px;">
+          <div style="display:flex; gap:8px;">
+            <div style="flex:1; background:#fff; border-radius:8px; padding:8px; border:1px solid #fde68a;">
+              <div style="font-size:9px; color:#92400e; font-weight:700; letter-spacing:1px;">OCCUPANCY</div>
+              <div style="font-size:20px; color:#78350f; font-weight:800; margin-top:2px;">87%</div>
+            </div>
+            <div style="flex:1; background:#fff; border-radius:8px; padding:8px; border:1px solid #fde68a;">
+              <div style="font-size:9px; color:#92400e; font-weight:700; letter-spacing:1px;">REVENUE</div>
+              <div style="font-size:20px; color:#b45309; font-weight:800; margin-top:2px;">$12.4k</div>
+            </div>
+          </div>
+          <div style="background:#fff; border-radius:8px; padding:8px; flex:1; border:1px solid #fde68a;">
+            <div style="font-size:9px; color:#92400e; margin-bottom:6px; letter-spacing:1px; font-weight:700;">ROOMS</div>
+            <div style="display:flex; gap:3px; flex-wrap:wrap;">
+              <div style="width:16px;height:16px;background:#d97706;border-radius:3px;"></div>
+              <div style="width:16px;height:16px;background:#d97706;border-radius:3px;"></div>
+              <div style="width:16px;height:16px;background:#fef3c7;border-radius:3px;"></div>
+              <div style="width:16px;height:16px;background:#d97706;border-radius:3px;"></div>
+              <div style="width:16px;height:16px;background:#fef3c7;border-radius:3px;"></div>
+              <div style="width:16px;height:16px;background:#d97706;border-radius:3px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Warm Boutique</h3>
+      <p>Warm cream/amber tones with brown accents. Approachable, cozy feel. Great for boutique or independent hotels with character.</p>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:16px; text-align:center;">Click a card to select it, then let me know in the terminal.</p>

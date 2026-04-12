@@ -1,4 +1,4 @@
-import { h } from 'preact';
+import { h, Fragment } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 
 const Sidebar = ({ user, isOpen, onClose }) => {
@@ -23,6 +23,15 @@ const Sidebar = ({ user, isOpen, onClose }) => {
 
   const getNavItems = () => {
     const items = [
+      {
+        name: 'Dashboard',
+        href: '/dashboard',
+        icon: (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+          </svg>
+        ),
+      },
       {
         name: 'Rooms',
         href: '/rooms',
@@ -102,43 +111,51 @@ const Sidebar = ({ user, isOpen, onClose }) => {
 
   return (
     <>
-      {/* Desktop icon sidebar */}
-      <div className="hidden lg:flex fixed inset-y-0 left-0 z-50 w-16 flex-col items-center py-4 gap-2"
+      {/* Desktop sidebar */}
+      <div className="hidden lg:flex fixed inset-y-0 left-0 z-50 w-48 flex-col py-4 px-3 gap-1"
            style={{ backgroundColor: '#7c2d12' }}>
         {/* Logo */}
-        <a href="/rooms" className="flex items-center justify-center w-10 h-10 bg-amber-300 rounded-xl mb-4 flex-shrink-0" title="Hotel MS">
-          <svg className="w-5 h-5 text-amber-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-          </svg>
+        <a href="/dashboard" className="flex items-center gap-2 px-2 py-2 mb-3 flex-shrink-0">
+          <div className="flex items-center justify-center w-8 h-8 bg-amber-300 rounded-lg flex-shrink-0">
+            <svg className="w-4 h-4 text-amber-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+          </div>
+          <span className="text-amber-200 font-bold text-sm">Hotel MS</span>
         </a>
 
         {/* Nav items */}
         {navItems.map((item) => {
-          const isActive = currentPath === item.href || (item.href === '/rooms' && currentPath === '/');
+          const isActive = currentPath === item.href || (item.href === '/dashboard' && currentPath === '/');
           return (
             <a
               key={item.name}
               href={item.href}
-              title={item.name}
-              className={`flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200 ${
+              className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
                 isActive
                   ? 'bg-amber-300 text-amber-900'
-                  : 'text-amber-200 opacity-60 hover:opacity-100 hover:bg-amber-800'
+                  : 'text-amber-200 opacity-70 hover:opacity-100 hover:bg-amber-800'
               }`}
             >
               {item.icon}
+              {item.name}
             </a>
           );
         })}
 
         {/* Avatar at bottom */}
-        <div className="mt-auto flex flex-col items-center gap-2">
+        <div className="mt-auto">
           <a
             href="/profile"
-            title={user?.name || 'Profile'}
-            className="flex items-center justify-center w-9 h-9 rounded-full bg-amber-300 text-amber-900 text-xs font-bold hover:bg-amber-200 transition-colors"
+            className="flex items-center gap-2 px-2 py-2 rounded-xl text-amber-200 hover:bg-amber-800 transition-colors"
           >
-            {initials}
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-amber-300 text-amber-900 text-xs font-bold flex-shrink-0">
+              {initials}
+            </div>
+            <div className="min-w-0">
+              <div className="text-xs font-semibold text-amber-100 truncate">{user?.name}</div>
+              <div className="text-xs text-amber-400 capitalize">{user?.role}</div>
+            </div>
           </a>
         </div>
       </div>
@@ -161,7 +178,7 @@ const Sidebar = ({ user, isOpen, onClose }) => {
 
         <nav className="space-y-1 flex-1">
           {navItems.map((item) => {
-            const isActive = currentPath === item.href || (item.href === '/rooms' && currentPath === '/');
+            const isActive = currentPath === item.href || (item.href === '/dashboard' && currentPath === '/');
             return (
               <a
                 key={item.name}

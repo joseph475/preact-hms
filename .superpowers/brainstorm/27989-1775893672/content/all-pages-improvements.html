@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>All Pages Improvements</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Plus Jakarta Sans', sans-serif; background: #fdf8f3; padding: 24px; color: #78350f; }
+  h1 { font-size: 22px; font-weight: 800; color: #78350f; margin-bottom: 6px; }
+  .subtitle { font-size: 13px; color: #a16207; margin-bottom: 24px; }
+  .page-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .page-card { background: #fff; border: 1px solid #fde68a; border-radius: 14px; overflow: hidden; }
+  .page-card-header { background: #fef3c7; padding: 12px 16px; border-bottom: 1px solid #fde68a; display: flex; align-items: center; gap: 8px; }
+  .page-icon { width: 30px; height: 30px; background: #d97706; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+  .page-name { font-size: 13px; font-weight: 700; color: #78350f; }
+  .page-body { padding: 14px 16px; }
+  .change-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .change-item { display: flex; gap: 10px; align-items: flex-start; font-size: 12px; color: #92400e; }
+  .change-tag { flex-shrink: 0; padding: 1px 7px; border-radius: 20px; font-size: 10px; font-weight: 700; letter-spacing: 0.3px; }
+  .tag-layout { background: #dbeafe; color: #1e40af; }
+  .tag-feature { background: #dcfce7; color: #166534; }
+  .tag-ux { background: #f3e8ff; color: #6b21a8; }
+  .tag-visual { background: #fef3c7; color: #92400e; }
+
+  /* Mini mockups */
+  .mockup { background: #fdf8f3; border: 1px solid #fde68a; border-radius: 8px; padding: 10px; margin-top: 10px; }
+
+  /* Rooms card mockup */
+  .room-card { background: #fff; border: 1px solid #fde68a; border-radius: 10px; padding: 10px; }
+  .room-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .room-num { font-size: 15px; font-weight: 800; color: #78350f; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 9px; font-weight: 700; }
+  .badge-available { background: #dcfce7; color: #166534; }
+  .badge-occupied { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+  .badge-deluxe { background: #fed7aa; color: #7c2d12; }
+  .room-detail { font-size: 10px; color: #a16207; margin-bottom: 8px; }
+  .room-actions { display: flex; gap: 5px; }
+  .mini-btn { font-size: 9px; padding: 3px 8px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+  .mini-btn-amber { background: #d97706; color: #fff; }
+  .mini-btn-outline { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+
+  /* Booking card mockup */
+  .booking-card { background: #fff; border: 1px solid #fde68a; border-radius: 10px; padding: 10px; }
+  .booking-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+  .guest-row { display: flex; align-items: center; gap: 6px; }
+  .mini-avatar { width: 22px; height: 22px; border-radius: 50%; background: #fde68a; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 700; color: #7c2d12; }
+  .guest-name { font-size: 12px; font-weight: 700; color: #78350f; }
+  .booking-meta { font-size: 9px; color: #a16207; margin-top: 4px; }
+  .booking-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; padding-top: 8px; border-top: 1px solid #fef3c7; }
+
+  /* Report stat mockup */
+  .report-stat { background: #fff; border: 1px solid #fde68a; border-radius: 8px; padding: 8px 10px; }
+  .report-tabs { display: flex; gap: 4px; margin-bottom: 8px; }
+  .tab { font-size: 9px; padding: 3px 10px; border-radius: 20px; font-weight: 600; cursor: pointer; }
+  .tab-active { background: #d97706; color: #fff; }
+  .tab-inactive { background: #fef3c7; color: #92400e; }
+
+  /* Step indicator mockup */
+  .steps { display: flex; align-items: center; gap: 0; margin-bottom: 8px; }
+  .step { display: flex; align-items: center; }
+  .step-circle { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; }
+  .step-active { background: #d97706; color: #fff; }
+  .step-done { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+  .step-pending { background: #fef3c7; color: #a16207; border: 1px solid #fde68a; }
+  .step-line { width: 28px; height: 2px; background: #fde68a; }
+  .step-label { font-size: 8px; color: #a16207; margin-top: 2px; text-align: center; }
+
+  /* Profile mockup */
+  .profile-avatar { width: 48px; height: 48px; border-radius: 50%; background: #d97706; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; color: #fff; margin: 0 auto 8px; }
+</style>
+</head>
+<body>
+
+<h1>Per-Page Layout Improvements</h1>
+<p class="subtitle">All pages also get the warm amber palette + Plus Jakarta Sans. These are the structural/layout additions on top of that.</p>
+
+<div class="page-grid">
+
+  <!-- Rooms -->
+  <div class="page-card">
+    <div class="page-card-header">
+      <div class="page-icon">🛏</div>
+      <div class="page-name">Rooms</div>
+    </div>
+    <div class="page-body">
+      <ul class="change-list">
+        <li class="change-item"><span class="change-tag tag-layout">Layout</span>Card view redesigned — room number as large header, type badge, floor, status badge, price range from room type, actions row</li>
+        <li class="change-item"><span class="change-tag tag-ux">UX</span>Table view: hide Description + Telephone by default (too many columns). Show in expandable detail row on click.</li>
+        <li class="change-item"><span class="change-tag tag-visual">Visual</span>Status colors: green chip = Available, amber = Occupied, red = Maintenance/Out of Order</li>
+      </ul>
+      <div class="mockup" style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+        <div class="room-card">
+          <div class="room-card-header"><span class="room-num">101</span><span class="badge badge-available">Available</span></div>
+          <div style="margin-bottom:4px;"><span class="badge badge-deluxe">Deluxe</span> <span style="font-size:9px;color:#a16207;">· Floor 1</span></div>
+          <div class="room-detail">₱1,200 / 3hrs · ₱2,800 / 24hrs</div>
+          <div class="room-actions"><button class="mini-btn mini-btn-amber">Book</button><button class="mini-btn mini-btn-outline">Edit</button></div>
+        </div>
+        <div class="room-card">
+          <div class="room-card-header"><span class="room-num">204</span><span class="badge badge-occupied">Occupied</span></div>
+          <div style="margin-bottom:4px;"><span class="badge" style="background:#fef3c7;color:#92400e;">Standard</span> <span style="font-size:9px;color:#a16207;">· Floor 2</span></div>
+          <div class="room-detail">₱800 / 3hrs · ₱1,800 / 24hrs</div>
+          <div class="room-actions"><button class="mini-btn mini-btn-outline">Details</button><button class="mini-btn mini-btn-outline">Edit</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bookings -->
+  <div class="page-card">
+    <div class="page-card-header">
+      <div class="page-icon">📋</div>
+      <div class="page-name">Bookings</div>
+    </div>
+    <div class="page-body">
+      <ul class="change-list">
+        <li class="change-item"><span class="change-tag tag-layout">Layout</span>Booking cards redesigned — guest avatar, room + duration on one line, status + payment badges, key action button prominent</li>
+        <li class="change-item"><span class="change-tag tag-feature">Feature</span>Multi-step modal gets a clear numbered step indicator (Guest Info → Room → Details)</li>
+        <li class="change-item"><span class="change-tag tag-ux">UX</span>Status filter pills above the list (Active / All / Checked Out / Cancelled) instead of a dropdown</li>
+      </ul>
+      <div class="mockup">
+        <div class="steps">
+          <div class="step"><div style="text-align:center"><div class="step-circle step-done">✓</div><div class="step-label">Guest</div></div></div>
+          <div class="step-line"></div>
+          <div class="step"><div style="text-align:center"><div class="step-circle step-active">2</div><div class="step-label">Room</div></div></div>
+          <div class="step-line"></div>
+          <div class="step"><div style="text-align:center"><div class="step-circle step-pending">3</div><div class="step-label">Details</div></div></div>
+        </div>
+        <div class="booking-card">
+          <div class="booking-header">
+            <div>
+              <div class="guest-row"><div class="mini-avatar">MS</div><div class="guest-name">Maria Santos</div></div>
+              <div class="booking-meta">Room 204 · Deluxe · 24hrs · Check-in Apr 10</div>
+            </div>
+            <span class="badge badge-available" style="font-size:9px;">Checked In</span>
+          </div>
+          <div class="booking-footer">
+            <span style="font-size:10px;color:#a16207;">₱2,800 · Cash</span>
+            <div style="display:flex;gap:4px;">
+              <button class="mini-btn mini-btn-amber">Check Out</button>
+              <button class="mini-btn mini-btn-outline">Details</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Food Menu -->
+  <div class="page-card">
+    <div class="page-card-header">
+      <div class="page-icon">🍽</div>
+      <div class="page-name">Food Menu</div>
+    </div>
+    <div class="page-body">
+      <ul class="change-list">
+        <li class="change-item"><span class="change-tag tag-visual">Visual</span>Category tabs restyled as amber pill tabs (All / Breakfast / Lunch / Dinner / Snacks / Drinks)</li>
+        <li class="change-item"><span class="change-tag tag-layout">Layout</span>Menu item cards: larger price display, category badge, availability toggle more prominent (switch style)</li>
+        <li class="change-item"><span class="change-tag tag-feature">Feature</span>Add item count per category shown on tab badge</li>
+      </ul>
+      <div class="mockup">
+        <div class="report-tabs">
+          <div class="tab tab-active">All <span style="background:rgba(255,255,255,0.3);border-radius:10px;padding:0 5px;">12</span></div>
+          <div class="tab tab-inactive">Breakfast</div>
+          <div class="tab tab-inactive">Lunch</div>
+          <div class="tab tab-inactive">Drinks</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+          <div class="room-card">
+            <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:4px;">
+              <div style="font-size:11px;font-weight:700;color:#78350f;">Tapsilog</div>
+              <span class="badge" style="background:#fef3c7;color:#92400e;font-size:8px;">Breakfast</span>
+            </div>
+            <div style="font-size:14px;font-weight:800;color:#d97706;margin-bottom:4px;">₱120</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:9px;color:#a16207;">Available</span>
+              <div style="width:28px;height:14px;background:#d97706;border-radius:7px;"></div>
+            </div>
+          </div>
+          <div class="room-card" style="opacity:0.6;">
+            <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:4px;">
+              <div style="font-size:11px;font-weight:700;color:#78350f;">Pancakes</div>
+              <span class="badge" style="background:#fef3c7;color:#92400e;font-size:8px;">Breakfast</span>
+            </div>
+            <div style="font-size:14px;font-weight:800;color:#d97706;margin-bottom:4px;">₱80</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:9px;color:#a16207;">Unavailable</span>
+              <div style="width:28px;height:14px;background:#fde68a;border-radius:7px;border:1px solid #fde68a;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reports -->
+  <div class="page-card">
+    <div class="page-card-header">
+      <div class="page-icon">📊</div>
+      <div class="page-name">Reports</div>
+    </div>
+    <div class="page-body">
+      <ul class="change-list">
+        <li class="change-item"><span class="change-tag tag-feature">Feature</span>All 3 tabs now fully implemented: Bookings, Revenue, Occupancy</li>
+        <li class="change-item"><span class="change-tag tag-layout">Layout</span>Summary stats as cards at top of each tab (not a cramped single line)</li>
+        <li class="change-item"><span class="change-tag tag-layout">Layout</span>Revenue tab: stat cards + breakdown table by room type. Occupancy tab: visual % bar + breakdown table</li>
+      </ul>
+      <div class="mockup">
+        <div class="report-tabs">
+          <div class="tab tab-active">Bookings</div>
+          <div class="tab tab-inactive">Revenue</div>
+          <div class="tab tab-inactive">Occupancy</div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:6px;">
+          <div class="report-stat"><div style="font-size:8px;color:#a16207;font-weight:600;">TOTAL</div><div style="font-size:16px;font-weight:800;color:#78350f;">142</div></div>
+          <div class="report-stat"><div style="font-size:8px;color:#a16207;font-weight:600;">REVENUE</div><div style="font-size:16px;font-weight:800;color:#78350f;">₱48k</div></div>
+          <div class="report-stat"><div style="font-size:8px;color:#a16207;font-weight:600;">AVG/BOOKING</div><div style="font-size:16px;font-weight:800;color:#78350f;">₱338</div></div>
+        </div>
+        <div style="background:#fff;border:1px solid #fde68a;border-radius:6px;overflow:hidden;">
+          <div style="background:#fef3c7;padding:5px 8px;display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:8px;">
+            <div style="font-size:8px;font-weight:700;color:#92400e;text-transform:uppercase;">Guest</div>
+            <div style="font-size:8px;font-weight:700;color:#92400e;text-transform:uppercase;">Room</div>
+            <div style="font-size:8px;font-weight:700;color:#92400e;text-transform:uppercase;">Amount</div>
+          </div>
+          <div style="padding:5px 8px;display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:8px;border-top:1px solid #fef3c7;">
+            <div style="font-size:9px;color:#78350f;">Maria Santos</div>
+            <div style="font-size:9px;color:#a16207;">204</div>
+            <div style="font-size:9px;color:#78350f;font-weight:600;">₱2,800</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Users -->
+  <div class="page-card">
+    <div class="page-card-header">
+      <div class="page-icon">👤</div>
+      <div class="page-name">Users</div>
+    </div>
+    <div class="page-body">
+      <ul class="change-list">
+        <li class="change-item"><span class="change-tag tag-visual">Visual</span>Role badges: Admin = amber filled, Staff = amber outline. Status = green (Active) / gray (Inactive)</li>
+        <li class="change-item"><span class="change-tag tag-layout">Layout</span>Table row: avatar circle + name/email stacked (not separate columns), saves horizontal space</li>
+        <li class="change-item"><span class="change-tag tag-ux">UX</span>Filter pills above table for Role and Status (inline, dismissible) instead of hidden dropdown</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Settings -->
+  <div class="page-card">
+    <div class="page-card-header">
+      <div class="page-icon">⚙️</div>
+      <div class="page-name">Settings (Room Types)</div>
+    </div>
+    <div class="page-body">
+      <ul class="change-list">
+        <li class="change-item"><span class="change-tag tag-layout">Layout</span>Form stacks above the list on all screen sizes (full-width form → full-width list), no more cramped 2-col split</li>
+        <li class="change-item"><span class="change-tag tag-layout">Layout</span>Pricing fields in a clean 2×2 grid with clear labels (3h / 8h / 12h / 24h)</li>
+        <li class="change-item"><span class="change-tag tag-visual">Visual</span>Room type list cards show all 4 pricing tiers clearly, capacity, and penalty in an organized grid</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Profile -->
+  <div class="page-card">
+    <div class="page-card-header">
+      <div class="page-icon">🪪</div>
+      <div class="page-name">Profile</div>
+    </div>
+    <div class="page-body">
+      <ul class="change-list">
+        <li class="change-item"><span class="change-tag tag-feature">Feature</span>Currently a placeholder — implement real profile: avatar with initials, name + email + role display</li>
+        <li class="change-item"><span class="change-tag tag-feature">Feature</span>Edit profile form: change name + change password (current → new → confirm)</li>
+        <li class="change-item"><span class="change-tag tag-layout">Layout</span>Two-section layout: profile card on top, edit form below</li>
+      </ul>
+      <div class="mockup" style="text-align:center;padding:12px;">
+        <div class="profile-avatar">JD</div>
+        <div style="font-size:13px;font-weight:700;color:#78350f;">John Doe</div>
+        <div style="font-size:10px;color:#a16207;">admin · john@hotel.com</div>
+        <button class="mini-btn mini-btn-amber" style="margin-top:8px;padding:4px 14px;font-size:10px;">Edit Profile</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div style="margin-top:20px;padding:14px;background:#fff;border:1px solid #fde68a;border-radius:12px;">
+  <div style="font-size:12px;font-weight:700;color:#78350f;margin-bottom:6px;">All pages also get (via global CSS — no individual changes needed):</div>
+  <div style="display:flex;flex-wrap:wrap;gap:8px;">
+    <span class="badge badge-occupied" style="font-size:10px;padding:3px 10px;">Warm amber palette</span>
+    <span class="badge badge-occupied" style="font-size:10px;padding:3px 10px;">Plus Jakarta Sans font</span>
+    <span class="badge badge-occupied" style="font-size:10px;padding:3px 10px;">Updated button styles</span>
+    <span class="badge badge-occupied" style="font-size:10px;padding:3px 10px;">Updated card borders</span>
+    <span class="badge badge-occupied" style="font-size:10px;padding:3px 10px;">Updated table headers</span>
+    <span class="badge badge-occupied" style="font-size:10px;padding:3px 10px;">Updated form inputs</span>
+    <span class="badge badge-occupied" style="font-size:10px;padding:3px 10px;">Updated modal styles</span>
+  </div>
+</div>
+
+</body>
+</html>

@@ -85,7 +85,9 @@ const BookingsPage = ({ user }) => {
         lastName: '',
         phone: '',
         idType: 'National ID',
-        idNumber: ''
+        idNumber: '',
+        nationality: '',
+        isVip: false
       },
       room: '',
       checkInDate: date,
@@ -240,7 +242,9 @@ const BookingsPage = ({ user }) => {
         lastName: booking.guest?.lastName || '',
         phone: booking.guest?.phone || '',
         idType: booking.guest?.idType || 'National ID',
-        idNumber: booking.guest?.idNumber || ''
+        idNumber: booking.guest?.idNumber || '',
+        nationality: booking.guest?.nationality || '',
+        isVip: booking.guest?.isVip || false
       },
       room: booking.room._id,
       checkInDate: checkInDate.toISOString().split('T')[0],
@@ -356,7 +360,9 @@ const BookingsPage = ({ user }) => {
         lastName: '',
         phone: '',
         idType: 'National ID',
-        idNumber: ''
+        idNumber: '',
+        nationality: '',
+        isVip: false
       },
       room: '',
       checkInDate: currentDate,
@@ -569,179 +575,84 @@ const BookingsPage = ({ user }) => {
 
       {/* Bookings Cards */}
       {viewMode === 'cards' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {getPaginatedBookings().map((booking) => (
-            <div key={booking._id} className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-              {/* Card Header with Status */}
-              <div className={`p-3 ${
-                booking.bookingStatus === 'Confirmed' ? 'bg-gradient-to-r from-amber-50 to-amber-100' :
-                booking.bookingStatus === 'Checked In' ? 'bg-gradient-to-r from-green-50 to-green-100' :
-                booking.bookingStatus === 'Checked Out' ? 'bg-gradient-to-r from-gray-50 to-gray-100' :
-                booking.bookingStatus === 'Cancelled' ? 'bg-gradient-to-r from-red-50 to-red-100' :
-                'bg-gradient-to-r from-yellow-50 to-yellow-100'
-              }`}>
-                <div className="flex justify-between items-start">
-                  <div className="flex items-center space-x-2">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                      booking.bookingStatus === 'Confirmed' ? 'bg-amber-500' :
-                      booking.bookingStatus === 'Checked In' ? 'bg-green-500' :
-                      booking.bookingStatus === 'Checked Out' ? 'bg-gray-500' :
-                      booking.bookingStatus === 'Cancelled' ? 'bg-red-500' :
-                      'bg-yellow-500'
-                    }`}>
-                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        {booking.bookingStatus === 'Confirmed' && (
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        )}
-                        {booking.bookingStatus === 'Checked In' && (
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        )}
-                        {booking.bookingStatus === 'Checked Out' && (
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        )}
-                        {booking.bookingStatus === 'Cancelled' && (
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        )}
-                        {booking.bookingStatus === 'No Show' && (
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                        )}
-                      </svg>
-                    </div>
-                    <div>
-                      <h3 className="text-base font-bold text-gray-900">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
+          {getPaginatedBookings().map((booking) => {
+            const statusAccent =
+              booking.bookingStatus === 'Confirmed' ? 'bg-amber-400' :
+              booking.bookingStatus === 'Checked In' ? 'bg-green-500' :
+              booking.bookingStatus === 'Checked Out' ? 'bg-gray-400' :
+              booking.bookingStatus === 'Cancelled' ? 'bg-red-400' : 'bg-yellow-400';
+            return (
+              <div key={booking._id} className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+                {/* Thin status accent bar */}
+                <div className={`h-1 w-full ${statusAccent}`} />
+
+                <div className="p-3">
+                  {/* Top row: guest name + room number */}
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="min-w-0 flex-1 mr-2">
+                      <div className="font-semibold text-sm text-gray-900 truncate">
                         {booking.guest?.firstName} {booking.guest?.lastName}
-                      </h3>
-                      <p className="text-xs text-gray-600">{booking.guest?.phone}</p>
+                      </div>
+                      <div className="text-xs text-gray-500 truncate">{booking.guest?.phone}</div>
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <div className="text-base font-bold text-gray-900">#{booking.room?.roomNumber}</div>
+                      <div className="text-xs text-gray-500">{booking.room?.roomType?.name}</div>
                     </div>
                   </div>
-                  <div className="flex flex-col items-end space-y-1">
-                    <span className={`badge text-xs ${getStatusBadge(booking.bookingStatus)}`}>
-                      {booking.bookingStatus}
-                    </span>
-                    <div className="text-right">
-                      <TimeRemaining 
-                        checkInDate={booking.checkInDate}
-                        duration={booking.duration}
-                        bookingStatus={booking.bookingStatus}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
 
-              {/* Card Body */}
-              <div className="p-4">
-                {/* Room Information */}
-                <div className="mb-3">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Room</span>
-                    <span className="text-lg font-bold text-gray-900">#{booking.room?.roomNumber}</span>
+                  {/* Status + payment + amount row */}
+                  <div className="flex items-center gap-1.5 mb-2 flex-wrap">
+                    <span className={`badge text-xs ${getStatusBadge(booking.bookingStatus)}`}>{booking.bookingStatus}</span>
+                    <span className={`badge text-xs ${getPaymentBadge(booking.paymentStatus)}`}>{booking.paymentStatus}</span>
+                    <span className="ml-auto text-sm font-bold text-gray-900">₱{booking.totalAmount?.toLocaleString()}</span>
                   </div>
-                  <p className="text-sm text-gray-600">{booking.room?.roomType?.name}</p>
-                  <p className="text-xs text-gray-500">{booking.duration}h duration</p>
-                </div>
 
-                {/* Schedule */}
-                <div className="mb-3">
-                  <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Schedule</span>
-                  <div className="bg-gray-50 rounded-md p-2 mt-1">
-                    {booking.bookingStatus === 'Confirmed' ? (
-                      <p className="text-xs font-medium text-gray-900">Expected Check-in: {formatDateTime(booking.checkInDate)}</p>
-                    ) : (
+                  {/* Time info */}
+                  <div className="text-xs text-gray-500 mb-1">
+                    {booking.bookingStatus === 'Confirmed'
+                      ? `Check-in: ${formatDateTime(booking.checkInDate)}`
+                      : `${formatDateTime(booking.checkInDate)} · ${booking.duration}h`
+                    }
+                  </div>
+                  <div className="mb-2">
+                    <TimeRemaining
+                      checkInDate={booking.checkInDate}
+                      duration={booking.duration}
+                      bookingStatus={booking.bookingStatus}
+                    />
+                  </div>
+
+                  {/* Action buttons */}
+                  <div className="flex flex-wrap gap-1 pt-2 border-t border-gray-100">
+                    <button onClick={() => handleViewDetails(booking)} className="action-btn bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200">Details</button>
+
+                    {booking.bookingStatus === 'Confirmed' && (
                       <>
-                        <p className="text-xs font-medium text-gray-900">In: {formatDateTime(booking.checkInDate)}</p>
-                        <p className="text-xs text-gray-600">Out: {calculateCheckOutTime(booking.checkInDate, booking.duration)}</p>
+                        <button onClick={() => handleCheckIn(booking._id)} className="action-btn bg-green-50 text-green-700 hover:bg-green-100 border border-green-200">Check In</button>
+                        <button onClick={() => handleEdit(booking)} className="action-btn bg-gray-50 text-gray-600 hover:bg-gray-100 border border-gray-200">Edit</button>
+                        <button onClick={() => handleMarkNoShowClick(booking)} className="action-btn bg-yellow-50 text-yellow-700 hover:bg-yellow-100 border border-yellow-200">No Show</button>
                       </>
+                    )}
+
+                    {booking.bookingStatus === 'Checked In' && (
+                      <>
+                        <button onClick={() => handleCheckOutClick(booking)} className="action-btn bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200">Check Out</button>
+                        <button onClick={() => handleFoodOrderClick(booking)} className="action-btn bg-orange-50 text-orange-700 hover:bg-orange-100 border border-orange-200">Food</button>
+                        <button onClick={() => handleExtendClick(booking)} className="action-btn bg-purple-50 text-purple-700 hover:bg-purple-100 border border-purple-200">Extend</button>
+                        <button onClick={() => handleEdit(booking)} className="action-btn bg-gray-50 text-gray-600 hover:bg-gray-100 border border-gray-200">Edit</button>
+                      </>
+                    )}
+
+                    {['Confirmed', 'Checked In'].includes(booking.bookingStatus) && (
+                      <button onClick={() => handleDeleteClick(booking)} className="action-btn bg-red-50 text-red-700 hover:bg-red-100 border border-red-200">Cancel</button>
                     )}
                   </div>
                 </div>
-
-                {/* Amount and Payment */}
-                <div className="mb-3">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Amount</span>
-                      <p className="text-lg font-bold text-gray-900">₱{booking.totalAmount?.toLocaleString()}</p>
-                    </div>
-                    <span className={`badge text-xs ${getPaymentBadge(booking.paymentStatus)}`}>
-                      {booking.paymentStatus}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Actions */}
-                <div className="grid grid-cols-2 gap-1">
-                  <button
-                    onClick={() => handleViewDetails(booking)}
-                    className="px-2 py-1.5 text-xs font-medium text-amber-600 bg-amber-50 border border-amber-200 rounded-md hover:bg-amber-100 transition-colors duration-150 truncate"
-                  >
-                    Details
-                  </button>
-                  
-                  {booking.bookingStatus === 'Confirmed' && (
-                    <>
-                      <button
-                        onClick={() => handleCheckIn(booking._id)}
-                        className="px-2 py-1.5 text-xs font-medium text-green-600 bg-green-50 border border-green-200 rounded-md hover:bg-green-100 transition-colors duration-150 truncate"
-                      >
-                        Check In
-                      </button>
-                      <button
-                        onClick={() => handleMarkNoShowClick(booking)}
-                        className="px-2 py-1.5 text-xs font-medium text-yellow-600 bg-yellow-50 border border-yellow-200 rounded-md hover:bg-yellow-100 transition-colors duration-150 truncate"
-                      >
-                        No Show
-                      </button>
-                      <button
-                        onClick={() => handleEdit(booking)}
-                        className="px-2 py-1.5 text-xs font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 transition-colors duration-150 truncate"
-                      >
-                        Edit
-                      </button>
-                    </>
-                  )}
-                  
-                  {booking.bookingStatus === 'Checked In' && (
-                    <>
-                      <button
-                        onClick={() => handleFoodOrderClick(booking)}
-                        className="px-2 py-1.5 text-xs font-medium text-orange-600 bg-orange-50 border border-orange-200 rounded-md hover:bg-orange-100 transition-colors duration-150 truncate"
-                      >
-                        Food Order
-                      </button>
-                      <button
-                        onClick={() => handleExtendClick(booking)}
-                        className="px-2 py-1.5 text-xs font-medium text-purple-600 bg-purple-50 border border-purple-200 rounded-md hover:bg-purple-100 transition-colors duration-150 truncate"
-                      >
-                        Extend
-                      </button>
-                      <button
-                        onClick={() => handleCheckOutClick(booking)}
-                        className="px-2 py-1.5 text-xs font-medium text-amber-600 bg-amber-50 border border-amber-200 rounded-md hover:bg-amber-100 transition-colors duration-150 truncate"
-                      >
-                        Check Out
-                      </button>
-                      <button
-                        onClick={() => handleEdit(booking)}
-                        className="px-2 py-1.5 text-xs font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 transition-colors duration-150 truncate"
-                      >
-                        Edit
-                      </button>
-                    </>
-                  )}
-                  
-                  {['Confirmed', 'Checked In'].includes(booking.bookingStatus) && (
-                    <button
-                      onClick={() => handleDeleteClick(booking)}
-                      className="px-2 py-1.5 text-xs font-medium text-red-600 bg-red-50 border border-red-200 rounded-md hover:bg-red-100 transition-colors duration-150 truncate"
-                    >
-                      Cancel
-                    </button>
-                  )}
-                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 

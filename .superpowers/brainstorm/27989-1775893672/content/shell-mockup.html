@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HMS Shell Mockup</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Plus Jakarta Sans', sans-serif; background: #1a0a00; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; }
+
+  .browser-frame {
+    width: 100%;
+    max-width: 900px;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+  }
+
+  .browser-bar {
+    background: #2d1200;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot-red { background: #ff5f57; }
+  .dot-yellow { background: #febc2e; }
+  .dot-green { background: #28c840; }
+  .url-bar { flex: 1; background: rgba(255,255,255,0.08); border-radius: 6px; padding: 4px 12px; font-size: 11px; color: rgba(255,255,255,0.5); margin: 0 12px; }
+
+  .app {
+    display: flex;
+    height: 520px;
+    background: #fdf8f3;
+  }
+
+  /* Icon Sidebar */
+  .sidebar {
+    width: 64px;
+    background: #7c2d12;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px 0;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+  .sidebar-logo {
+    width: 36px; height: 36px;
+    background: #fde68a;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    margin-bottom: 20px;
+  }
+  .nav-item {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+  }
+  .nav-item.active {
+    background: #fde68a;
+  }
+  .nav-item.inactive {
+    background: transparent;
+    opacity: 0.55;
+  }
+  .nav-item.inactive:hover { opacity: 1; background: rgba(253,230,138,0.15); }
+  .sidebar-bottom {
+    margin-top: auto;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+  }
+  .avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: #fde68a;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: #7c2d12;
+  }
+
+  /* Main content */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Top header */
+  .header {
+    background: #fff;
+    border-bottom: 1px solid #fde68a;
+    padding: 0 20px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+  .header-title {
+    font-size: 15px; font-weight: 700; color: #78350f;
+    flex: 1;
+  }
+  .search-bar {
+    display: flex; align-items: center; gap: 8px;
+    background: #fef9f0;
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+    padding: 6px 12px;
+    width: 200px;
+  }
+  .search-bar span { font-size: 12px; color: #a16207; }
+  .header-actions { display: flex; gap: 8px; align-items: center; }
+  .icon-btn {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: #fef3c7; border: 1px solid #fde68a;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; cursor: pointer;
+  }
+
+  /* Content area */
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .page-title {
+    font-size: 20px; font-weight: 800; color: #78350f;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .page-subtitle { font-size: 12px; color: #a16207; font-weight: 500; margin-top: 2px; }
+
+  /* Stats row */
+  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .stat-card {
+    background: #fff;
+    border: 1px solid #fde68a;
+    border-radius: 12px;
+    padding: 14px;
+  }
+  .stat-label { font-size: 10px; font-weight: 600; color: #a16207; letter-spacing: 0.5px; text-transform: uppercase; }
+  .stat-value { font-size: 24px; font-weight: 800; color: #78350f; margin: 4px 0 2px; }
+  .stat-change { font-size: 10px; color: #65a30d; font-weight: 600; }
+  .stat-icon {
+    float: right;
+    width: 32px; height: 32px; border-radius: 8px;
+    background: #fef3c7;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; margin-top: -4px;
+  }
+
+  /* Room grid */
+  .section-heading {
+    font-size: 13px; font-weight: 700; color: #78350f;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .see-all { font-size: 11px; color: #d97706; font-weight: 600; }
+  .room-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+  .room-chip {
+    border-radius: 8px; padding: 8px 4px; text-align: center; font-size: 10px; font-weight: 600;
+  }
+  .room-occupied { background: #d97706; color: #fff; }
+  .room-available { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+  .room-cleaning { background: #fef9c3; color: #854d0e; border: 1px dashed #fde68a; }
+
+  /* Recent bookings table */
+  .table-section {
+    background: #fff;
+    border: 1px solid #fde68a;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .table-head { background: #fef3c7; padding: 10px 14px; display: flex; gap: 12px; }
+  .th { font-size: 10px; font-weight: 700; color: #92400e; text-transform: uppercase; letter-spacing: 0.5px; flex: 1; }
+  .table-row-item { padding: 10px 14px; display: flex; gap: 12px; border-top: 1px solid #fef3c7; align-items: center; }
+  .td { font-size: 11px; color: #78350f; flex: 1; font-weight: 500; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 600; }
+  .badge-green { background: #dcfce7; color: #166534; }
+  .badge-amber { background: #fef3c7; color: #92400e; }
+  .badge-red { background: #fee2e2; color: #991b1b; }
+  .guest-avatar {
+    width: 22px; height: 22px; border-radius: 50%; background: #fde68a;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 9px; font-weight: 700; color: #7c2d12; margin-right: 5px;
+  }
+</style>
+</head>
+<body>
+
+<div class="browser-frame">
+  <!-- Browser chrome -->
+  <div class="browser-bar">
+    <div class="dot dot-red"></div>
+    <div class="dot dot-yellow"></div>
+    <div class="dot dot-green"></div>
+    <div class="url-bar">localhost:3002 — Hotel Management System</div>
+  </div>
+
+  <div class="app">
+    <!-- Icon Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-logo">🏨</div>
+      <div class="nav-item active" title="Dashboard">🏠</div>
+      <div class="nav-item inactive" title="Rooms">🛏</div>
+      <div class="nav-item inactive" title="Bookings">📋</div>
+      <div class="nav-item inactive" title="Guests">👥</div>
+      <div class="nav-item inactive" title="Food">🍽</div>
+      <div class="nav-item inactive" title="Reports">📊</div>
+      <div class="sidebar-bottom">
+        <div class="nav-item inactive" title="Settings">⚙️</div>
+        <div class="avatar">JD</div>
+      </div>
+    </div>
+
+    <!-- Main -->
+    <div class="main">
+      <!-- Header -->
+      <div class="header">
+        <div class="header-title">Good morning, Admin 👋</div>
+        <div class="search-bar">
+          <span>🔍</span>
+          <span style="color:#c9a070; font-size:11px;">Search...</span>
+        </div>
+        <div class="header-actions">
+          <div class="icon-btn">🔔</div>
+        </div>
+      </div>
+
+      <!-- Page content -->
+      <div class="content">
+        <!-- Page heading -->
+        <div>
+          <div class="page-title">Dashboard</div>
+          <div class="page-subtitle">Saturday, April 11 · Hotel occupancy at 87%</div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-row">
+          <div class="stat-card">
+            <div><div class="stat-icon">🛏</div><div class="stat-label">Total Rooms</div></div>
+            <div class="stat-value">48</div>
+            <div class="stat-change">12 available</div>
+          </div>
+          <div class="stat-card">
+            <div><div class="stat-icon">✅</div><div class="stat-label">Occupied</div></div>
+            <div class="stat-value">87%</div>
+            <div class="stat-change">↑ 4% vs yesterday</div>
+          </div>
+          <div class="stat-card">
+            <div><div class="stat-icon">👥</div><div class="stat-label">Guests Today</div></div>
+            <div class="stat-value">36</div>
+            <div class="stat-change">5 checking out</div>
+          </div>
+          <div class="stat-card">
+            <div><div class="stat-icon">💰</div><div class="stat-label">Revenue</div></div>
+            <div class="stat-value">$12.4k</div>
+            <div class="stat-change">↑ 11% this week</div>
+          </div>
+        </div>
+
+        <!-- Room overview -->
+        <div class="table-section" style="padding:14px; background:#fff;">
+          <div class="section-heading" style="margin-bottom:10px;">
+            <span>Room Status</span>
+            <span class="see-all">See all →</span>
+          </div>
+          <div class="room-grid">
+            <div class="room-chip room-occupied">101</div>
+            <div class="room-chip room-occupied">102</div>
+            <div class="room-chip room-available">103</div>
+            <div class="room-chip room-occupied">104</div>
+            <div class="room-chip room-cleaning">105</div>
+            <div class="room-chip room-available">106</div>
+            <div class="room-chip room-available">201</div>
+            <div class="room-chip room-occupied">202</div>
+            <div class="room-chip room-occupied">203</div>
+            <div class="room-chip room-available">204</div>
+            <div class="room-chip room-occupied">205</div>
+            <div class="room-chip room-cleaning">206</div>
+          </div>
+          <div style="display:flex; gap:12px; margin-top:10px;">
+            <span style="font-size:10px; color:#92400e;"><span style="display:inline-block;width:8px;height:8px;background:#d97706;border-radius:2px;margin-right:3px;"></span>Occupied</span>
+            <span style="font-size:10px; color:#92400e;"><span style="display:inline-block;width:8px;height:8px;background:#fef3c7;border:1px solid #fde68a;border-radius:2px;margin-right:3px;"></span>Available</span>
+            <span style="font-size:10px; color:#92400e;"><span style="display:inline-block;width:8px;height:8px;background:#fef9c3;border:1px dashed #fde68a;border-radius:2px;margin-right:3px;"></span>Cleaning</span>
+          </div>
+        </div>
+
+        <!-- Recent bookings -->
+        <div class="table-section">
+          <div style="padding:12px 14px; display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:13px; font-weight:700; color:#78350f;">Recent Bookings</span>
+            <span class="see-all">View all →</span>
+          </div>
+          <div class="table-head">
+            <div class="th">Guest</div>
+            <div class="th">Room</div>
+            <div class="th">Check-in</div>
+            <div class="th">Status</div>
+          </div>
+          <div class="table-row-item">
+            <div class="td"><span class="guest-avatar">MS</span>Maria Santos</div>
+            <div class="td">204 · Deluxe</div>
+            <div class="td">Apr 10</div>
+            <div class="td"><span class="badge badge-green">Checked In</span></div>
+          </div>
+          <div class="table-row-item">
+            <div class="td"><span class="guest-avatar">JR</span>James Reyes</div>
+            <div class="td">101 · Standard</div>
+            <div class="td">Apr 11</div>
+            <div class="td"><span class="badge badge-amber">Pending</span></div>
+          </div>
+          <div class="table-row-item">
+            <div class="td"><span class="guest-avatar">AL</span>Ana Lim</div>
+            <div class="td">305 · Suite</div>
+            <div class="td">Apr 9</div>
+            <div class="td"><span class="badge badge-red">Checked Out</span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="text-align:center; margin-top:20px; font-family:'Plus Jakarta Sans',sans-serif; color:rgba(255,255,255,0.5); font-size:12px;">
+  Proposed redesign — Dashboard view · Does this direction look right?
+</div>
+
+</body>
+</html>

@@ -1,0 +1,109 @@
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Plus Jakarta Sans', sans-serif; }
+  .room-card { background: #fff; border: 1.5px solid #fde68a; border-radius: 12px; padding: 14px; width: 100%; }
+  .room-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+  .room-num { font-size: 18px; font-weight: 800; color: #78350f; }
+  .badge { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 10px; font-weight: 700; }
+  .badge-available { background: #dcfce7; color: #166534; }
+  .badge-type { background: #fed7aa; color: #7c2d12; }
+  .floor-label { font-size: 11px; color: #a16207; margin-bottom: 10px; }
+  .actions { display: flex; gap: 6px; margin-top: 10px; }
+  .btn { font-size: 10px; padding: 5px 12px; border-radius: 7px; font-weight: 600; cursor: pointer; border: none; font-family: 'Plus Jakarta Sans', sans-serif; }
+  .btn-amber { background: #d97706; color: #fff; }
+  .btn-outline { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+</style>
+
+<h2>How should room pricing be shown on the card?</h2>
+<p class="subtitle">Less is more — staff mainly need to know the rate when booking, not at a glance.</p>
+
+<div class="options">
+
+  <!-- Option A: "From" price only -->
+  <div class="option" data-choice="from-price" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Starting price only</h3>
+      <p>Show "From ₱800" — the lowest tier. Clean, single line. Full rates visible when booking or in the details modal.</p>
+      <div style="margin-top:14px; max-width:200px;">
+        <div class="room-card">
+          <div class="room-card-header">
+            <span class="room-num">101</span>
+            <span class="badge badge-available">Available</span>
+          </div>
+          <div style="margin-bottom:6px;"><span class="badge badge-type">Deluxe</span> <span style="font-size:11px;color:#a16207;">· Floor 1</span></div>
+          <div style="font-size:13px; font-weight:700; color:#d97706;">From ₱1,200</div>
+          <div class="actions">
+            <button class="btn btn-amber">Book</button>
+            <button class="btn btn-outline">Edit</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option B: Rate grid (2x2) -->
+  <div class="option" data-choice="rate-grid" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Compact rate grid</h3>
+      <p>All 4 rates in a small 2×2 grid with short labels. Slightly more info, but contained and scannable.</p>
+      <div style="margin-top:14px; max-width:200px;">
+        <div class="room-card">
+          <div class="room-card-header">
+            <span class="room-num">101</span>
+            <span class="badge badge-available">Available</span>
+          </div>
+          <div style="margin-bottom:8px;"><span class="badge badge-type">Deluxe</span> <span style="font-size:11px;color:#a16207;">· Floor 1</span></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;background:#fef9f0;border-radius:8px;padding:8px;border:1px solid #fde68a;">
+            <div>
+              <div style="font-size:8px;color:#a16207;font-weight:600;">3 HRS</div>
+              <div style="font-size:11px;font-weight:700;color:#78350f;">₱1,200</div>
+            </div>
+            <div>
+              <div style="font-size:8px;color:#a16207;font-weight:600;">8 HRS</div>
+              <div style="font-size:11px;font-weight:700;color:#78350f;">₱1,800</div>
+            </div>
+            <div>
+              <div style="font-size:8px;color:#a16207;font-weight:600;">12 HRS</div>
+              <div style="font-size:11px;font-weight:700;color:#78350f;">₱2,200</div>
+            </div>
+            <div>
+              <div style="font-size:8px;color:#a16207;font-weight:600;">24 HRS</div>
+              <div style="font-size:11px;font-weight:700;color:#78350f;">₱2,800</div>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn btn-amber">Book</button>
+            <button class="btn btn-outline">Edit</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option C: No rates on card -->
+  <div class="option" data-choice="no-rates" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>No rates on card</h3>
+      <p>Rates live only in the booking flow and details modal. Card stays minimal — just room, type, floor, status, and actions.</p>
+      <div style="margin-top:14px; max-width:200px;">
+        <div class="room-card">
+          <div class="room-card-header">
+            <span class="room-num">101</span>
+            <span class="badge badge-available">Available</span>
+          </div>
+          <div style="margin-bottom:12px;"><span class="badge badge-type">Deluxe</span> <span style="font-size:11px;color:#a16207;">· Floor 1</span></div>
+          <div class="actions">
+            <button class="btn btn-amber">Book</button>
+            <button class="btn btn-outline">Details</button>
+            <button class="btn btn-outline">Edit</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

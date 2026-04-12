@@ -168,7 +168,9 @@ exports.createBooking = asyncHandler(async (req, res, next) => {
       lastName: req.body.guest.lastName,
       phone: req.body.guest.phone,
       idType: req.body.guest.idType,
-      idNumber: req.body.guest.idNumber
+      idNumber: req.body.guest.idNumber,
+      ...(req.body.guest.nationality && { nationality: req.body.guest.nationality }),
+      ...(req.body.guest.isVip !== undefined && { isVip: req.body.guest.isVip })
     };
 
     const existingGuest = await Guest.findOne({
@@ -179,6 +181,11 @@ exports.createBooking = asyncHandler(async (req, res, next) => {
 
     if (!existingGuest) {
       await Guest.create(guestData);
+    } else {
+      // Update nationality/VIP status if provided
+      if (guestData.nationality) existingGuest.nationality = guestData.nationality;
+      if (guestData.isVip !== undefined) existingGuest.isVip = guestData.isVip;
+      await existingGuest.save();
     }
   } catch (guestErr) {
     console.error('Failed to sync guest record after booking creation:', guestErr.message);
@@ -363,8 +370,8 @@ exports.checkOut = asyncHandler(async (req, res, next) => {
   booking.actualCheckOut = new Date();
   await booking.save();
 
-  // Update room status to Maintenance after checkout
-  await Room.findByIdAndUpdate(booking.room, { status: 'Maintenance' });
+  // Update room status to Needs Cleaning after checkout
+  await Room.findByIdAndUpdate(booking.room, { status: 'Needs Cleaning' });
 
   res.status(200).json({
     success: true,

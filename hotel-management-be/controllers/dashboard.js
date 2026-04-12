@@ -58,6 +58,12 @@ exports.getDashboardStats = asyncHandler(async (req, res, next) => {
     }
   });
 
+  // Paid bookings this month (for ADR calculation)
+  const paidBookingsThisMonth = await Booking.countDocuments({
+    createdAt: { $gte: startOfMonth, $lt: endOfMonth },
+    bookingStatus: { $in: ['Checked In', 'Checked Out'] }
+  });
+
   // Monthly revenue
   const monthlyRevenue = await Booking.aggregate([
     {
@@ -84,24 +90,34 @@ exports.getDashboardStats = asyncHandler(async (req, res, next) => {
     .populate('guest', 'firstName lastName')
     .populate('room', 'roomNumber roomType');
 
-  // Room occupancy by type
+  // Room occupancy by type (with room type name)
   const roomOccupancy = await Room.aggregate([
     {
       $group: {
         _id: '$roomType',
         total: { $sum: 1 },
         occupied: {
-          $sum: {
-            $cond: [{ $eq: ['$status', 'Occupied'] }, 1, 0]
-          }
+          $sum: { $cond: [{ $eq: ['$status', 'Occupied'] }, 1, 0] }
         },
         available: {
-          $sum: {
-            $cond: [{ $eq: ['$status', 'Available'] }, 1, 0]
-          }
+          $sum: { $cond: [{ $eq: ['$status', 'Available'] }, 1, 0] }
         }
       }
-    }
+    },
+    {
+      $lookup: {
+        from: 'roomtypes',
+        localField: '_id',
+        foreignField: '_id',
+        as: 'roomTypeDoc'
+      }
+    },
+    {
+      $addFields: {
+        _id: { $ifNull: [{ $arrayElemAt: ['$roomTypeDoc.name', 0] }, 'Unknown'] }
+      }
+    },
+    { $project: { roomTypeDoc: 0 } }
   ]);
 
   res.status(200).json({
@@ -122,7 +138,13 @@ exports.getDashboardStats = asyncHandler(async (req, res, next) => {
         checkOutsToday: todaysCheckOuts
       },
       revenue: {
-        monthly: monthlyRevenue.length > 0 ? monthlyRevenue[0].total : 0
+        monthly: monthlyRevenue.length > 0 ? monthlyRevenue[0].total : 0,
+        adr: paidBookingsThisMonth > 0
+          ? Number(((monthlyRevenue.length > 0 ? monthlyRevenue[0].total : 0) / paidBookingsThisMonth).toFixed(2))
+          : 0,
+        revpar: totalRooms > 0
+          ? Number(((monthlyRevenue.length > 0 ? monthlyRevenue[0].total : 0) / totalRooms).toFixed(2))
+          : 0
       },
       recentBookings,
       roomOccupancy

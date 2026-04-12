@@ -76,7 +76,7 @@
 
   /* Cards */
   .card {
-    @apply bg-white rounded-xl border border-amber-200 shadow-sm;
+    @apply bg-white rounded-xl border border-amber-200 shadow-sm p-4;
   }
   .card-elevated {
     @apply bg-white rounded-xl border border-amber-200 shadow-md hover:shadow-lg transition-shadow duration-200;
@@ -215,9 +215,14 @@
     @apply flex items-center gap-1;
   }
 
-  /* Action button base + variants */
+  /* Action button base + variants (text labels) */
   .action-btn {
-    @apply inline-flex items-center justify-center w-8 h-8 rounded-lg text-sm transition-colors duration-200;
+    @apply inline-flex items-center justify-center px-2 py-1 rounded-lg text-xs font-medium whitespace-nowrap transition-colors duration-200;
+  }
+
+  /* Icon-only action buttons (fixed square) */
+  .action-btn-icon {
+    @apply inline-flex items-center justify-center w-8 h-8 rounded-lg transition-colors duration-200;
   }
 
   .action-btn-primary {
@@ -238,6 +243,19 @@
 
   .action-btn-danger {
     @apply action-btn bg-red-100 text-red-700 hover:bg-red-200;
+  }
+
+  /* Icon-only color variants */
+  .action-btn-icon-primary {
+    @apply action-btn-icon bg-amber-100 text-amber-700 hover:bg-amber-200;
+  }
+
+  .action-btn-icon-info {
+    @apply action-btn-icon bg-amber-50 text-amber-700 hover:bg-amber-100;
+  }
+
+  .action-btn-icon-danger {
+    @apply action-btn-icon bg-red-100 text-red-700 hover:bg-red-200;
   }
 
   /* Table scroll container */

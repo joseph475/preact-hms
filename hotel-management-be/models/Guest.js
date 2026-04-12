@@ -28,6 +28,15 @@ const GuestSchema = new mongoose.Schema({
     required: [true, 'Please add ID number'],
     trim: true
   },
+  nationality: {
+    type: String,
+    trim: true,
+    maxlength: [50, 'Nationality cannot be more than 50 characters']
+  },
+  isVip: {
+    type: Boolean,
+    default: false
+  },
   notes: {
     type: String,
     maxlength: [1000, 'Notes cannot be more than 1000 characters']

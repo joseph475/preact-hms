@@ -26,7 +26,10 @@ export const useAuth = () => {
       }
     } catch (error) {
       console.error('Auth check failed:', error);
-      logout();
+      // Only logout on explicit auth rejection (401), not network errors
+      if (error.status === 401) {
+        logout();
+      }
     } finally {
       setLoading(false);
     }

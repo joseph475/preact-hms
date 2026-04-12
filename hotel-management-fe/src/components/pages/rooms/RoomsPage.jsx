@@ -38,7 +38,7 @@ const RoomsPage = ({ user }) => {
     telephone: ''
   });
 
-  const roomStatuses = ['Available', 'Occupied', 'Maintenance', 'Out of Order'];
+  const roomStatuses = ['Available', 'Occupied', 'Needs Cleaning', 'Maintenance', 'Out of Order'];
 
   useEffect(() => {
     updateCurrentPage('/rooms');
@@ -222,6 +222,7 @@ const RoomsPage = ({ user }) => {
     const statusClasses = {
       'Available': 'bg-green-100 text-green-800',
       'Occupied': 'bg-amber-100 text-amber-800',
+      'Needs Cleaning': 'bg-blue-100 text-blue-800',
       'Maintenance': 'bg-red-100 text-red-800',
       'Out of Order': 'bg-red-100 text-red-800'
     };
@@ -260,6 +261,18 @@ const RoomsPage = ({ user }) => {
       console.error('Update room status error:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleMarkClean = async (room) => {
+    try {
+      const response = await apiService.markRoomClean(room._id);
+      if (response.success) {
+        await loadRooms();
+      }
+    } catch (err) {
+      setError('Failed to mark room as clean');
+      console.error('Mark room clean error:', err);
     }
   };
 
@@ -560,13 +573,21 @@ const RoomsPage = ({ user }) => {
                   {/* Actions */}
                   <td className="table-cell">
                     <div className="flex space-x-2">
-                      {/* Mark Available button for all users when room is in maintenance */}
+                      {room.status === 'Needs Cleaning' && (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleMarkClean(room); }}
+                          className="inline-flex items-center px-2 py-1 border border-blue-300 text-xs font-medium rounded text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          title="Mark as Clean"
+                        >
+                          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          Mark Clean
+                        </button>
+                      )}
                       {room.status === 'Maintenance' && (
                         <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleMarkAvailable(room);
-                          }}
+                          onClick={(e) => { e.stopPropagation(); handleMarkAvailable(room); }}
                           className="inline-flex items-center px-2 py-1 border border-green-300 text-xs font-medium rounded text-green-700 bg-green-50 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-500"
                           title="Mark as Available"
                         >
@@ -665,6 +686,14 @@ const RoomsPage = ({ user }) => {
                       onClick={(e) => { e.stopPropagation(); handleBookRoom(room); }}
                     >
                       Book
+                    </button>
+                  )}
+                  {room.status === 'Needs Cleaning' && (
+                    <button
+                      className="text-xs px-3 py-1.5 border border-blue-300 rounded text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none"
+                      onClick={(e) => { e.stopPropagation(); handleMarkClean(room); }}
+                    >
+                      Mark Clean
                     </button>
                   )}
                   {(room.status === 'Maintenance' || room.status === 'Out of Order') && (

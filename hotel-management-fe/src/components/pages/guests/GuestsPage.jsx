@@ -11,7 +11,7 @@ const GuestsPage = ({ user }) => {
   const [error, setError] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [localSearch, setLocalSearch] = useState('');
-  const itemsPerPage = 15;
+  const itemsPerPage = 10;
   const { searchTerm, updateCurrentPage } = useSearch();
   const [showNotesModal, setShowNotesModal] = useState(false);
   const [selectedGuest, setSelectedGuest] = useState(null);
@@ -50,7 +50,7 @@ const GuestsPage = ({ user }) => {
   const loadGuests = async () => {
     try {
       setLoading(true);
-      const response = await apiService.getGuests();
+      const response = await apiService.getGuests({}, { noCache: true });
       if (response.success) {
         setGuests(response.data);
       }
@@ -142,6 +142,9 @@ const GuestsPage = ({ user }) => {
                         <div className="font-semibold text-gray-900">
                           {guest.firstName} {guest.lastName}
                         </div>
+                        {guest.isVip && (
+                          <span className="px-1.5 py-0.5 text-xs font-bold bg-amber-100 text-amber-700 border border-amber-300 rounded">VIP</span>
+                        )}
                         {guest.notes && (
                           <button
                             onClick={() => {
@@ -175,6 +178,9 @@ const GuestsPage = ({ user }) => {
                   <div>
                     <div className="text-sm font-medium text-gray-900">{guest.idType}</div>
                     <div className="text-sm text-gray-500 font-mono">{guest.idNumber}</div>
+                    {guest.nationality && (
+                      <div className="text-xs text-gray-400 mt-0.5">{guest.nationality}</div>
+                    )}
                   </div>
                 </td>
                 <td className="table-cell">

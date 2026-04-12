@@ -162,12 +162,15 @@ exports.getRevenueReports = asyncHandler(async (req, res, next) => {
     }
   ]);
 
+  const totalRoomsCount = await Room.countDocuments({ isActive: true });
+
   res.status(200).json({
     success: true,
     data: {
       revenueOverTime: revenueData,
       revenueByRoomType,
-      revenueByDuration
+      revenueByDuration,
+      totalRooms: totalRoomsCount
     }
   });
 });

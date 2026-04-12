@@ -93,6 +93,61 @@ const ReportsPage = ({ user }) => {
     }));
   };
 
+  const exportToCSV = () => {
+    const escape = (v) => {
+      const s = String(v == null ? '' : v);
+      return s.includes(',') || s.includes('"') || s.includes('\n') ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const toCSV = (rows) => rows.map(r => r.map(escape).join(',')).join('\n');
+
+    let filename = '';
+    let csv = '';
+
+    if (activeTab === 'bookings') {
+      filename = 'booking-report';
+      const rows = [['Booking #', 'Guest', 'Room', 'Check-In', 'Check-Out', 'Duration (hrs)', 'Total Amount', 'Paid Amount', 'Status']];
+      (bookingReports.bookings || []).forEach(b => {
+        rows.push([
+          b.bookingNumber || '',
+          `${b.guest?.firstName || ''} ${b.guest?.lastName || ''}`.trim(),
+          b.room?.roomNumber || '',
+          b.checkInDate ? new Date(b.checkInDate).toLocaleDateString() : '',
+          b.checkOutDate ? new Date(b.checkOutDate).toLocaleDateString() : '',
+          b.duration || '',
+          b.totalAmount || 0,
+          b.paidAmount || 0,
+          b.bookingStatus || ''
+        ]);
+      });
+      csv = toCSV(rows);
+    } else if (activeTab === 'revenue') {
+      filename = 'revenue-report';
+      const rows = [['Period', 'Revenue (₱)', 'Bookings', 'Avg Booking Value (₱)']];
+      (revenueReports.revenueOverTime || []).forEach(r => {
+        const label = r._id ? `${r._id.year || ''}-${String(r._id.month || '').padStart(2,'0')}${r._id.day ? '-'+String(r._id.day).padStart(2,'0') : ''}` : '';
+        rows.push([label, r.totalRevenue || 0, r.totalBookings || 0, r.averageBookingValue ? Math.round(r.averageBookingValue) : 0]);
+      });
+      csv = toCSV(rows);
+    } else if (activeTab === 'occupancy') {
+      filename = 'occupancy-report';
+      const rows = [['Room Type', 'Total Rooms', 'Occupied', 'Available', 'Occupancy %']];
+      (occupancyReports.byRoomType || []).forEach(r => {
+        const rate = r.totalRooms > 0 ? ((r.occupiedRooms / r.totalRooms) * 100).toFixed(1) : 0;
+        rows.push([r._id || '', r.totalRooms || 0, r.occupiedRooms || 0, r.availableRooms || 0, rate]);
+      });
+      csv = toCSV(rows);
+    }
+
+    const date = new Date().toISOString().slice(0, 10);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${filename}-${date}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const handlePrint = () => {
     const printContent = document.getElementById('report-content');
     
@@ -297,22 +352,27 @@ const ReportsPage = ({ user }) => {
     const totalRevenue = revenueReports.revenueOverTime?.reduce((sum, r) => sum + (r.totalRevenue || 0), 0) || 0;
     const totalBookings = revenueReports.revenueOverTime?.reduce((sum, r) => sum + (r.totalBookings || 0), 0) || 0;
     const avgRevenue = totalBookings > 0 ? Math.round(totalRevenue / totalBookings) : 0;
+    const totalRooms = revenueReports.totalRooms || 0;
+    const adr = totalBookings > 0 ? (totalRevenue / totalBookings).toFixed(2) : 0;
+    const revpar = totalRooms > 0 ? (totalRevenue / totalRooms).toFixed(2) : 0;
 
     return (
       <div>
-        {/* Summary stat cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-          <div className="card text-center">
-            <p className="text-xs text-primary-800 opacity-70 mb-1">Total Revenue</p>
-            <p className="text-2xl font-bold text-primary-900">₱{totalRevenue.toLocaleString()}</p>
-          </div>
-          <div className="card text-center">
-            <p className="text-xs text-primary-800 opacity-70 mb-1">Total Bookings</p>
-            <p className="text-2xl font-bold text-primary-900">{totalBookings}</p>
-          </div>
-          <div className="card text-center">
-            <p className="text-xs text-primary-800 opacity-70 mb-1">Avg Revenue / Booking</p>
-            <p className="text-2xl font-bold text-primary-900">₱{avgRevenue.toLocaleString()}</p>
+        {/* Summary stat row */}
+        <div className="card mb-6">
+          <div className="flex flex-wrap divide-x divide-amber-100">
+            {[
+              { label: 'Total Revenue', value: `₱${totalRevenue.toLocaleString()}`, color: 'text-gray-900' },
+              { label: 'Total Bookings', value: totalBookings, color: 'text-gray-900' },
+              { label: 'Avg / Booking', value: `₱${avgRevenue.toLocaleString()}`, color: 'text-gray-900' },
+              { label: 'ADR', value: `₱${Number(adr).toLocaleString()}`, color: 'text-teal-700' },
+              { label: 'RevPAR', value: `₱${Number(revpar).toLocaleString()}`, color: 'text-indigo-700' },
+            ].map(({ label, value, color }) => (
+              <div key={label} className="flex items-center justify-between gap-3 px-4 py-2 flex-1 min-w-[130px]">
+                <span className="text-xs text-gray-500 whitespace-nowrap">{label}</span>
+                <span className={`text-sm font-bold ${color} whitespace-nowrap`}>{value}</span>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -601,15 +661,20 @@ const ReportsPage = ({ user }) => {
               Comprehensive reports and analytics for hotel operations.
             </p>
           </div>
-          <button
-            onClick={handlePrint}
-            className="btn btn-primary no-print flex-shrink-0"
-          >
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-            </svg>
-            Print Report
-          </button>
+          <div className="flex items-center gap-2 no-print flex-shrink-0">
+            <button onClick={exportToCSV} className="btn btn-secondary">
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              Download CSV
+            </button>
+            <button onClick={handlePrint} className="btn btn-primary">
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+              </svg>
+              Print Report
+            </button>
+          </div>
         </div>
       </div>
 
