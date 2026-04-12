@@ -613,13 +613,14 @@ const BookingsPage = ({ user }) => {
                   <div className="text-xs text-gray-500 mb-1">
                     {booking.bookingStatus === 'Confirmed'
                       ? `Check-in: ${formatDateTime(booking.checkInDate)}`
-                      : `${formatDateTime(booking.checkInDate)} · ${booking.duration}h`
+                      : `In: ${formatDateTime(booking.checkInDate)} · Out: ${formatDateTime(booking.checkOutDate)}`
                     }
                   </div>
                   <div className="mb-2">
                     <TimeRemaining
                       checkInDate={booking.checkInDate}
                       duration={booking.duration}
+                      checkOutDate={booking.checkOutDate}
                       bookingStatus={booking.bookingStatus}
                     />
                   </div>

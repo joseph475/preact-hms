@@ -1,7 +1,7 @@
 import { h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 
-const TimeRemaining = ({ checkInDate, duration, bookingStatus }) => {
+const TimeRemaining = ({ checkInDate, duration, checkOutDate, bookingStatus }) => {
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
@@ -25,7 +25,9 @@ const TimeRemaining = ({ checkInDate, duration, bookingStatus }) => {
 
   const getRemainingTime = () => {
     const checkIn = new Date(checkInDate);
-    const checkOut = new Date(checkIn.getTime() + (duration * 60 * 60 * 1000));
+    const checkOut = checkOutDate
+      ? new Date(checkOutDate)
+      : new Date(checkIn.getTime() + (duration * 60 * 60 * 1000));
     const now = currentTime;
     const remainingMs = checkOut.getTime() - now.getTime();
     

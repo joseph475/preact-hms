@@ -22,7 +22,9 @@ const Receipt = ({ booking, onClose, autoPrint = false }) => {
   };
 
   const handleDirectPrint = (bookingData) => {
-    const checkOutTime = calculateCheckOutTime(bookingData.checkInDate, bookingData.duration);
+    const checkOutTime = bookingData.checkOutDate
+      ? new Date(bookingData.checkOutDate)
+      : calculateCheckOutTime(bookingData.checkInDate, bookingData.duration);
     const foodOrders = bookingData.foodOrders || [];
     const extensionCharges = bookingData.extensionCharges || [];
     const foodTotal = foodOrders.reduce((s, o) => s + (o.total || 0), 0);
@@ -169,7 +171,7 @@ const Receipt = ({ booking, onClose, autoPrint = false }) => {
             <div class="right">₱${bookingData.totalAmount?.toLocaleString()}</div>
             
             <div class="item-row">
-              <span class="item-name">Duration: ${bookingData.duration} hours</span>
+              <span class="item-name">Duration: ${bookingData.duration}h${extensionCharges.length > 0 ? ` +${extensionCharges.reduce((s, e) => s + e.hours, 0)}h ext` : ''}</span>
               <span class="item-qty"></span>
               <span class="item-price"></span>
             </div>

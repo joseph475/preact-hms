@@ -51,10 +51,10 @@ const BookingTableRow = ({
             {formatDateTime(booking.checkInDate)}
           </div>
           <div className="text-sm text-gray-500">
-            Duration: {booking.duration}h
+            Duration: {booking.duration}h{booking.extensionCharges?.length > 0 ? ` +${booking.extensionCharges.reduce((s, e) => s + e.hours, 0)}h ext` : ''}
           </div>
           <div className="text-sm text-gray-500">
-            Out: {calculateCheckOutTime(booking.checkInDate, booking.duration)}
+            Out: {formatDateTime(booking.checkOutDate)}
           </div>
         </div>
       </td>
@@ -75,9 +75,10 @@ const BookingTableRow = ({
             {booking.bookingStatus}
           </span>
           <div className="mt-1">
-            <TimeRemaining 
+            <TimeRemaining
               checkInDate={booking.checkInDate}
               duration={booking.duration}
+              checkOutDate={booking.checkOutDate}
               bookingStatus={booking.bookingStatus}
             />
           </div>

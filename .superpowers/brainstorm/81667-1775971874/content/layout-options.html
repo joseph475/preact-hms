@@ -1,0 +1,142 @@
+<h2>Which layout structure feels right?</h2>
+<p class="subtitle">All three show the same info — the difference is how it's organized</p>
+
+<div class="cards">
+
+  <!-- Option A: Hero + compact cards -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 16px; background: #fafafa; border-bottom: 1px solid #eee;">
+      <div style="background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.1); font-size: 11px;">
+        <!-- Hero -->
+        <div style="background: linear-gradient(135deg, #f59e0b, #d97706); padding: 14px 16px; color: white;">
+          <div style="font-size: 9px; opacity: 0.8; margin-bottom: 2px;">BOOKING #A3F2B1</div>
+          <div style="font-size: 15px; font-weight: 700;">Room 204 · Deluxe</div>
+          <div style="font-size: 10px; margin-top: 4px; opacity: 0.9;">Apr 12, 2:00 PM → Apr 13, 12:00 PM · 22h</div>
+          <div style="margin-top: 8px;">
+            <span style="background: rgba(255,255,255,0.25); border-radius: 12px; padding: 2px 8px; font-size: 9px; font-weight: 600;">CHECKED IN</span>
+          </div>
+        </div>
+        <!-- Compact info row -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1px; background: #f0f0f0;">
+          <div style="background: white; padding: 8px 10px;">
+            <div style="font-size: 8px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Guest</div>
+            <div style="font-weight: 600; color: #111; margin-top: 1px;">Juan dela Cruz</div>
+            <div style="font-size: 9px; color: #6b7280;">+63 912 345 6789</div>
+          </div>
+          <div style="background: white; padding: 8px 10px;">
+            <div style="font-size: 8px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Payment</div>
+            <div style="font-weight: 600; color: #111; margin-top: 1px;">₱2,400</div>
+            <div style="font-size: 9px; color: #10b981;">Paid · Cash</div>
+          </div>
+          <div style="background: white; padding: 8px 10px;">
+            <div style="font-size: 8px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Guests</div>
+            <div style="font-weight: 600; color: #111; margin-top: 1px;">2 guests</div>
+            <div style="font-size: 9px; color: #6b7280;">National ID</div>
+          </div>
+        </div>
+        <!-- Notes (conditional) -->
+        <div style="padding: 8px 10px; border-top: 1px solid #f3f4f6; font-size: 9px; color: #6b7280;">
+          <span style="font-weight: 600; color: #374151;">Notes:</span> Late checkout requested
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Hero + compact strip</h3>
+      <p>Room & timing dominate the top. Guest, payment, extras compressed into a 3-column strip below. Very fast to scan.</p>
+    </div>
+  </div>
+
+  <!-- Option B: Two-column split -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 16px; background: #fafafa; border-bottom: 1px solid #eee;">
+      <div style="background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.1); font-size: 11px;">
+        <!-- Header bar -->
+        <div style="background: #1e293b; padding: 10px 14px; color: white; display: flex; justify-content: space-between; align-items: center;">
+          <div style="font-size: 12px; font-weight: 700;">Booking Details</div>
+          <span style="background: #f59e0b; border-radius: 10px; padding: 2px 8px; font-size: 9px; font-weight: 700; color: #1e293b;">CHECKED IN</span>
+        </div>
+        <!-- Two column body -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0;">
+          <!-- Left: Room & Timing -->
+          <div style="padding: 12px 14px; border-right: 1px solid #f0f0f0;">
+            <div style="font-size: 8px; font-weight: 700; text-transform: uppercase; color: #f59e0b; letter-spacing: 0.08em; margin-bottom: 8px;">Room & Timing</div>
+            <div style="font-size: 16px; font-weight: 800; color: #111;">Room 204</div>
+            <div style="font-size: 10px; color: #6b7280; margin-bottom: 8px;">Deluxe Room · 2 guests</div>
+            <div style="font-size: 9px; color: #374151; margin-bottom: 2px;">↓ Check-in</div>
+            <div style="font-weight: 600; font-size: 10px; color: #111; margin-bottom: 6px;">Apr 12 · 2:00 PM</div>
+            <div style="font-size: 9px; color: #374151; margin-bottom: 2px;">↑ Check-out</div>
+            <div style="font-weight: 600; font-size: 10px; color: #111; margin-bottom: 6px;">Apr 13 · 12:00 PM</div>
+            <div style="background: #ecfdf5; border-radius: 6px; padding: 5px 8px; font-size: 9px; color: #059669; font-weight: 600;">Total stay: 22 hours</div>
+          </div>
+          <!-- Right: Guest & Payment -->
+          <div style="padding: 12px 14px;">
+            <div style="font-size: 8px; font-weight: 700; text-transform: uppercase; color: #6b7280; letter-spacing: 0.08em; margin-bottom: 8px;">Guest & Payment</div>
+            <div style="font-weight: 700; font-size: 11px; color: #111;">Juan dela Cruz</div>
+            <div style="font-size: 9px; color: #6b7280; margin-bottom: 8px;">+63 912 345 6789 · National ID</div>
+            <div style="border-top: 1px solid #f3f4f6; padding-top: 8px;">
+              <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
+                <span style="font-size: 9px; color: #6b7280;">Total</span>
+                <span style="font-size: 10px; font-weight: 700; color: #111;">₱2,400</span>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span style="font-size: 9px; color: #6b7280;">Status</span>
+                <span style="font-size: 9px; font-weight: 600; color: #10b981;">Paid · Cash</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Two-column split</h3>
+      <p>Left side: Room & timing. Right side: guest & payment. Both visible without scrolling. Clean and balanced.</p>
+    </div>
+  </div>
+
+  <!-- Option C: Tabbed -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 16px; background: #fafafa; border-bottom: 1px solid #eee;">
+      <div style="background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.1); font-size: 11px;">
+        <!-- Header -->
+        <div style="padding: 12px 14px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: flex-start;">
+          <div>
+            <div style="font-size: 9px; color: #9ca3af; margin-bottom: 1px;">#A3F2B1</div>
+            <div style="font-size: 14px; font-weight: 800; color: #111;">Room 204 — Deluxe</div>
+          </div>
+          <span style="background: #fef3c7; color: #b45309; border-radius: 10px; padding: 3px 8px; font-size: 9px; font-weight: 700;">CHECKED IN</span>
+        </div>
+        <!-- Tabs -->
+        <div style="display: flex; border-bottom: 1px solid #f0f0f0;">
+          <div style="padding: 7px 14px; font-size: 9px; font-weight: 700; color: #f59e0b; border-bottom: 2px solid #f59e0b;">Overview</div>
+          <div style="padding: 7px 14px; font-size: 9px; color: #9ca3af;">Timing</div>
+          <div style="padding: 7px 14px; font-size: 9px; color: #9ca3af;">Payment</div>
+        </div>
+        <!-- Tab content: Overview -->
+        <div style="padding: 12px 14px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px;">
+            <div>
+              <div style="font-size: 8px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Room</div>
+              <div style="font-weight: 700; font-size: 13px; color: #111; margin-top: 1px;">204</div>
+              <div style="font-size: 9px; color: #6b7280;">Deluxe · 2 guests</div>
+            </div>
+            <div>
+              <div style="font-size: 8px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Guest</div>
+              <div style="font-weight: 700; font-size: 11px; color: #111; margin-top: 1px;">Juan dela Cruz</div>
+              <div style="font-size: 9px; color: #6b7280;">+63 912 345 6789</div>
+            </div>
+          </div>
+          <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 6px 10px; font-size: 9px; color: #92400e;">
+            Check-in: Apr 12, 2:00 PM · Check-out: Apr 13, 12:00 PM (22h)
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Tabbed (Overview / Timing / Payment)</h3>
+      <p>Compact header shows the essentials. Tabs let you dive deeper into timing or payment without cluttering the default view.</p>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top: 16px;">Click to select, then tell me what you think in the terminal.</p>

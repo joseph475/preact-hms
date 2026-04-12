@@ -1,3 +1,27 @@
+# Booking Details Modal Redesign Implementation Plan
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** Replace the 9-section scroll layout of `BookingDetailsModal.jsx` with a compact tabbed design (Overview / Timing / Payment) fronted by an amber gradient header.
+
+**Architecture:** Single file rewrite — no new files, no backend changes, no prop API changes. `useState` tracks the active tab; `useEffect` resets to Overview when a different booking is opened. All helper functions received as props (`formatDateTime`, `getStatusBadge`, `getPaymentBadge`, `calculateCheckOutTime`) are preserved in the destructure for compatibility even though the new layout renders status inline rather than via badge helpers.
+
+**Tech Stack:** Preact 10, `preact/hooks`, Tailwind CSS v3
+
+---
+
+### Task 1: Rewrite BookingDetailsModal.jsx
+
+**Files:**
+- Modify: `hotel-management-fe/src/components/pages/bookings/components/BookingDetailsModal.jsx`
+
+---
+
+- [ ] **Step 1: Replace the entire file**
+
+`hotel-management-fe/src/components/pages/bookings/components/BookingDetailsModal.jsx`:
+
+```jsx
 import { h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 import Modal from '../../../common/Modal';
@@ -6,7 +30,10 @@ const BookingDetailsModal = ({
   showDetailsModal,
   handleDetailsModalClose,
   bookingToViewDetails,
+  getStatusBadge,
+  getPaymentBadge,
   formatDateTime,
+  calculateCheckOutTime
 }) => {
   const [activeTab, setActiveTab] = useState('overview');
 
@@ -48,22 +75,10 @@ const BookingDetailsModal = ({
       isOpen={showDetailsModal}
       onClose={handleDetailsModalClose}
       title=""
-      showCloseButton={false}
       size="large"
     >
       {/* Amber gradient header — bleeds to modal edges via negative margins matching modal-body px-6 py-4 */}
-      <div className="-mx-6 -mt-4 bg-gradient-to-r from-amber-400 to-amber-600 px-6 py-5 rounded-t-2xl">
-        <div className="flex justify-end mb-1">
-          <button
-            type="button"
-            onClick={handleDetailsModalClose}
-            className="text-white/70 hover:text-white transition-colors focus:outline-none"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
+      <div className="-mx-6 -mt-4 bg-gradient-to-r from-amber-400 to-amber-600 px-6 py-5">
         <div className="text-xs font-semibold text-amber-100 uppercase tracking-widest mb-1">
           Booking #{b.bookingNumber || b._id?.slice(-8)}
         </div>
@@ -173,7 +188,7 @@ const BookingDetailsModal = ({
             {hasExtensions && (
               <div>
                 <p className="text-xs font-bold text-amber-600 uppercase tracking-widest mb-2">
-                  Extensions (+{b.extensionCharges.reduce((s, e) => s + (e.hours || 0), 0)}h total)
+                  Extensions (+{b.extensionCharges.reduce((s, e) => s + e.hours, 0)}h total)
                 </p>
                 <div className="space-y-2">
                   {b.extensionCharges.map((ext, i) => (
@@ -204,7 +219,7 @@ const BookingDetailsModal = ({
               <div className="flex justify-between py-2.5">
                 <span className="text-sm text-stone-500">Base rate</span>
                 <span className="text-sm font-bold text-stone-900">
-                  ₱{((b.totalAmount ?? 0) - extensionTotal).toLocaleString()}
+                  ₱{(b.totalAmount - extensionTotal)?.toLocaleString()}
                 </span>
               </div>
               {hasExtensions && (
@@ -265,3 +280,34 @@ const BookingDetailsModal = ({
 };
 
 export default BookingDetailsModal;
+```
+
+---
+
+- [ ] **Step 2: Start the dev server and verify**
+
+```bash
+cd hotel-management-fe && npm run dev
+```
+
+Open the app in the browser, go to Bookings, and click the eye icon on a booking. Check:
+
+1. Amber gradient header shows booking number, room number + type, date range, status badge
+2. Overview tab is active by default — 2×2 grid and "Total stay" pill visible
+3. Clicking Timing shows check-in/out rows with colored dots (green = check-in, amber = check-out)
+4. Clicking Payment shows line items, emerald paid amount, amber total block
+5. A booking **without** extensions: Timing tab shows no extensions section; Payment tab has no "Extension charges" row
+6. A booking **with** extensions: both Timing and Payment reflect them correctly
+7. A booking with no special requests/notes: Payment tab shows no notes box
+8. Opening a second booking resets the active tab back to Overview
+9. The X close button still works (it sits in the modal header above the amber gradient)
+
+---
+
+- [ ] **Step 3: Commit**
+
+```bash
+cd hotel-management-fe
+git add src/components/pages/bookings/components/BookingDetailsModal.jsx
+git commit -m "redesign: tabbed booking details modal with amber gradient header"
+```
