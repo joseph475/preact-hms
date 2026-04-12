@@ -166,6 +166,19 @@
     @apply animate-spin rounded-full h-10 w-10 border-4 border-amber-200 border-t-amber-600;
   }
 
+  /* Skeleton bone */
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  .bone {
+    background: linear-gradient(90deg, #fef3c7 30%, #fde68a 50%, #fef3c7 70%);
+    background-size: 200% 100%;
+    animation: shimmer 2s linear infinite;
+    border-radius: 6px;
+  }
+
   /* Scrollbar */
   .custom-scrollbar::-webkit-scrollbar { width: 6px; }
   .custom-scrollbar::-webkit-scrollbar-track { background: #fef9f0; }
