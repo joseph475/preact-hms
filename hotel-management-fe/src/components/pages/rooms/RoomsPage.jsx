@@ -659,24 +659,22 @@ const RoomsPage = ({ user }) => {
                   <span className={`badge ${getStatusBadge(room.status)}`}>{room.status}</span>
                 </div>
 
-                {/* Type badge + floor */}
+                {/* Type badge + floor + time remaining (rightmost) */}
                 <div className="flex items-center gap-2 mb-3">
                   <span className="badge bg-amber-100 text-amber-800 border border-amber-200">
                     {room.roomType?.name || getRoomTypeName(room.roomType) || 'Unknown'}
                   </span>
                   <span className="text-xs text-primary-800 opacity-70">Floor {room.floor}</span>
+                  {room.status === 'Occupied' && room.currentBooking && (
+                    <span className="ml-auto">
+                      <TimeRemaining
+                        checkInDate={room.currentBooking.checkInDate}
+                        duration={room.currentBooking.duration}
+                        bookingStatus={room.currentBooking.bookingStatus}
+                      />
+                    </span>
+                  )}
                 </div>
-
-                {/* Time remaining for occupied rooms */}
-                {room.status === 'Occupied' && room.currentBooking && (
-                  <div className="mb-3">
-                    <TimeRemaining
-                      checkInDate={room.currentBooking.checkInDate}
-                      duration={room.currentBooking.duration}
-                      bookingStatus={room.currentBooking.bookingStatus}
-                    />
-                  </div>
-                )}
 
                 {/* Actions */}
                 <div className="flex gap-2 flex-wrap mt-auto pt-3">

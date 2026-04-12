@@ -41,9 +41,6 @@ const newRooms = [
   { roomNumber: '207', roomType: 'Deluxe', floor: 2, capacity: 4, amenities: ['WiFi', 'AC', 'TV', 'Minibar', 'Balcony', 'Safe'], pricePerHour: 85, description: 'Deluxe family room' },
 
   // Floor 3 — Suite
-  { roomNumber: '301', roomType: 'Suite', floor: 3, capacity: 4, amenities: ['WiFi', 'AC', 'TV', 'Minibar', 'Balcony', 'Jacuzzi'], pricePerHour: 120, description: 'Suite with jacuzzi and balcony' },
-  { roomNumber: '302', roomType: 'Suite', floor: 3, capacity: 4, amenities: ['WiFi', 'AC', 'TV', 'Minibar', 'Balcony', 'Kitchen'], pricePerHour: 130, description: 'Suite with kitchenette' },
-  { roomNumber: '303', roomType: 'Suite', floor: 3, capacity: 3, amenities: ['WiFi', 'AC', 'TV', 'Minibar', 'Balcony'], pricePerHour: 110, description: 'Junior suite with balcony' },
   { roomNumber: '304', roomType: 'Suite', floor: 3, capacity: 4, amenities: ['WiFi', 'AC', 'TV', 'Minibar', 'Balcony', 'Jacuzzi'], pricePerHour: 120, description: 'Suite with jacuzzi and balcony' },
   { roomNumber: '305', roomType: 'Suite', floor: 3, capacity: 4, amenities: ['WiFi', 'AC', 'TV', 'Minibar', 'Kitchen', 'Safe'], pricePerHour: 130, description: 'Suite with kitchenette' },
   { roomNumber: '306', roomType: 'Suite', floor: 3, capacity: 3, amenities: ['WiFi', 'AC', 'TV', 'Minibar', 'Balcony'], pricePerHour: 110, description: 'Junior suite with balcony' },

@@ -766,7 +766,7 @@ const BookingsPage = ({ user }) => {
       <BookingDetailsModal
         showDetailsModal={showDetailsModal}
         handleDetailsModalClose={handleDetailsModalClose}
-        bookingToViewDetails={bookingToViewDetails}
+        bookingToViewDetails={bookings.find(b => b._id === bookingToViewDetails?._id) || bookingToViewDetails}
         getStatusBadge={getStatusBadge}
         getPaymentBadge={getPaymentBadge}
         formatDateTime={formatDateTime}

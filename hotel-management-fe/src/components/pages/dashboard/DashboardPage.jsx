@@ -43,12 +43,12 @@ const DashboardPage = ({ user }) => {
     );
   }
 
-  const StatCard = ({ title, value, subtitle, icon, color = 'amber' }) => (
+  const StatCard = ({ title, value, subtitle, icon, iconBg = 'bg-amber-500' }) => (
     <div className="stats-card">
       <div className="card-body">
         <div className="flex items-center">
           <div className="flex-shrink-0">
-            <div className={`w-12 h-12 bg-${color}-500 rounded-xl flex items-center justify-center shadow-lg`}>
+            <div className={`w-12 h-12 ${iconBg} rounded-xl flex items-center justify-center shadow-lg`}>
               {icon}
             </div>
           </div>
@@ -85,7 +85,7 @@ const DashboardPage = ({ user }) => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
             </svg>
           }
-          color="amber"
+          iconBg="bg-amber-500"
         />
 
         <StatCard
@@ -97,7 +97,7 @@ const DashboardPage = ({ user }) => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
             </svg>
           }
-          color="green"
+          iconBg="bg-green-500"
         />
 
         <StatCard
@@ -109,7 +109,7 @@ const DashboardPage = ({ user }) => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
           }
-          color="yellow"
+          iconBg="bg-yellow-500"
         />
 
         <StatCard
@@ -121,7 +121,7 @@ const DashboardPage = ({ user }) => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
             </svg>
           }
-          color="purple"
+          iconBg="bg-purple-500"
         />
 
         <StatCard
@@ -133,7 +133,7 @@ const DashboardPage = ({ user }) => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
             </svg>
           }
-          color="teal"
+          iconBg="bg-teal-500"
         />
 
         <StatCard
@@ -145,7 +145,7 @@ const DashboardPage = ({ user }) => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
             </svg>
           }
-          color="indigo"
+          iconBg="bg-indigo-500"
         />
       </div>
 
