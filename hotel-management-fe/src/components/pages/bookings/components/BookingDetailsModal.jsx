@@ -6,10 +6,7 @@ const BookingDetailsModal = ({
   showDetailsModal,
   handleDetailsModalClose,
   bookingToViewDetails,
-  getStatusBadge,
-  getPaymentBadge,
   formatDateTime,
-  calculateCheckOutTime
 }) => {
   const [activeTab, setActiveTab] = useState('overview');
 
@@ -51,10 +48,22 @@ const BookingDetailsModal = ({
       isOpen={showDetailsModal}
       onClose={handleDetailsModalClose}
       title=""
+      showCloseButton={false}
       size="large"
     >
       {/* Amber gradient header — bleeds to modal edges via negative margins matching modal-body px-6 py-4 */}
       <div className="-mx-6 -mt-4 bg-gradient-to-r from-amber-400 to-amber-600 px-6 py-5">
+        <div className="flex justify-end mb-1">
+          <button
+            type="button"
+            onClick={handleDetailsModalClose}
+            className="text-white/70 hover:text-white transition-colors focus:outline-none"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
         <div className="text-xs font-semibold text-amber-100 uppercase tracking-widest mb-1">
           Booking #{b.bookingNumber || b._id?.slice(-8)}
         </div>
@@ -164,7 +173,7 @@ const BookingDetailsModal = ({
             {hasExtensions && (
               <div>
                 <p className="text-xs font-bold text-amber-600 uppercase tracking-widest mb-2">
-                  Extensions (+{b.extensionCharges.reduce((s, e) => s + e.hours, 0)}h total)
+                  Extensions (+{b.extensionCharges.reduce((s, e) => s + (e.hours || 0), 0)}h total)
                 </p>
                 <div className="space-y-2">
                   {b.extensionCharges.map((ext, i) => (
@@ -195,7 +204,7 @@ const BookingDetailsModal = ({
               <div className="flex justify-between py-2.5">
                 <span className="text-sm text-stone-500">Base rate</span>
                 <span className="text-sm font-bold text-stone-900">
-                  ₱{(b.totalAmount - extensionTotal)?.toLocaleString()}
+                  ₱{((b.totalAmount ?? 0) - extensionTotal).toLocaleString()}
                 </span>
               </div>
               {hasExtensions && (
