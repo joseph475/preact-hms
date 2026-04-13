@@ -6,24 +6,66 @@ const PAYMENT_METHODS = ['Cash', 'GCash', 'Credit Card', 'Debit Card', 'Bank Tra
 
 const emptyRow = () => ({ method: 'Cash', amountStr: '', reference: '' });
 
+const DISCOUNT_TYPES = [
+  { value: 'none',    label: 'No Discount' },
+  { value: 'sc',     label: 'Senior Citizen (20%)' },
+  { value: 'pwd',    label: 'PWD (20%)' },
+  { value: 'percent', label: 'Custom %' },
+  { value: 'flat',   label: 'Custom Amount (₱)' },
+];
+
 const CheckOutModal = ({ isOpen, booking, onClose, onConfirm, isLoading }) => {
   const [payments, setPayments] = useState([emptyRow()]);
+  const [discountType, setDiscountType] = useState('none');
+  const [discountValue, setDiscountValue] = useState('');
 
   const roomCharge = booking?.totalAmount || 0;
   const extensionTotal = (booking?.extensionCharges || []).reduce((s, c) => s + (c.charge || 0), 0);
   const foodTotal = (booking?.foodOrders || []).reduce((s, o) => s + (o.total || 0), 0);
   const grandTotal = roomCharge + extensionTotal + foodTotal;
 
-  const totalPaid = payments.reduce((s, p) => s + (parseFloat(p.amountStr) || 0), 0);
-  const remaining = grandTotal - totalPaid;
-  const isFullyPaid = Math.abs(remaining) < 0.01;
+  // Discount applies to room + extension charges (SC/PWD law); custom applies to grand total
+  const discountBase = discountType === 'sc' || discountType === 'pwd'
+    ? roomCharge + extensionTotal
+    : grandTotal;
+  let discountAmount = 0;
+  if (discountType === 'sc' || discountType === 'pwd') {
+    discountAmount = Math.round(discountBase * 0.20);
+  } else if (discountType === 'percent') {
+    discountAmount = Math.round(grandTotal * (parseFloat(discountValue) || 0) / 100);
+  } else if (discountType === 'flat') {
+    discountAmount = Math.min(parseFloat(discountValue) || 0, grandTotal);
+  }
+  const discountedTotal = grandTotal - discountAmount;
 
-  // Reset state whenever a new booking is loaded
+  const alreadyPaid = booking?.paidAmount || 0;
+  const balanceDue = Math.max(0, discountedTotal - alreadyPaid);
+
+  const totalPaid = payments.reduce((s, p) => s + (parseFloat(p.amountStr) || 0), 0);
+  const remaining = balanceDue - totalPaid;
+  const isFullyPaid = remaining <= 0.01;
+
+  // Full reset when a new booking is loaded — compute due fresh (no stale closure on discount)
   useEffect(() => {
-    if (booking) {
-      setPayments([{ method: booking.paymentMethod || 'Cash', amountStr: String(grandTotal), reference: booking.bankReference || '' }]);
-    }
+    if (!booking) return;
+    const rc = booking.totalAmount || 0;
+    const et = (booking.extensionCharges || []).reduce((s, c) => s + (c.charge || 0), 0);
+    const ft = (booking.foodOrders || []).reduce((s, o) => s + (o.total || 0), 0);
+    const due = Math.max(0, rc + et + ft - (booking.paidAmount || 0));
+    setPayments([{ method: booking.paymentMethod || 'Cash', amountStr: String(due), reference: booking.bankReference || '' }]);
+    setDiscountType('none');
+    setDiscountValue('');
   }, [booking?._id]);
+
+  // Keep first row in sync with balance due whenever it changes (discount applied/removed)
+  useEffect(() => {
+    setPayments(prev => {
+      if (prev.length === 0) return prev;
+      const updated = [...prev];
+      updated[0] = { ...updated[0], amountStr: String(balanceDue) };
+      return updated;
+    });
+  }, [balanceDue]);
 
   const updateRow = (i, field, value) => {
     setPayments(prev => {
@@ -48,13 +90,19 @@ const CheckOutModal = ({ isOpen, booking, onClose, onConfirm, isLoading }) => {
       amount: parseFloat(p.amountStr) || 0,
       reference: p.reference,
     }));
-    onConfirm({ payments: paymentRows, paidAmount: totalPaid });
+    onConfirm({
+      payments: paymentRows,
+      paidAmount: alreadyPaid + totalPaid,
+      discountAmount,
+      discountType,
+    });
   };
 
   if (!booking) return null;
 
   const hasExtensions = extensionTotal > 0;
   const hasFoodOrders = foodTotal > 0;
+  const hasDiscount = discountAmount > 0;
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Check Out Guest" size="medium" closeOnOverlayClick={!isLoading}>
@@ -104,10 +152,62 @@ const CheckOutModal = ({ isOpen, booking, onClose, onConfirm, isLoading }) => {
               </div>
             )}
 
+            {hasDiscount && (
+              <div className="flex justify-between px-4 py-2.5 bg-emerald-50">
+                <span className="text-sm text-emerald-700">
+                  Discount
+                  {discountType === 'sc' && ' (Senior Citizen 20%)'}
+                  {discountType === 'pwd' && ' (PWD 20%)'}
+                  {discountType === 'percent' && ` (${discountValue}%)`}
+                </span>
+                <span className="text-sm font-semibold text-emerald-700">−₱{discountAmount.toLocaleString()}</span>
+              </div>
+            )}
+
+            {alreadyPaid > 0 && (
+              <div className="flex justify-between px-4 py-2.5 bg-emerald-50">
+                <span className="text-sm text-emerald-700">Previously paid</span>
+                <span className="text-sm font-semibold text-emerald-700">−₱{alreadyPaid.toLocaleString()}</span>
+              </div>
+            )}
+
             <div className="flex justify-between px-4 py-3 bg-primary-50">
-              <span className="text-sm font-bold text-primary-900">Grand Total</span>
-              <span className="text-base font-extrabold text-primary-900">₱{grandTotal.toLocaleString()}</span>
+              <span className="text-sm font-bold text-primary-900">
+                {alreadyPaid > 0 || hasDiscount ? 'Balance Due' : 'Grand Total'}
+              </span>
+              <span className="text-base font-extrabold text-primary-900">
+                ₱{balanceDue.toLocaleString()}
+              </span>
             </div>
+          </div>
+        </div>
+
+        {/* Discount Section */}
+        <div>
+          <p className="text-xs font-bold text-primary-600 uppercase tracking-widest mb-2">Discount</p>
+          <div className="space-y-2">
+            <select
+              className="form-select text-sm"
+              value={discountType}
+              onChange={(e) => { setDiscountType(e.target.value); setDiscountValue(''); }}
+              disabled={isLoading}
+            >
+              {DISCOUNT_TYPES.map(d => (
+                <option key={d.value} value={d.value}>{d.label}</option>
+              ))}
+            </select>
+            {(discountType === 'percent' || discountType === 'flat') && (
+              <input
+                type="number"
+                className="form-input text-sm"
+                min="0"
+                step={discountType === 'percent' ? '0.1' : '1'}
+                placeholder={discountType === 'percent' ? 'e.g. 10 (%)' : 'e.g. 500 (₱)'}
+                value={discountValue}
+                onChange={(e) => setDiscountValue(e.target.value)}
+                disabled={isLoading}
+              />
+            )}
           </div>
         </div>
 
@@ -180,7 +280,6 @@ const CheckOutModal = ({ isOpen, booking, onClose, onConfirm, isLoading }) => {
             ))}
           </div>
 
-          {/* Add another payment method */}
           <button
             type="button"
             onClick={addRow}
@@ -202,13 +301,13 @@ const CheckOutModal = ({ isOpen, booking, onClose, onConfirm, isLoading }) => {
           <span className={`text-sm font-semibold ${
             isFullyPaid ? 'text-emerald-700' : remaining > 0 ? 'text-red-700' : 'text-amber-700'
           }`}>
-            {isFullyPaid ? 'Fully paid' : remaining > 0 ? `Balance still owed` : `Overpaid by`}
+            {isFullyPaid ? 'Fully paid' : remaining > 0 ? 'Balance still owed' : 'Overpaid by'}
           </span>
           <span className={`text-sm font-bold ${
             isFullyPaid ? 'text-emerald-700' : remaining > 0 ? 'text-red-700' : 'text-amber-700'
           }`}>
             {isFullyPaid
-              ? `₱${grandTotal.toLocaleString()}`
+              ? `₱${balanceDue.toLocaleString()}`
               : `₱${Math.abs(remaining).toLocaleString()}`}
           </span>
         </div>

@@ -196,7 +196,9 @@ const RoomSelector = ({
                 .map(room => {
                   const roomTypeName = typeof room.roomType === 'object' ? room.roomType?.name : room.roomType;
                   const pricing = room.roomType?.pricing;
-                  
+                  const capacity = room.roomType?.baseCapacity;
+                  const overCapacity = capacity && formData.guestCount > capacity;
+
                   return (
                     <div
                       key={room._id}
@@ -204,7 +206,11 @@ const RoomSelector = ({
                         handleInputChange('room', room._id);
                         setRoomSearchTerm('');
                       }}
-                      className="group relative bg-white border-2 border-gray-200 rounded-xl p-5 hover:border-amber-300 hover:shadow-lg cursor-pointer transition-all duration-300 hover:-translate-y-1"
+                      className={`group relative bg-white border-2 rounded-xl p-5 cursor-pointer transition-all duration-300 hover:-translate-y-1 ${
+                        overCapacity
+                          ? 'border-red-200 opacity-60 hover:border-red-300 hover:shadow-md'
+                          : 'border-gray-200 hover:border-amber-300 hover:shadow-lg'
+                      }`}
                     >
                       <div className="absolute top-4 right-4">
                         {room.status === 'Available' ? (
@@ -252,11 +258,18 @@ const RoomSelector = ({
                       )}
                       
                       <div className="mt-4 flex items-center justify-between">
-                        <div className="flex items-center text-sm text-gray-600">
-                          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                          </svg>
-                          Max occupancy
+                        <div className="flex items-center gap-2">
+                          <div className={`flex items-center text-sm ${overCapacity ? 'text-red-600' : 'text-gray-600'}`}>
+                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                            {capacity ? `Max ${capacity} guest${capacity !== 1 ? 's' : ''}` : 'Max occupancy'}
+                          </div>
+                          {overCapacity && (
+                            <span className="px-1.5 py-0.5 text-xs font-bold bg-red-100 text-red-700 border border-red-200 rounded">
+                              Over capacity
+                            </span>
+                          )}
                         </div>
                         <button className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-amber-600 bg-amber-50 border border-amber-200 rounded-lg group-hover:bg-amber-100 transition-colors">
                           Select Room

@@ -21,6 +21,7 @@ const RoomsPage = ({ user }) => {
   const [editingRoom, setEditingRoom] = useState(null);
   const [statusFilter, setStatusFilter] = useState('');
   const [roomTypeFilter, setRoomTypeFilter] = useState('');
+  const [floorFilter, setFloorFilter] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [roomToDelete, setRoomToDelete] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -67,11 +68,15 @@ const RoomsPage = ({ user }) => {
     if (roomTypeFilter) {
       filtered = filtered.filter(room => getRoomTypeName(room.roomType) === roomTypeFilter);
     }
-    
+
+    if (floorFilter) {
+      filtered = filtered.filter(room => room.floor === Number(floorFilter));
+    }
+
     setFilteredRooms(filtered);
     // Reset to first page when filters change
     setCurrentPage(1);
-  }, [rooms, searchTerm, statusFilter, roomTypeFilter]);
+  }, [rooms, searchTerm, statusFilter, roomTypeFilter, floorFilter]);
 
   // Get paginated rooms
   const getPaginatedRooms = () => {
@@ -392,12 +397,28 @@ const RoomsPage = ({ user }) => {
                 </select>
               </div>
 
+              {/* Floor Filter */}
+              <div className="flex items-center space-x-2">
+                <label className="text-sm text-gray-600">Floor:</label>
+                <select
+                  value={floorFilter}
+                  onChange={(e) => setFloorFilter(e.target.value)}
+                  className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                >
+                  <option value="">All Floors</option>
+                  {[...new Set(rooms.map(r => r.floor))].sort((a, b) => a - b).map(f => (
+                    <option key={f} value={f}>Floor {f}</option>
+                  ))}
+                </select>
+              </div>
+
               {/* Clear Filters */}
-              {(statusFilter || roomTypeFilter) && (
+              {(statusFilter || roomTypeFilter || floorFilter) && (
                 <button
                   onClick={() => {
                     setStatusFilter('');
                     setRoomTypeFilter('');
+                    setFloorFilter('');
                   }}
                   className="inline-flex items-center px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-amber-500"
                 >
@@ -429,6 +450,19 @@ const RoomsPage = ({ user }) => {
                     <button
                       onClick={() => setRoomTypeFilter('')}
                       className="ml-1 text-green-600 hover:text-green-800"
+                    >
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </span>
+                )}
+                {floorFilter && (
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    Floor {floorFilter}
+                    <button
+                      onClick={() => setFloorFilter('')}
+                      className="ml-1 text-blue-600 hover:text-blue-800"
                     >
                       <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

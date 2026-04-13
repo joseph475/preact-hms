@@ -381,8 +381,21 @@ exports.checkOut = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse('Guest must be checked in to check out', 400));
   }
 
+  const { payments, paidAmount, discountAmount, discountType } = req.body;
+
   booking.bookingStatus = 'Checked Out';
   booking.actualCheckOut = new Date();
+
+  if (paidAmount !== undefined) booking.paidAmount = paidAmount;
+  if (discountAmount !== undefined) booking.discountAmount = discountAmount;
+  if (discountType !== undefined) booking.discountType = discountType;
+  if (payments && payments.length > 1) booking.splitPayments = payments;
+  if (payments && payments.length > 0) {
+    booking.paymentMethod = payments[0].method;
+    if (payments[0].reference) booking.bankReference = payments[0].reference;
+  }
+  booking.paymentStatus = 'Paid';
+
   booking.auditLog.push(makeAuditEntry('Checked Out', req));
   await booking.save();
 

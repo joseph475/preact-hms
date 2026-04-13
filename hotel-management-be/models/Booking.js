@@ -98,6 +98,14 @@ const BookingSchema = new mongoose.Schema({
     amount: { type: Number },
     reference: { type: String }
   }],
+  discountAmount: {
+    type: Number,
+    default: 0
+  },
+  discountType: {
+    type: String,
+    default: 'none'
+  },
   bookingStatus: {
     type: String,
     enum: ['Confirmed', 'Checked In', 'Checked Out', 'Cancelled', 'No Show'],

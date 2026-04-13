@@ -432,7 +432,10 @@ const BookingsPage = ({ user }) => {
   };
 
   const canProceedToStep3 = () => {
-    return formData.room && formData.checkInDate && formData.checkInTime;
+    if (!formData.room || !formData.checkInDate || !formData.checkInTime) return false;
+    const selectedRoom = rooms.find(r => r._id === formData.room);
+    if (selectedRoom?.roomType?.baseCapacity && formData.guestCount > selectedRoom.roomType.baseCapacity) return false;
+    return true;
   };
 
   const handleInputChange = (field, value) => {
