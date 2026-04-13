@@ -299,19 +299,18 @@ const BookingsPage = ({ user }) => {
 
     await handleCheckOut(bookingToCheckOut._id, paymentDetails);
 
-    const foodTotal = (bookingToCheckOut.foodOrders || []).reduce((s, o) => s + (o.total || 0), 0);
-    const extTotal = (bookingToCheckOut.extensionCharges || []).reduce((s, c) => s + (c.charge || 0), 0);
-    const grandTotal = (bookingToCheckOut.totalAmount || 0) + foodTotal + extTotal;
-    const paidAmount = paymentDetails.paidAmount ?? grandTotal;
-    const paymentStatus = paidAmount >= grandTotal ? 'Paid' : paidAmount > 0 ? 'Partial' : 'Pending';
+    const payments = paymentDetails.payments || [];
+    const primaryMethod = payments.length > 0 ? payments[0].method : bookingToCheckOut.paymentMethod;
+    const primaryReference = payments.find(p => p.method === 'Bank Transfer')?.reference || '';
 
     const updatedBooking = {
       ...bookingToCheckOut,
       bookingStatus: 'Checked Out',
-      paymentStatus,
-      paidAmount,
-      paymentMethod: paymentDetails.paymentMethod,
-      bankReference: paymentDetails.bankReference || '',
+      paymentStatus: 'Paid',
+      paidAmount: paymentDetails.paidAmount,
+      paymentMethod: primaryMethod,
+      bankReference: primaryReference,
+      splitPayments: payments.length > 1 ? payments : [],
     };
     setReceiptBooking(updatedBooking);
     setShowReceipt(true);

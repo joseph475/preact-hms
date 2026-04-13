@@ -89,6 +89,11 @@ const BookingSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+  splitPayments: [{
+    method: { type: String },
+    amount: { type: Number },
+    reference: { type: String }
+  }],
   bookingStatus: {
     type: String,
     enum: ['Confirmed', 'Checked In', 'Checked Out', 'Cancelled', 'No Show'],

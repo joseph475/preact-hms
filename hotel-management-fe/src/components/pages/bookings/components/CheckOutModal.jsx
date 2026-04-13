@@ -2,36 +2,53 @@ import { h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 import Modal from '../../../common/Modal';
 
-const PAYMENT_METHODS = ['Cash', 'Credit Card', 'Debit Card', 'Bank Transfer', 'Online Payment'];
+const PAYMENT_METHODS = ['Cash', 'GCash', 'Credit Card', 'Debit Card', 'Bank Transfer', 'Online Payment'];
+
+const emptyRow = () => ({ method: 'Cash', amountStr: '', reference: '' });
 
 const CheckOutModal = ({ isOpen, booking, onClose, onConfirm, isLoading }) => {
-  const [paymentMethod, setPaymentMethod] = useState('Cash');
-  const [bankReference, setBankReference] = useState('');
-  const [paymentMode, setPaymentMode] = useState('full'); // 'full' | 'partial'
-  const [partialAmountStr, setPartialAmountStr] = useState('');
+  const [payments, setPayments] = useState([emptyRow()]);
 
-  // totalAmount = original room charge only (extensions stored separately)
   const roomCharge = booking?.totalAmount || 0;
   const extensionTotal = (booking?.extensionCharges || []).reduce((s, c) => s + (c.charge || 0), 0);
   const foodTotal = (booking?.foodOrders || []).reduce((s, o) => s + (o.total || 0), 0);
   const grandTotal = roomCharge + extensionTotal + foodTotal;
 
-  const partialAmount = parseFloat(partialAmountStr) || 0;
-  const paidAmount = paymentMode === 'full' ? grandTotal : partialAmount;
-  const balance = grandTotal - paidAmount;
+  const totalPaid = payments.reduce((s, p) => s + (parseFloat(p.amountStr) || 0), 0);
+  const remaining = grandTotal - totalPaid;
+  const isFullyPaid = Math.abs(remaining) < 0.01;
 
-  // Reset state whenever a new booking is loaded into the modal
+  // Reset state whenever a new booking is loaded
   useEffect(() => {
     if (booking) {
-      setPaymentMethod(booking.paymentMethod || 'Cash');
-      setBankReference(booking.bankReference || '');
-      setPaymentMode('full');
-      setPartialAmountStr('');
+      setPayments([{ method: booking.paymentMethod || 'Cash', amountStr: String(grandTotal), reference: booking.bankReference || '' }]);
     }
   }, [booking?._id]);
 
+  const updateRow = (i, field, value) => {
+    setPayments(prev => {
+      const next = [...prev];
+      next[i] = { ...next[i], [field]: value };
+      return next;
+    });
+  };
+
+  const addRow = () => {
+    const leftover = Math.max(0, remaining);
+    setPayments(prev => [...prev, { method: 'Cash', amountStr: leftover > 0 ? String(leftover) : '', reference: '' }]);
+  };
+
+  const removeRow = (i) => {
+    setPayments(prev => prev.filter((_, idx) => idx !== i));
+  };
+
   const handleConfirm = () => {
-    onConfirm({ paymentMethod, bankReference, paidAmount });
+    const paymentRows = payments.map(p => ({
+      method: p.method,
+      amount: parseFloat(p.amountStr) || 0,
+      reference: p.reference,
+    }));
+    onConfirm({ payments: paymentRows, paidAmount: totalPaid });
   };
 
   if (!booking) return null;
@@ -44,7 +61,7 @@ const CheckOutModal = ({ isOpen, booking, onClose, onConfirm, isLoading }) => {
       <div className="space-y-5">
 
         {/* Guest & Room */}
-        <div className="pb-3 border-b border-amber-100">
+        <div className="pb-3 border-b border-primary-100">
           <p className="font-bold text-stone-900">
             {booking.guest?.firstName} {booking.guest?.lastName}
           </p>
@@ -55,8 +72,8 @@ const CheckOutModal = ({ isOpen, booking, onClose, onConfirm, isLoading }) => {
 
         {/* Payment Breakdown */}
         <div>
-          <p className="text-xs font-bold text-amber-600 uppercase tracking-widest mb-2">Charges</p>
-          <div className="divide-y divide-amber-100 rounded-xl border border-amber-100 overflow-hidden">
+          <p className="text-xs font-bold text-primary-600 uppercase tracking-widest mb-2">Charges</p>
+          <div className="divide-y divide-primary-100 rounded-xl border border-primary-100 overflow-hidden">
 
             <div className="flex justify-between px-4 py-2.5 bg-white">
               <span className="text-sm text-stone-500">Room charge</span>
@@ -87,126 +104,113 @@ const CheckOutModal = ({ isOpen, booking, onClose, onConfirm, isLoading }) => {
               </div>
             )}
 
-            <div className="flex justify-between px-4 py-3 bg-amber-50">
-              <span className="text-sm font-bold text-amber-900">Grand Total</span>
-              <span className="text-base font-extrabold text-amber-900">₱{grandTotal.toLocaleString()}</span>
+            <div className="flex justify-between px-4 py-3 bg-primary-50">
+              <span className="text-sm font-bold text-primary-900">Grand Total</span>
+              <span className="text-base font-extrabold text-primary-900">₱{grandTotal.toLocaleString()}</span>
             </div>
           </div>
         </div>
 
-        {/* Payment Details */}
-        <div className="space-y-3">
-          <p className="text-xs font-bold text-amber-600 uppercase tracking-widest">Payment</p>
+        {/* Split Payment Rows */}
+        <div>
+          <p className="text-xs font-bold text-primary-600 uppercase tracking-widest mb-3">Payment</p>
+          <div className="space-y-3">
+            {payments.map((row, i) => (
+              <div key={i} className="border border-primary-100 rounded-xl p-3 space-y-2.5 bg-primary-50">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs font-bold text-primary-700 uppercase tracking-wide">
+                    {payments.length > 1 ? `Payment ${i + 1}` : 'Payment Method'}
+                  </span>
+                  {payments.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeRow(i)}
+                      disabled={isLoading}
+                      className="text-stone-400 hover:text-red-500 transition-colors text-xs"
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
 
-          {/* Payment Method */}
-          <div>
-            <label className="form-label">Method</label>
-            <select
-              className="form-select"
-              value={paymentMethod}
-              onChange={(e) => setPaymentMethod(e.target.value)}
-              disabled={isLoading}
-            >
-              {PAYMENT_METHODS.map(m => (
-                <option key={m} value={m}>{m}</option>
-              ))}
-            </select>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-xs text-stone-500 mb-1 block">Method</label>
+                    <select
+                      className="form-select text-sm"
+                      value={row.method}
+                      onChange={(e) => updateRow(i, 'method', e.target.value)}
+                      disabled={isLoading}
+                    >
+                      {PAYMENT_METHODS.map(m => (
+                        <option key={m} value={m}>{m}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs text-stone-500 mb-1 block">Amount (₱)</label>
+                    <input
+                      type="number"
+                      className="form-input text-sm"
+                      min="0"
+                      step="1"
+                      placeholder="0"
+                      value={row.amountStr}
+                      onFocus={(e) => e.target.select()}
+                      onChange={(e) => updateRow(i, 'amountStr', e.target.value)}
+                      disabled={isLoading}
+                    />
+                  </div>
+                </div>
+
+                {row.method === 'Bank Transfer' && (
+                  <div>
+                    <label className="text-xs text-stone-500 mb-1 block">Reference / Account</label>
+                    <input
+                      type="text"
+                      className="form-input text-sm"
+                      placeholder="e.g. BDO Ref #12345678"
+                      value={row.reference}
+                      onChange={(e) => updateRow(i, 'reference', e.target.value)}
+                      disabled={isLoading}
+                    />
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
 
-          {/* Bank Reference */}
-          {paymentMethod === 'Bank Transfer' && (
-            <div>
-              <label className="form-label">Bank Reference / Account Details</label>
-              <input
-                type="text"
-                className="form-input"
-                placeholder="e.g. BDO Ref #12345678"
-                value={bankReference}
-                onChange={(e) => setBankReference(e.target.value)}
-                disabled={isLoading}
-              />
-            </div>
-          )}
+          {/* Add another payment method */}
+          <button
+            type="button"
+            onClick={addRow}
+            disabled={isLoading || isFullyPaid}
+            className="mt-2 w-full text-sm text-primary-600 hover:text-primary-800 border border-dashed border-primary-300 rounded-xl py-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            + Add another payment method
+          </button>
+        </div>
 
-          {/* Full vs Partial toggle */}
-          <div>
-            <label className="form-label mb-1">Amount</label>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => setPaymentMode('full')}
-                disabled={isLoading}
-                className={`px-3 py-2.5 rounded-lg border text-sm font-semibold transition-colors ${
-                  paymentMode === 'full'
-                    ? 'bg-emerald-600 text-white border-emerald-600'
-                    : 'bg-white text-stone-600 border-stone-300 hover:border-emerald-400'
-                }`}
-              >
-                Paid in Full
-                <div className={`text-xs font-normal mt-0.5 ${paymentMode === 'full' ? 'text-emerald-100' : 'text-stone-400'}`}>
-                  ₱{grandTotal.toLocaleString()}
-                </div>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setPaymentMode('partial');
-                  setPartialAmountStr('');
-                }}
-                disabled={isLoading}
-                className={`px-3 py-2.5 rounded-lg border text-sm font-semibold transition-colors ${
-                  paymentMode === 'partial'
-                    ? 'bg-amber-500 text-white border-amber-500'
-                    : 'bg-white text-stone-600 border-stone-300 hover:border-amber-400'
-                }`}
-              >
-                Partial Payment
-                <div className={`text-xs font-normal mt-0.5 ${paymentMode === 'partial' ? 'text-amber-100' : 'text-stone-400'}`}>
-                  enter amount below
-                </div>
-              </button>
-            </div>
-          </div>
-
-          {/* Partial amount input */}
-          {paymentMode === 'partial' && (
-            <div>
-              <label className="form-label">
-                Amount Received
-                <span className="ml-1 text-xs font-normal text-stone-400">
-                  (out of ₱{grandTotal.toLocaleString()})
-                </span>
-              </label>
-              <input
-                type="number"
-                className="form-input"
-                min="0"
-                max={grandTotal}
-                step="1"
-                placeholder="0"
-                value={partialAmountStr}
-                onChange={(e) => setPartialAmountStr(e.target.value)}
-                onFocus={(e) => e.target.select()}
-                disabled={isLoading}
-                autoFocus
-              />
-
-              {/* Balance feedback */}
-              {partialAmountStr !== '' && (
-                balance > 0 ? (
-                  <div className="mt-2 flex justify-between items-center bg-red-50 border border-red-200 rounded-lg px-4 py-2.5">
-                    <span className="text-sm font-semibold text-red-700">Balance still owed</span>
-                    <span className="text-sm font-bold text-red-700">₱{balance.toLocaleString()}</span>
-                  </div>
-                ) : (
-                  <div className="mt-2 flex justify-between items-center bg-emerald-50 border border-emerald-200 rounded-lg px-4 py-2.5">
-                    <span className="text-sm font-semibold text-emerald-700">Fully covered</span>
-                    <span className="text-sm font-bold text-emerald-700">₱{grandTotal.toLocaleString()}</span>
-                  </div>
-                )
-              )}
-            </div>
-          )}
+        {/* Running total / balance */}
+        <div className={`rounded-xl px-4 py-3 flex justify-between items-center ${
+          isFullyPaid
+            ? 'bg-emerald-50 border border-emerald-200'
+            : remaining > 0
+              ? 'bg-red-50 border border-red-200'
+              : 'bg-amber-50 border border-amber-200'
+        }`}>
+          <span className={`text-sm font-semibold ${
+            isFullyPaid ? 'text-emerald-700' : remaining > 0 ? 'text-red-700' : 'text-amber-700'
+          }`}>
+            {isFullyPaid ? 'Fully paid' : remaining > 0 ? `Balance still owed` : `Overpaid by`}
+          </span>
+          <span className={`text-sm font-bold ${
+            isFullyPaid ? 'text-emerald-700' : remaining > 0 ? 'text-red-700' : 'text-amber-700'
+          }`}>
+            {isFullyPaid
+              ? `₱${grandTotal.toLocaleString()}`
+              : `₱${Math.abs(remaining).toLocaleString()}`}
+          </span>
         </div>
 
         {/* Actions */}
@@ -218,7 +222,8 @@ const CheckOutModal = ({ isOpen, booking, onClose, onConfirm, isLoading }) => {
             type="button"
             onClick={handleConfirm}
             className="btn-primary"
-            disabled={isLoading || (paymentMode === 'partial' && partialAmountStr === '')}
+            disabled={isLoading || !isFullyPaid}
+            title={!isFullyPaid ? 'Full payment required to check out' : ''}
           >
             {isLoading ? (
               <div className="flex items-center">

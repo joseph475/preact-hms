@@ -71,20 +71,21 @@ export const useBookings = () => {
       const extTotal = (booking?.extensionCharges || []).reduce((s, c) => s + (c.charge || 0), 0);
       const grandTotal = (booking?.totalAmount || 0) + foodTotal + extTotal;
 
+      // payments is an array of { method, amount, reference } from split payment UI
+      const payments = paymentDetails.payments || [];
       const paidAmount = paymentDetails.paidAmount ?? grandTotal;
-      const paymentStatus = paidAmount >= grandTotal ? 'Paid' : paidAmount > 0 ? 'Partial' : 'Pending';
+      const primaryMethod = payments.length > 0 ? payments[0].method : (booking?.paymentMethod || 'Cash');
+      const primaryReference = payments.find(p => p.method === 'Bank Transfer')?.reference || '';
 
-      // Use dedicated checkout endpoint (sets actualCheckOut + room to Needs Cleaning)
       const checkOutResponse = await apiService.checkOutGuest(bookingId);
       if (checkOutResponse.success) {
         const updateData = {
-          paymentStatus,
+          paymentStatus: 'Paid',
           paidAmount,
-          paymentMethod: paymentDetails.paymentMethod || booking?.paymentMethod,
+          paymentMethod: primaryMethod,
+          bankReference: primaryReference,
+          splitPayments: payments.length > 1 ? payments : [],
         };
-        if (paymentDetails.bankReference) {
-          updateData.bankReference = paymentDetails.bankReference;
-        }
         await apiService.updateBooking(bookingId, updateData);
         cacheService.invalidate('rooms');
         await Promise.all([refreshBookings(), refreshRooms(), refreshGuests()]);

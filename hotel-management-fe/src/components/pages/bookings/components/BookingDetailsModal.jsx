@@ -1,4 +1,4 @@
-import { h } from 'preact';
+import { h, Fragment } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 import Modal from '../../../common/Modal';
 
@@ -56,37 +56,37 @@ const BookingDetailsModal = ({
       showCloseButton={false}
       size="large"
     >
-      {/* Modal header — bg-amber-50 to match modal-header style */}
-      <div className="-mx-6 -mt-4 bg-amber-50 border-b border-amber-100 px-6 py-5 rounded-t-2xl">
+      {/* Modal header */}
+      <div className="-mx-6 -mt-4 bg-primary-50 border-b border-primary-100 px-6 py-5 rounded-t-2xl">
         <div className="flex justify-end mb-1">
           <button
             type="button"
             onClick={handleDetailsModalClose}
-            className="text-amber-400 hover:text-amber-600 transition-colors focus:outline-none"
+            className="text-primary-400 hover:text-primary-600 transition-colors focus:outline-none"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
-        <div className="text-xs font-semibold text-amber-500 uppercase tracking-widest mb-1">
+        <div className="text-xs font-semibold text-primary-500 uppercase tracking-widest mb-1">
           Booking #{b.bookingNumber || b._id?.slice(-8)}
         </div>
-        <div className="text-2xl font-extrabold text-amber-900 mb-3">
+        <div className="text-2xl font-extrabold text-primary-900 mb-3">
           Room {b.room?.roomNumber} — {roomType}
         </div>
         <div className="flex items-center gap-3 flex-wrap">
-          <span className="bg-amber-200 border border-amber-300 text-amber-900 text-xs font-bold uppercase tracking-wide px-3 py-1 rounded-full">
+          <span className="bg-primary-200 border border-primary-300 text-primary-900 text-xs font-bold uppercase tracking-wide px-3 py-1 rounded-full">
             {b.bookingStatus}
           </span>
-          <span className="text-amber-600 text-xs">
+          <span className="text-primary-600 text-xs">
             {formatDateTime(b.checkInDate)} → {formatDateTime(b.checkOutDate)}
           </span>
         </div>
       </div>
 
-      {/* Tab bar — also bleeds to edges */}
-      <div className="flex border-b border-amber-100 bg-amber-50 -mx-6">
+      {/* Tab bar */}
+      <div className="flex border-b border-primary-100 bg-primary-50 -mx-6">
         {tabs.map(tab => (
           <button
             key={tab.id}
@@ -94,8 +94,8 @@ const BookingDetailsModal = ({
             onClick={() => setActiveTab(tab.id)}
             className={`px-6 py-3 text-sm font-semibold transition-colors focus:outline-none ${
               activeTab === tab.id
-                ? 'text-amber-900 border-b-2 border-amber-500 bg-white'
-                : 'text-amber-600 hover:text-amber-800 hover:bg-amber-100'
+                ? 'text-primary-900 border-b-2 border-primary-500 bg-white'
+                : 'text-primary-600 hover:text-primary-800 hover:bg-primary-100'
             }`}
           >
             {tab.label}
@@ -111,14 +111,14 @@ const BookingDetailsModal = ({
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-xs font-bold text-amber-600 uppercase tracking-widest mb-1">Room</p>
+                <p className="text-xs font-bold text-primary-600 uppercase tracking-widest mb-1">Room</p>
                 <p className="text-xl font-extrabold text-stone-900">{b.room?.roomNumber}</p>
                 <p className="text-xs text-stone-500">
                   {roomType} · {b.guestCount} guest{b.guestCount !== 1 ? 's' : ''}
                 </p>
               </div>
               <div>
-                <p className="text-xs font-bold text-amber-600 uppercase tracking-widest mb-1">Guest</p>
+                <p className="text-xs font-bold text-primary-600 uppercase tracking-widest mb-1">Guest</p>
                 <p className="text-base font-bold text-stone-900">
                   {b.guest?.firstName} {b.guest?.lastName}
                 </p>
@@ -128,12 +128,12 @@ const BookingDetailsModal = ({
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-xs font-bold text-amber-600 uppercase tracking-widest mb-1">ID</p>
+                <p className="text-xs font-bold text-primary-600 uppercase tracking-widest mb-1">ID</p>
                 <p className="text-sm font-bold text-stone-900">{b.guest?.idType}</p>
                 <p className="text-xs text-stone-500">{b.guest?.idNumber}</p>
               </div>
               <div>
-                <p className="text-xs font-bold text-amber-600 uppercase tracking-widest mb-1">Payment</p>
+                <p className="text-xs font-bold text-primary-600 uppercase tracking-widest mb-1">Payment</p>
                 <p className="text-sm font-bold text-emerald-600">{b.paymentStatus}</p>
                 <p className="text-xs text-stone-500">
                   ₱{b.totalAmount?.toLocaleString()} · {b.paymentMethod || 'Not specified'}
@@ -141,9 +141,9 @@ const BookingDetailsModal = ({
               </div>
             </div>
 
-            <div className="flex items-center justify-between bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
-              <span className="text-sm text-amber-800">Total stay</span>
-              <span className="text-base font-extrabold text-amber-900">{stayDuration}</span>
+            <div className="flex items-center justify-between bg-primary-50 border border-primary-200 rounded-xl px-4 py-3">
+              <span className="text-sm text-primary-800">Total stay</span>
+              <span className="text-base font-extrabold text-primary-900">{stayDuration}</span>
             </div>
           </div>
         )}
@@ -151,11 +151,11 @@ const BookingDetailsModal = ({
         {/* ── Timing ── */}
         {activeTab === 'timing' && (
           <div className="space-y-4">
-            <div className="divide-y divide-amber-100">
+            <div className="divide-y divide-primary-100">
               <div className="flex items-start gap-3 pb-4">
                 <span className="mt-1.5 w-2.5 h-2.5 rounded-full bg-emerald-500 flex-shrink-0" />
                 <div>
-                  <p className="text-xs font-bold text-amber-600 uppercase tracking-widest mb-1">Check-in</p>
+                  <p className="text-xs font-bold text-primary-600 uppercase tracking-widest mb-1">Check-in</p>
                   <p className="text-sm font-bold text-stone-900">{formatDateTime(b.checkInDate)}</p>
                   {b.actualCheckIn && (
                     <p className="text-xs text-stone-500 mt-0.5">Actual: {formatDateTime(b.actualCheckIn)}</p>
@@ -163,9 +163,9 @@ const BookingDetailsModal = ({
                 </div>
               </div>
               <div className="flex items-start gap-3 pt-4">
-                <span className="mt-1.5 w-2.5 h-2.5 rounded-full bg-amber-400 flex-shrink-0" />
+                <span className="mt-1.5 w-2.5 h-2.5 rounded-full bg-primary-400 flex-shrink-0" />
                 <div>
-                  <p className="text-xs font-bold text-amber-600 uppercase tracking-widest mb-1">Check-out</p>
+                  <p className="text-xs font-bold text-primary-600 uppercase tracking-widest mb-1">Check-out</p>
                   <p className="text-sm font-bold text-stone-900">{formatDateTime(b.checkOutDate)}</p>
                   {b.actualCheckOut
                     ? <p className="text-xs text-stone-500 mt-0.5">Actual: {formatDateTime(b.actualCheckOut)}</p>
@@ -177,17 +177,17 @@ const BookingDetailsModal = ({
 
             {hasExtensions && (
               <div>
-                <p className="text-xs font-bold text-amber-600 uppercase tracking-widest mb-2">
+                <p className="text-xs font-bold text-primary-600 uppercase tracking-widest mb-2">
                   Extensions (+{b.extensionCharges.reduce((s, e) => s + (e.hours || 0), 0)}h total)
                 </p>
                 <div className="space-y-2">
                   {b.extensionCharges.map((ext, i) => (
-                    <div key={i} className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3">
+                    <div key={i} className="bg-primary-50 border border-primary-200 rounded-lg px-4 py-3">
                       <div className="flex justify-between items-center">
-                        <span className="text-sm text-amber-900">
+                        <span className="text-sm text-primary-900">
                           +{ext.hours}h{ext.notes ? ` · ${ext.notes}` : ''}
                         </span>
-                        <span className="text-sm font-bold text-amber-800">
+                        <span className="text-sm font-bold text-primary-800">
                           +₱{ext.charge?.toLocaleString()}
                         </span>
                       </div>
@@ -205,7 +205,7 @@ const BookingDetailsModal = ({
         {/* ── Payment ── */}
         {activeTab === 'payment' && (
           <div className="space-y-3">
-            <div className="divide-y divide-amber-100">
+            <div className="divide-y divide-primary-100">
               <div className="flex justify-between py-2.5">
                 <span className="text-sm text-stone-500">Room charge</span>
                 <span className="text-sm font-bold text-stone-900">
@@ -236,17 +236,33 @@ const BookingDetailsModal = ({
                   </div>
                 </div>
               )}
-              <div className="flex justify-between py-2.5">
-                <span className="text-sm text-stone-500">Payment method</span>
-                <span className="text-sm font-bold text-stone-900">
-                  {b.paymentMethod || 'Not specified'}
-                </span>
-              </div>
-              {b.bankReference && (
-                <div className="flex justify-between py-2.5">
-                  <span className="text-sm text-stone-500">Bank reference</span>
-                  <span className="text-sm font-bold text-stone-900">{b.bankReference}</span>
-                </div>
+              {/* Split payments — shown if available */}
+              {b.splitPayments?.length > 0 ? (
+                b.splitPayments.map((p, i) => (
+                  <div key={i} className="flex justify-between py-2.5">
+                    <span className="text-sm text-stone-500">
+                      {p.method}{p.reference ? ` · ${p.reference}` : ''}
+                    </span>
+                    <span className="text-sm font-bold text-emerald-600">
+                      ₱{(p.amount || 0).toLocaleString()}
+                    </span>
+                  </div>
+                ))
+              ) : (
+                <>
+                  <div className="flex justify-between py-2.5">
+                    <span className="text-sm text-stone-500">Payment method</span>
+                    <span className="text-sm font-bold text-stone-900">
+                      {b.paymentMethod || 'Not specified'}
+                    </span>
+                  </div>
+                  {b.bankReference && (
+                    <div className="flex justify-between py-2.5">
+                      <span className="text-sm text-stone-500">Bank reference</span>
+                      <span className="text-sm font-bold text-stone-900">{b.bankReference}</span>
+                    </div>
+                  )}
+                </>
               )}
               <div className="flex justify-between py-2.5">
                 <span className="text-sm text-stone-500">Amount paid</span>
@@ -264,29 +280,29 @@ const BookingDetailsModal = ({
               )}
             </div>
 
-            <div className="flex justify-between items-center bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
-              <span className="text-sm font-bold text-amber-900">Grand Total</span>
-              <span className="text-xl font-extrabold text-amber-900">
+            <div className="flex justify-between items-center bg-primary-50 border border-primary-200 rounded-xl px-4 py-3">
+              <span className="text-sm font-bold text-primary-900">Grand Total</span>
+              <span className="text-xl font-extrabold text-primary-900">
                 ₱{grandTotal.toLocaleString()}
               </span>
             </div>
 
             {(b.specialRequests || b.notes) && (
-              <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 space-y-2">
+              <div className="bg-primary-50 border border-primary-200 rounded-xl px-4 py-3 space-y-2">
                 {b.specialRequests && (
                   <div>
-                    <p className="text-xs font-bold text-amber-600 uppercase tracking-widest mb-1">
+                    <p className="text-xs font-bold text-primary-600 uppercase tracking-widest mb-1">
                       Special Requests
                     </p>
-                    <p className="text-sm text-amber-900">{b.specialRequests}</p>
+                    <p className="text-sm text-primary-900">{b.specialRequests}</p>
                   </div>
                 )}
                 {b.notes && (
                   <div>
-                    <p className="text-xs font-bold text-amber-600 uppercase tracking-widest mb-1">
+                    <p className="text-xs font-bold text-primary-600 uppercase tracking-widest mb-1">
                       Notes
                     </p>
-                    <p className="text-sm text-amber-900">{b.notes}</p>
+                    <p className="text-sm text-primary-900">{b.notes}</p>
                   </div>
                 )}
               </div>
@@ -303,12 +319,12 @@ const BookingDetailsModal = ({
                 <p className="text-xs text-gray-300 mt-1">Old bookings may not have an activity log.</p>
               </div>
             ) : (
-              <ol className="relative border-l border-amber-200 ml-3 space-y-4">
+              <ol className="relative border-l border-primary-200 ml-3 space-y-4">
                 {[...b.auditLog].reverse().map((entry, i) => {
                   const dotColor = {
                     'Created':          'bg-blue-500',
                     'Checked In':       'bg-green-500',
-                    'Checked Out':      'bg-amber-500',
+                    'Checked Out':      'bg-primary-500',
                     'Cancelled':        'bg-red-500',
                     'No Show':          'bg-red-400',
                     'Extended':         'bg-gray-400',
