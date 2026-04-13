@@ -100,6 +100,8 @@ const BookingsPage = ({ user }) => {
       totalAmount: 0,
       paymentStatus: 'Pending',
       paymentMethod: 'Cash',
+      paidAmount: 0,
+      bankReference: '',
       specialRequests: '',
       guestCount: 1
     };
@@ -108,7 +110,7 @@ const BookingsPage = ({ user }) => {
   // Constants
   const bookingStatuses = ['Confirmed', 'Checked In', 'Checked Out', 'Cancelled', 'No Show'];
   const paymentStatuses = ['Pending', 'Paid', 'Partial', 'Refunded'];
-  const paymentMethods = ['Cash', 'Credit Card', 'Debit Card', 'Bank Transfer', 'Online Payment'];
+  const paymentMethods = ['Cash', 'GCash', 'Credit Card', 'Debit Card', 'Bank Transfer', 'Online Payment'];
   const durations = [
     { value: '3', label: '3 Hours' },
     { value: '8', label: '8 Hours' },
@@ -220,6 +222,8 @@ const BookingsPage = ({ user }) => {
       bookingStatus: formData.bookingStatus,
       paymentStatus: formData.paymentStatus,
       paymentMethod: formData.paymentMethod,
+      paidAmount: formData.paymentStatus === 'Paid' ? totalAmount : (formData.paymentStatus === 'Partial' ? parseFloat(formData.paidAmount) || 0 : 0),
+      bankReference: formData.bankReference || '',
       specialRequests: formData.specialRequests
     };
 
@@ -258,6 +262,8 @@ const BookingsPage = ({ user }) => {
       totalAmount: booking.totalAmount,
       paymentStatus: booking.paymentStatus,
       paymentMethod: booking.paymentMethod || 'Cash',
+      paidAmount: booking.paidAmount || 0,
+      bankReference: booking.bankReference || '',
       specialRequests: booking.specialRequests || '',
       guestCount: booking.guestCount || 1
     });
@@ -385,6 +391,8 @@ const BookingsPage = ({ user }) => {
       totalAmount: 0,
       paymentStatus: 'Pending',
       paymentMethod: 'Cash',
+      paidAmount: 0,
+      bankReference: '',
       specialRequests: '',
       guestCount: 1
     });

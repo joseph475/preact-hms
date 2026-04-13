@@ -83,7 +83,7 @@ const BookingSchema = new mongoose.Schema({
   },
   paymentMethod: {
     type: String,
-    enum: ['Cash', 'Credit Card', 'Debit Card', 'Bank Transfer', 'Online Payment']
+    enum: ['Cash', 'GCash', 'Credit Card', 'Debit Card', 'Bank Transfer', 'Online Payment']
   },
   bankReference: {
     type: String,
