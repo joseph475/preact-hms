@@ -20,7 +20,7 @@ const BookingFilters = ({
           </div>
 
           <div className="flex flex-wrap gap-2">
-            {['All', 'Active', 'Checked Out', 'Cancelled'].map(status => (
+            {['All', 'Booking', 'Checked In', 'Checked Out', 'Cancelled'].map(status => (
               <button
                 key={status}
                 onClick={() => setStatusFilter(status === 'All' ? '' : status)}

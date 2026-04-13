@@ -419,11 +419,12 @@ const BookingsPage = ({ user }) => {
 
     // Status filtering logic
     let matchesStatus = true;
-    if (statusFilter) {
-      // If a specific status is selected, show only that status
+    if (statusFilter === 'Booking') {
+      matchesStatus = booking.bookingStatus === 'Confirmed';
+    } else if (statusFilter) {
       matchesStatus = booking.bookingStatus === statusFilter;
     } else {
-      // If no status filter is selected, hide completed/inactive bookings by default
+      // "All" — hide completed/inactive bookings by default
       const hiddenStatuses = ['Checked Out', 'No Show', 'Cancelled'];
       matchesStatus = !hiddenStatuses.includes(booking.bookingStatus);
     }
