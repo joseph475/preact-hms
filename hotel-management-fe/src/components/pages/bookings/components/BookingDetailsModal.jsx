@@ -209,7 +209,7 @@ const BookingDetailsModal = ({
               <div className="flex justify-between py-2.5">
                 <span className="text-sm text-stone-500">Room charge</span>
                 <span className="text-sm font-bold text-stone-900">
-                  ₱{((b.totalAmount ?? 0) - extensionTotal).toLocaleString()}
+                  ₱{(b.totalAmount ?? 0).toLocaleString()}
                 </span>
               </div>
               {hasExtensions && (
