@@ -446,7 +446,7 @@ const BookingsPage = ({ user }) => {
         }
       }));
 
-      if (guestField === 'firstName') {
+      if (guestField === 'lastName') {
         clearTimeout(searchTimerRef.current);
         const q = value.trim();
         if (q.length < 2) {
@@ -483,8 +483,8 @@ const BookingsPage = ({ user }) => {
 
   const clearSuggestions = () => setSuggestions([]);
 
-  const handleFirstNameFocus = () => {
-    const q = formData.guest.firstName.trim();
+  const handleLastNameFocus = () => {
+    const q = formData.guest.lastName.trim();
     if (q.length < 2 || suggestions.length > 0) return;
     clearTimeout(searchTimerRef.current);
     searchTimerRef.current = setTimeout(async () => {
@@ -806,7 +806,7 @@ const BookingsPage = ({ user }) => {
         searching={searching}
         onSuggestionSelect={handleSuggestionSelect}
         clearSuggestions={clearSuggestions}
-        onFirstNameFocus={handleFirstNameFocus}
+        onLastNameFocus={handleLastNameFocus}
       />
 
       {/* Delete Confirmation Modal */}

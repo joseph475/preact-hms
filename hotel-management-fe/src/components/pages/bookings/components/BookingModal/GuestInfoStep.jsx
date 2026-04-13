@@ -1,6 +1,6 @@
 import { h } from 'preact';
 
-const GuestInfoStep = ({ formData, handleInputChange, suggestions = [], searching, onSelectSuggestion, clearSuggestions, onFirstNameFocus }) => {
+const GuestInfoStep = ({ formData, handleInputChange, suggestions = [], searching, onSelectSuggestion, clearSuggestions, onLastNameFocus }) => {
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
@@ -9,16 +9,16 @@ const GuestInfoStep = ({ formData, handleInputChange, suggestions = [], searchin
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* First Name with auto-suggest */}
+        {/* Last Name with auto-suggest */}
         <div className="form-group relative">
-          <label className="form-label">First Name *</label>
+          <label className="form-label">Last Name *</label>
           <div className="relative">
             <input
               type="text"
               className="form-input"
-              value={formData.guest.firstName}
-              onChange={(e) => handleInputChange('guest.firstName', e.target.value)}
-              onFocus={onFirstNameFocus}
+              value={formData.guest.lastName}
+              onChange={(e) => handleInputChange('guest.lastName', e.target.value)}
+              onFocus={onLastNameFocus}
               required
             />
             {searching && (
@@ -48,7 +48,7 @@ const GuestInfoStep = ({ formData, handleInputChange, suggestions = [], searchin
                   onMouseDown={() => onSelectSuggestion(g)}
                   className="w-full text-left px-3 py-2 hover:bg-amber-50 transition-colors border-b border-gray-50 last:border-0"
                 >
-                  <span className="text-sm font-medium text-gray-900">{g.firstName} {g.lastName}</span>
+                  <span className="text-sm font-medium text-gray-900">{g.lastName}, {g.firstName}</span>
                   <span className="text-xs text-gray-500 ml-2">{g.phone}</span>
                   {g.isVip && (
                     <span className="ml-2 px-1.5 py-0.5 text-xs font-bold bg-amber-100 text-amber-700 border border-amber-300 rounded">VIP</span>
@@ -60,12 +60,12 @@ const GuestInfoStep = ({ formData, handleInputChange, suggestions = [], searchin
         </div>
 
         <div className="form-group">
-          <label className="form-label">Last Name *</label>
+          <label className="form-label">First Name *</label>
           <input
             type="text"
             className="form-input"
-            value={formData.guest.lastName}
-            onChange={(e) => handleInputChange('guest.lastName', e.target.value)}
+            value={formData.guest.firstName}
+            onChange={(e) => handleInputChange('guest.firstName', e.target.value)}
             required
           />
         </div>
