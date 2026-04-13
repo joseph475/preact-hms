@@ -38,6 +38,11 @@ const GuestSchema = new mongoose.Schema({
     trim: true,
     maxlength: [100, 'Company cannot be more than 100 characters']
   },
+  address: {
+    type: String,
+    trim: true,
+    maxlength: [200, 'Address cannot be more than 200 characters']
+  },
   isVip: {
     type: Boolean,
     default: false

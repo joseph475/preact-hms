@@ -181,7 +181,8 @@ exports.createBooking = asyncHandler(async (req, res, next) => {
       idType: req.body.guest.idType,
       idNumber: req.body.guest.idNumber,
       ...(req.body.guest.nationality && { nationality: req.body.guest.nationality }),
-      ...(req.body.guest.isVip !== undefined && { isVip: req.body.guest.isVip })
+      ...(req.body.guest.isVip !== undefined && { isVip: req.body.guest.isVip }),
+      ...(req.body.guest.address && { address: req.body.guest.address })
     };
 
     const existingGuest = await Guest.findOne({
@@ -193,9 +194,10 @@ exports.createBooking = asyncHandler(async (req, res, next) => {
     if (!existingGuest) {
       await Guest.create(guestData);
     } else {
-      // Update nationality/VIP status if provided
+      // Update nationality/VIP status/address if provided
       if (guestData.nationality) existingGuest.nationality = guestData.nationality;
       if (guestData.isVip !== undefined) existingGuest.isVip = guestData.isVip;
+      if (guestData.address) existingGuest.address = guestData.address;
       await existingGuest.save();
     }
   } catch (guestErr) {

@@ -13,6 +13,7 @@ const BookingModal = ({
   setCurrentStep,
   formData,
   handleInputChange,
+  handleGuestAutoFill,
   handleSubmit,
   loading,
   canProceedToStep2,
@@ -25,37 +26,37 @@ const BookingModal = ({
   durations,
   bookingStatuses,
   paymentStatuses,
-  paymentMethods
+  paymentMethods,
+  suggestions,
+  searching,
+  onSuggestionSelect,
+  clearSuggestions,
 }) => {
   const nextStep = () => {
-    if (currentStep < 3) {
-      setCurrentStep(currentStep + 1);
-    }
+    if (currentStep < 3) setCurrentStep(currentStep + 1);
   };
 
   const prevStep = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
-    }
+    if (currentStep > 1) setCurrentStep(currentStep - 1);
+  };
+
+  const handleClose = () => {
+    clearSuggestions();
+    setShowModal(false);
   };
 
   return (
     <Modal
       isOpen={showModal}
-      onClose={() => setShowModal(false)}
+      onClose={handleClose}
       title={`${editingBooking ? 'Edit' : 'New'} Booking - Step ${currentStep} of 3`}
       size="large"
       closeOnOverlayClick={false}
       footer={
         <div className="flex items-center justify-between w-full">
-          {/* Left side - Step navigation */}
           <div className="flex items-center space-x-2">
             {currentStep > 1 && (
-              <button
-                type="button"
-                onClick={prevStep}
-                className="btn-outline"
-              >
+              <button type="button" onClick={prevStep} className="btn-outline">
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
@@ -64,16 +65,11 @@ const BookingModal = ({
             )}
           </div>
 
-          {/* Right side - Action buttons */}
           <div className="flex items-center space-x-2">
-            <button
-              type="button"
-              onClick={() => setShowModal(false)}
-              className="btn-outline"
-            >
+            <button type="button" onClick={handleClose} className="btn-outline">
               Cancel
             </button>
-            
+
             {currentStep < 3 ? (
               <button
                 type="button"
@@ -90,12 +86,7 @@ const BookingModal = ({
                 </svg>
               </button>
             ) : (
-              <button
-                type="button"
-                onClick={handleSubmit}
-                className="btn-primary"
-                disabled={loading}
-              >
+              <button type="button" onClick={handleSubmit} className="btn-primary" disabled={loading}>
                 {loading ? (
                   <div className="flex items-center">
                     <div className="spinner mr-2"></div>
@@ -114,9 +105,13 @@ const BookingModal = ({
 
       <form onSubmit={handleSubmit}>
         {currentStep === 1 && (
-          <GuestInfoStep 
+          <GuestInfoStep
             formData={formData}
             handleInputChange={handleInputChange}
+            suggestions={suggestions}
+            searching={searching}
+            onSelectSuggestion={onSuggestionSelect}
+            clearSuggestions={clearSuggestions}
           />
         )}
 

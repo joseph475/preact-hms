@@ -1,7 +1,8 @@
 import { h, Fragment } from 'preact';
-import { useState, useEffect, useMemo } from 'preact/hooks';
+import { useState, useEffect, useMemo, useRef } from 'preact/hooks';
 import { useSearch } from '../../../hooks/useSearch';
 import { useBookings } from '../../../hooks/useBookings';
+import apiService from '../../../services/api';
 import DeleteConfirmationModal from '../../common/DeleteConfirmationModal';
 import ConfirmationModal from '../../common/ConfirmationModal';
 import Pagination from '../../common/Pagination';
@@ -69,6 +70,9 @@ const BookingsPage = ({ user }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [roomSearchTerm, setRoomSearchTerm] = useState('');
   const [roomTypeFilter, setRoomTypeFilter] = useState('');
+  const [suggestions, setSuggestions] = useState([]);
+  const [searching, setSearching] = useState(false);
+  const searchTimerRef = useRef(null);
   
   // Get current date and time for initial state
   const getCurrentDateTime = () => {
@@ -90,6 +94,7 @@ const BookingsPage = ({ user }) => {
         idNumber: '',
         nationality: '',
         company: '',
+        address: '',
         isVip: false
       },
       room: '',
@@ -142,6 +147,23 @@ const BookingsPage = ({ user }) => {
       }
     }
   }, []);
+
+  const handleGuestAutoFill = (guest) => {
+    setFormData(prev => ({
+      ...prev,
+      guest: {
+        firstName: guest.firstName || '',
+        lastName: guest.lastName || '',
+        phone: guest.phone || '',
+        idType: guest.idType || 'National ID',
+        idNumber: guest.idNumber || '',
+        nationality: guest.nationality || '',
+        company: guest.company || '',
+        address: guest.address || '',
+        isVip: guest.isVip || false
+      }
+    }));
+  };
 
   useEffect(() => {
     calculateTotalAmount();
@@ -252,6 +274,7 @@ const BookingsPage = ({ user }) => {
         idNumber: booking.guest?.idNumber || '',
         nationality: booking.guest?.nationality || '',
         company: booking.guest?.company || '',
+        address: booking.guest?.address || '',
         isVip: booking.guest?.isVip || false
       },
       room: booking.room._id,
@@ -371,6 +394,7 @@ const BookingsPage = ({ user }) => {
     const currentDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     const currentTime = now.toTimeString().slice(0, 5); // HH:MM format
     
+    setSuggestions([]);
     setFormData({
       guest: {
         firstName: '',
@@ -380,6 +404,7 @@ const BookingsPage = ({ user }) => {
         idNumber: '',
         nationality: '',
         company: '',
+        address: '',
         isVip: false
       },
       room: '',
@@ -420,6 +445,29 @@ const BookingsPage = ({ user }) => {
           [guestField]: value
         }
       }));
+
+      if (guestField === 'firstName') {
+        clearTimeout(searchTimerRef.current);
+        const q = value.trim();
+        if (q.length < 2) {
+          setSuggestions([]);
+          return;
+        }
+        searchTimerRef.current = setTimeout(async () => {
+          setSearching(true);
+          try {
+            const res = await apiService.request(
+              `/guests/search?q=${encodeURIComponent(q)}`,
+              { suppressErrorModal: true }
+            );
+            setSuggestions(res.data || []);
+          } catch {
+            setSuggestions([]);
+          } finally {
+            setSearching(false);
+          }
+        }, 300);
+      }
     } else {
       setFormData(prev => ({
         ...prev,
@@ -427,6 +475,13 @@ const BookingsPage = ({ user }) => {
       }));
     }
   };
+
+  const handleSuggestionSelect = (guest) => {
+    handleGuestAutoFill(guest);
+    setSuggestions([]);
+  };
+
+  const clearSuggestions = () => setSuggestions([]);
 
   const filteredBookings = useMemo(() => bookings.filter(booking => {
     const searchLower = searchTerm.toLowerCase();
@@ -669,7 +724,7 @@ const BookingsPage = ({ user }) => {
                       </>
                     )}
 
-                    {['Confirmed', 'Checked In'].includes(booking.bookingStatus) && (
+                    {booking.bookingStatus === 'Confirmed' && (
                       <button onClick={() => handleDeleteClick(booking)} className="action-btn bg-red-50 text-red-700 hover:bg-red-100 border border-red-200">Cancel</button>
                     )}
                   </div>
@@ -713,6 +768,7 @@ const BookingsPage = ({ user }) => {
         setCurrentStep={setCurrentStep}
         formData={formData}
         handleInputChange={handleInputChange}
+        handleGuestAutoFill={handleGuestAutoFill}
         handleSubmit={handleSubmit}
         loading={loading}
         canProceedToStep2={canProceedToStep2}
@@ -726,6 +782,10 @@ const BookingsPage = ({ user }) => {
         bookingStatuses={bookingStatuses}
         paymentStatuses={paymentStatuses}
         paymentMethods={paymentMethods}
+        suggestions={suggestions}
+        searching={searching}
+        onSuggestionSelect={handleSuggestionSelect}
+        clearSuggestions={clearSuggestions}
       />
 
       {/* Delete Confirmation Modal */}

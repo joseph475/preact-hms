@@ -136,7 +136,7 @@ const BookingDetailsModal = ({
                 <p className="text-xs font-bold text-primary-600 uppercase tracking-widest mb-1">Payment</p>
                 <p className="text-sm font-bold text-emerald-600">{b.paymentStatus}</p>
                 <p className="text-xs text-stone-500">
-                  ₱{b.totalAmount?.toLocaleString()} · {b.paymentMethod || 'Not specified'}
+                  ₱{(b.paidAmount || 0).toLocaleString()} paid
                 </p>
               </div>
             </div>

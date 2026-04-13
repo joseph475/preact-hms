@@ -1,7 +1,12 @@
 import { h } from 'preact';
+import { useState } from 'preact/hooks';
 import { useSimpleCache } from '../../../hooks/useSimpleCache';
 import apiService from '../../../services/api';
+import cacheService from '../../../services/cacheService';
 import DashboardSkeleton from '../../common/skeletons/DashboardSkeleton';
+import Modal from '../../common/Modal';
+import CheckOutModal from '../bookings/components/CheckOutModal';
+import FoodOrderModal from '../../common/FoodOrderModal';
 
 const DashboardPage = ({ user }) => {
   const {
@@ -13,11 +18,11 @@ const DashboardPage = ({ user }) => {
     '/dashboard/stats',
     () => apiService.getDashboardStats(),
     {
-      refreshInterval: 2 * 60 * 1000 // Refresh every 2 minutes
+      refreshInterval: 2 * 60 * 1000
     }
   );
 
-  const { data: roomsResponse, loading: roomsLoading } = useSimpleCache(
+  const { data: roomsResponse, loading: roomsLoading, refresh: refreshRooms } = useSimpleCache(
     '/rooms',
     () => apiService.getRooms(),
     {
@@ -38,6 +43,12 @@ const DashboardPage = ({ user }) => {
   const rooms = roomsResponse?.data || [];
   const todayData = todayResponse?.data || { arriving: [], departing: [] };
 
+  // Occupied room popup state
+  const [roomPopup, setRoomPopup] = useState({ open: false, room: null, booking: null, loading: false });
+  const [showCheckOut, setShowCheckOut] = useState(false);
+  const [showFoodOrder, setShowFoodOrder] = useState(false);
+  const [checkOutLoading, setCheckOutLoading] = useState(false);
+
   const handleQuickAction = async (action, bookingId) => {
     try {
       if (action === 'checkin') {
@@ -49,6 +60,77 @@ const DashboardPage = ({ user }) => {
     } catch (err) {
       // error modal shown by apiService errorHandler
     }
+  };
+
+  const handleOccupiedRoomClick = async (room) => {
+    if (room.status !== 'Occupied') return;
+    setRoomPopup({ open: true, room, booking: null, loading: true });
+    try {
+      const res = await apiService.request(`/bookings?room=${room._id}&bookingStatus=Checked%20In`);
+      const booking = res.data?.[0] || null;
+      setRoomPopup(prev => ({ ...prev, booking, loading: false }));
+    } catch {
+      setRoomPopup(prev => ({ ...prev, loading: false }));
+    }
+  };
+
+  const closeRoomPopup = () => {
+    setRoomPopup({ open: false, room: null, booking: null, loading: false });
+    setShowCheckOut(false);
+    setShowFoodOrder(false);
+  };
+
+  const handleCheckOutConfirm = async (paymentDetails) => {
+    if (!roomPopup.booking) return;
+    setCheckOutLoading(true);
+    try {
+      const booking = roomPopup.booking;
+      const foodTotal = (booking.foodOrders || []).reduce((s, o) => s + (o.total || 0), 0);
+      const extTotal = (booking.extensionCharges || []).reduce((s, c) => s + (c.charge || 0), 0);
+
+      const payments = paymentDetails.payments || [];
+      const paidAmount = paymentDetails.paidAmount ?? ((booking.totalAmount || 0) + foodTotal + extTotal);
+      const primaryMethod = payments.length > 0 ? payments[0].method : (booking.paymentMethod || 'Cash');
+      const primaryReference = payments.find(p => p.method === 'Bank Transfer')?.reference || '';
+
+      const res = await apiService.checkOutGuest(booking._id);
+      if (res.success) {
+        await apiService.updateBooking(booking._id, {
+          paymentStatus: 'Paid',
+          paidAmount,
+          paymentMethod: primaryMethod,
+          bankReference: primaryReference,
+          splitPayments: payments.length > 1 ? payments : [],
+        });
+        cacheService.invalidate('rooms');
+        await Promise.all([refreshRooms(), loadDashboardStats()]);
+        closeRoomPopup();
+      }
+    } catch {
+      // error handled by apiService
+    } finally {
+      setCheckOutLoading(false);
+    }
+  };
+
+  const handleAddFoodOrder = async (bookingId, orderData) => {
+    const res = await apiService.addFoodOrder(bookingId, orderData);
+    if (res.success) {
+      const updated = await apiService.request(`/bookings?room=${roomPopup.room._id}&bookingStatus=Checked%20In`);
+      const booking = updated.data?.[0] || roomPopup.booking;
+      setRoomPopup(prev => ({ ...prev, booking }));
+    }
+    return res;
+  };
+
+  const handleRemoveFoodOrder = async (bookingId, orderId) => {
+    const res = await apiService.removeFoodOrder(bookingId, orderId);
+    if (res.success) {
+      const updated = await apiService.request(`/bookings?room=${roomPopup.room._id}&bookingStatus=Checked%20In`);
+      const booking = updated.data?.[0] || roomPopup.booking;
+      setRoomPopup(prev => ({ ...prev, booking }));
+    }
+    return res;
   };
 
   if (loading) {
@@ -253,7 +335,7 @@ const DashboardPage = ({ user }) => {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-primary-900">Room Status</h2>
           <div className="flex items-center gap-3 text-xs">
-            <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-sm bg-amber-600"></span> Occupied</span>
+            <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-sm bg-amber-600"></span> Occupied (click to manage)</span>
             <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-sm bg-amber-100 border border-amber-200"></span> Available</span>
             <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-sm bg-blue-100 border border-blue-200"></span> Needs Cleaning</span>
             <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-sm bg-red-100 border border-red-200 border-dashed"></span> Maint / OOO</span>
@@ -271,21 +353,23 @@ const DashboardPage = ({ user }) => {
                 const typeLabel = room.roomType?.name
                   ? room.roomType.name.slice(0, 3).toUpperCase()
                   : '---';
+                const isOccupied = status === 'Occupied';
                 let chipClass = '';
-                if (status === 'Occupied') {
-                  chipClass = 'bg-amber-600 text-white border-amber-600';
+                if (isOccupied) {
+                  chipClass = 'bg-amber-600 text-white border-amber-600 cursor-pointer hover:bg-amber-700 hover:ring-2 hover:ring-amber-400 hover:ring-offset-1 transition-all';
                 } else if (status === 'Available') {
-                  chipClass = 'bg-amber-100 text-amber-800 border-amber-200';
+                  chipClass = 'bg-amber-100 text-amber-800 border-amber-200 cursor-default select-none';
                 } else if (status === 'Needs Cleaning') {
-                  chipClass = 'bg-blue-100 text-blue-800 border-blue-200';
+                  chipClass = 'bg-blue-100 text-blue-800 border-blue-200 cursor-default select-none';
                 } else {
-                  chipClass = 'bg-red-100 text-red-800 border-red-200 border-dashed';
+                  chipClass = 'bg-red-100 text-red-800 border-red-200 border-dashed cursor-default select-none';
                 }
                 return (
                   <div
                     key={room._id}
-                    className={`border rounded-lg p-2 text-center cursor-default select-none ${chipClass}`}
-                    title={`Room ${room.roomNumber} — ${room.roomType?.name || 'Unknown'} — ${status}`}
+                    className={`border rounded-lg p-2 text-center ${chipClass}`}
+                    title={isOccupied ? `Room ${room.roomNumber} — Click to manage` : `Room ${room.roomNumber} — ${room.roomType?.name || 'Unknown'} — ${status}`}
+                    onClick={() => isOccupied && handleOccupiedRoomClick(room)}
                   >
                     <div className="text-sm font-bold leading-tight">{room.roomNumber}</div>
                     <div className="text-[10px] leading-tight opacity-80">{typeLabel}</div>
@@ -443,6 +527,75 @@ const DashboardPage = ({ user }) => {
           </div>
         </div>
       </div>
+
+      {/* Occupied Room Info Popup */}
+      <Modal
+        isOpen={roomPopup.open && !showCheckOut && !showFoodOrder}
+        onClose={closeRoomPopup}
+        title={`Room ${roomPopup.room?.roomNumber}`}
+        size="small"
+      >
+        {roomPopup.loading ? (
+          <div className="flex items-center justify-center py-8">
+            <div className="spinner"></div>
+          </div>
+        ) : roomPopup.booking ? (
+          <div className="space-y-4">
+            <div className="bg-amber-50 rounded-xl p-4 border border-amber-100">
+              <p className="font-bold text-gray-900 text-base">
+                {roomPopup.booking.guest?.firstName} {roomPopup.booking.guest?.lastName}
+              </p>
+              <p className="text-sm text-gray-500 mt-0.5">
+                {roomPopup.room?.roomType?.name || 'Room'} · {roomPopup.booking.duration}h
+              </p>
+              <p className="text-xs text-gray-400 mt-1">
+                Checked in: {new Date(roomPopup.booking.actualCheckIn || roomPopup.booking.checkInDate).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+              </p>
+              <p className="text-xs text-gray-400">
+                Check-out: {new Date(roomPopup.booking.checkOutDate).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+              </p>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowFoodOrder(true)}
+                className="flex-1 action-btn bg-orange-50 text-orange-700 hover:bg-orange-100 border border-orange-200 justify-center py-2.5"
+              >
+                Add Food Order
+              </button>
+              <button
+                onClick={() => setShowCheckOut(true)}
+                className="flex-1 action-btn bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 justify-center py-2.5"
+              >
+                Check Out
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="text-center py-6">
+            <p className="text-sm text-gray-500">No active booking found for this room.</p>
+            <button onClick={closeRoomPopup} className="mt-3 btn-outline text-sm">Close</button>
+          </div>
+        )}
+      </Modal>
+
+      {/* Check Out Modal (from room popup) */}
+      <CheckOutModal
+        isOpen={showCheckOut}
+        booking={roomPopup.booking}
+        onClose={() => setShowCheckOut(false)}
+        onConfirm={handleCheckOutConfirm}
+        isLoading={checkOutLoading}
+      />
+
+      {/* Food Order Modal (from room popup) */}
+      <FoodOrderModal
+        isOpen={showFoodOrder}
+        onClose={() => setShowFoodOrder(false)}
+        booking={roomPopup.booking}
+        onAddFoodOrder={handleAddFoodOrder}
+        onRemoveFoodOrder={handleRemoveFoodOrder}
+      />
     </div>
   );
 };

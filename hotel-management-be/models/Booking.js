@@ -33,6 +33,10 @@ const BookingSchema = new mongoose.Schema({
       type: String,
       required: [true, 'Please add guest ID number'],
       trim: true
+    },
+    address: {
+      type: String,
+      trim: true
     }
   },
   room: {
