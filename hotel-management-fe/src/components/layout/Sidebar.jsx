@@ -112,16 +112,15 @@ const Sidebar = ({ user, isOpen, onClose }) => {
   return (
     <>
       {/* Desktop sidebar */}
-      <div className="hidden lg:flex fixed inset-y-0 left-0 z-50 w-48 flex-col py-4 px-3 gap-1"
-           style={{ backgroundColor: '#7c2d12' }}>
+      <div className="hidden lg:flex fixed inset-y-0 left-0 z-50 w-48 flex-col py-4 px-3 gap-1 bg-sidebar">
         {/* Logo */}
         <a href="/dashboard" className="flex items-center gap-2 px-2 py-2 mb-3 flex-shrink-0">
-          <div className="flex items-center justify-center w-8 h-8 bg-amber-300 rounded-lg flex-shrink-0">
-            <svg className="w-4 h-4 text-amber-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="flex items-center justify-center w-8 h-8 bg-primary-300 rounded-lg flex-shrink-0">
+            <svg className="w-4 h-4 text-primary-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
             </svg>
           </div>
-          <span className="text-amber-200 font-bold text-sm">Hotel MS</span>
+          <span className="text-primary-200 font-bold text-sm">Hotel MS</span>
         </a>
 
         {/* Nav items */}
@@ -133,8 +132,8 @@ const Sidebar = ({ user, isOpen, onClose }) => {
               href={item.href}
               className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
                 isActive
-                  ? 'bg-amber-300 text-amber-900'
-                  : 'text-amber-200 opacity-70 hover:opacity-100 hover:bg-amber-800'
+                  ? 'bg-primary-300 text-primary-900'
+                  : 'text-primary-200 opacity-70 hover:opacity-100 hover:bg-primary-800'
               }`}
             >
               {item.icon}
@@ -147,29 +146,28 @@ const Sidebar = ({ user, isOpen, onClose }) => {
         <div className="mt-auto">
           <a
             href="/profile"
-            className="flex items-center gap-2 px-2 py-2 rounded-xl text-amber-200 hover:bg-amber-800 transition-colors"
+            className="flex items-center gap-2 px-2 py-2 rounded-xl text-primary-200 hover:bg-primary-800 transition-colors"
           >
-            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-amber-300 text-amber-900 text-xs font-bold flex-shrink-0">
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary-300 text-primary-900 text-xs font-bold flex-shrink-0">
               {initials}
             </div>
             <div className="min-w-0">
-              <div className="text-xs font-semibold text-amber-100 truncate">{user?.name}</div>
-              <div className="text-xs text-amber-400 capitalize">{user?.role}</div>
+              <div className="text-xs font-semibold text-primary-100 truncate">{user?.name}</div>
+              <div className="text-xs text-primary-400 capitalize">{user?.role}</div>
             </div>
           </a>
         </div>
       </div>
 
-      {/* Mobile sidebar (full-width overlay) */}
+      {/* Mobile sidebar */}
       <div
-        className={`fixed inset-y-0 left-0 z-50 w-64 flex flex-col py-4 px-3 transform lg:hidden ${
+        className={`fixed inset-y-0 left-0 z-50 w-64 flex flex-col py-4 px-3 bg-sidebar transform lg:hidden ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         } transition-transform duration-300 ease-in-out`}
-        style={{ backgroundColor: '#7c2d12' }}
       >
         <div className="flex items-center justify-between mb-6 px-2">
-          <span className="text-amber-300 font-bold text-lg">Hotel MS</span>
-          <button onClick={onClose} className="text-amber-200 hover:text-white">
+          <span className="text-primary-300 font-bold text-lg">Hotel MS</span>
+          <button onClick={onClose} className="text-primary-200 hover:text-white">
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -186,8 +184,8 @@ const Sidebar = ({ user, isOpen, onClose }) => {
                 onClick={onClose}
                 className={`flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
                   isActive
-                    ? 'bg-amber-300 text-amber-900'
-                    : 'text-amber-200 opacity-70 hover:opacity-100 hover:bg-amber-800'
+                    ? 'bg-primary-300 text-primary-900'
+                    : 'text-primary-200 opacity-70 hover:opacity-100 hover:bg-primary-800'
                 }`}
               >
                 {item.icon}
@@ -199,14 +197,14 @@ const Sidebar = ({ user, isOpen, onClose }) => {
 
         <a
           href="/profile"
-          className="flex items-center gap-3 px-3 py-2 mt-4 rounded-xl text-amber-200 hover:bg-amber-800 transition-colors"
+          className="flex items-center gap-3 px-3 py-2 mt-4 rounded-xl text-primary-200 hover:bg-primary-800 transition-colors"
         >
-          <div className="w-8 h-8 rounded-full bg-amber-300 flex items-center justify-center text-amber-900 text-xs font-bold flex-shrink-0">
+          <div className="w-8 h-8 rounded-full bg-primary-300 flex items-center justify-center text-primary-900 text-xs font-bold flex-shrink-0">
             {initials}
           </div>
           <div>
-            <div className="text-sm font-semibold text-amber-100">{user?.name}</div>
-            <div className="text-xs text-amber-300 capitalize">{user?.role}</div>
+            <div className="text-sm font-semibold text-primary-100">{user?.name}</div>
+            <div className="text-xs text-primary-300 capitalize">{user?.role}</div>
           </div>
         </a>
       </div>
