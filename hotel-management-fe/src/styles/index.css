@@ -1,5 +1,42 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
+/* ─── Theme tokens ─────────────────────────────────── */
+/* Amber is the default — active with no class on <html> */
+:root {
+  --primary-50:  #fef9f0;
+  --primary-100: #fef3c7;
+  --primary-200: #fde68a;
+  --primary-300: #fcd34d;
+  --primary-400: #fbbf24;
+  --primary-500: #f59e0b;
+  --primary-600: #d97706;
+  --primary-700: #b45309;
+  --primary-800: #92400e;
+  --primary-900: #78350f;
+  --color-sidebar-bg: #7c2d12;
+  --color-body-bg:    #fdf8f3;
+  --color-bone-start: #fef3c7;
+  --color-bone-end:   #fde68a;
+}
+
+/* Light Blue override — active when <html class="theme-blue"> */
+:root.theme-blue {
+  --primary-50:  #eff6ff;
+  --primary-100: #dbeafe;
+  --primary-200: #bfdbfe;
+  --primary-300: #93c5fd;
+  --primary-400: #60a5fa;
+  --primary-500: #3b82f6;
+  --primary-600: #2563eb;
+  --primary-700: #1d4ed8;
+  --primary-800: #1e40af;
+  --primary-900: #1e3a8a;
+  --color-sidebar-bg: #1e3a8a;
+  --color-body-bg:    #f0f4ff;
+  --color-bone-start: #dbeafe;
+  --color-bone-end:   #bfdbfe;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -11,8 +48,8 @@
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
     font-weight: 400;
     line-height: 1.5;
-    color: #78350f;
-    background-color: #fdf8f3;
+    color: var(--primary-900);
+    background-color: var(--color-body-bg);
   }
 
   h1, h2, h3, h4, h5, h6 {
