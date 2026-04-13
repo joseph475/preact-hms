@@ -85,6 +85,10 @@ const BookingSchema = new mongoose.Schema({
     type: String,
     enum: ['Cash', 'Credit Card', 'Debit Card', 'Bank Transfer', 'Online Payment']
   },
+  bankReference: {
+    type: String,
+    default: ''
+  },
   bookingStatus: {
     type: String,
     enum: ['Confirmed', 'Checked In', 'Checked Out', 'Cancelled', 'No Show'],
