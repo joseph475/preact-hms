@@ -629,7 +629,13 @@ const BookingsPage = ({ user }) => {
 
                     {booking.bookingStatus === 'Confirmed' && (
                       <>
-                        <button onClick={() => handleCheckIn(booking._id)} className="action-btn bg-green-50 text-green-700 hover:bg-green-100 border border-green-200">Check In</button>
+                        <button
+                          onClick={() => handleCheckIn(booking._id)}
+                          className="action-btn bg-green-50 text-green-700 hover:bg-green-100 border border-green-200"
+                          disabled={new Date().getHours() < 14}
+                          title={new Date().getHours() < 14 ? 'Check-in opens at 2:00 PM' : 'Check In Guest'}
+                          style={new Date().getHours() < 14 ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
+                        >Check In</button>
                         <button onClick={() => handleEdit(booking)} className="action-btn bg-gray-50 text-gray-600 hover:bg-gray-100 border border-gray-200">Edit</button>
                         <button onClick={() => handleMarkNoShowClick(booking)} className="action-btn bg-yellow-50 text-yellow-700 hover:bg-yellow-100 border border-yellow-200">No Show</button>
                       </>

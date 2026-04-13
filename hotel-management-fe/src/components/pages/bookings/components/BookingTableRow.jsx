@@ -16,6 +16,8 @@ const BookingTableRow = ({
   formatDateTime,
   calculateCheckOutTime
 }) => {
+  const isBeforeCheckInTime = new Date().getHours() < 14;
+
   return (
     <tr className="table-row">
       <td className="table-cell">
@@ -96,7 +98,9 @@ const BookingTableRow = ({
               <button
                 onClick={() => onCheckIn(booking._id)}
                 className="action-btn-success"
-                title="Check In Guest"
+                disabled={isBeforeCheckInTime}
+                title={isBeforeCheckInTime ? 'Check-in opens at 2:00 PM' : 'Check In Guest'}
+                style={isBeforeCheckInTime ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
               >
                 Check In
               </button>
