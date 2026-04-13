@@ -25,6 +25,10 @@ const BookingDetailsModal = ({
   const extensionTotal = hasExtensions
     ? b.extensionCharges.reduce((s, e) => s + (e.charge || 0), 0)
     : 0;
+  const foodTotal = (b.foodOrders || []).reduce((sum, o) => sum + (o.total || 0), 0);
+  const hasFoodOrders = foodTotal > 0;
+  const grandTotal = (b.totalAmount || 0) + extensionTotal + foodTotal;
+  const balance = grandTotal - (b.paidAmount || 0);
 
   // Use actual check-in/out times if recorded; fall back to booked duration
   let stayDuration;
@@ -203,7 +207,7 @@ const BookingDetailsModal = ({
           <div className="space-y-3">
             <div className="divide-y divide-amber-100">
               <div className="flex justify-between py-2.5">
-                <span className="text-sm text-stone-500">Base rate</span>
+                <span className="text-sm text-stone-500">Room charge</span>
                 <span className="text-sm font-bold text-stone-900">
                   ₱{((b.totalAmount ?? 0) - extensionTotal).toLocaleString()}
                 </span>
@@ -216,24 +220,54 @@ const BookingDetailsModal = ({
                   </span>
                 </div>
               )}
+              {hasFoodOrders && (
+                <div className="py-2.5">
+                  <div className="flex justify-between mb-1.5">
+                    <span className="text-sm text-stone-500">Food &amp; Beverage</span>
+                    <span className="text-sm font-bold text-stone-900">₱{foodTotal.toLocaleString()}</span>
+                  </div>
+                  <div className="pl-3 space-y-1">
+                    {(b.foodOrders || []).map((order, i) => (
+                      <div key={order._id || i} className="flex justify-between text-xs text-stone-400">
+                        <span>{order.quantity}× {order.name}</span>
+                        <span>₱{(order.total || 0).toLocaleString()}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
               <div className="flex justify-between py-2.5">
                 <span className="text-sm text-stone-500">Payment method</span>
                 <span className="text-sm font-bold text-stone-900">
                   {b.paymentMethod || 'Not specified'}
                 </span>
               </div>
+              {b.bankReference && (
+                <div className="flex justify-between py-2.5">
+                  <span className="text-sm text-stone-500">Bank reference</span>
+                  <span className="text-sm font-bold text-stone-900">{b.bankReference}</span>
+                </div>
+              )}
               <div className="flex justify-between py-2.5">
                 <span className="text-sm text-stone-500">Amount paid</span>
                 <span className="text-sm font-bold text-emerald-600">
-                  ₱{b.paidAmount?.toLocaleString() || '0'}
+                  ₱{(b.paidAmount || 0).toLocaleString()}
                 </span>
               </div>
+              {balance > 0 && (
+                <div className="flex justify-between py-2.5">
+                  <span className="text-sm text-stone-500">Balance due</span>
+                  <span className="text-sm font-bold text-red-600">
+                    ₱{balance.toLocaleString()}
+                  </span>
+                </div>
+              )}
             </div>
 
             <div className="flex justify-between items-center bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
-              <span className="text-sm font-bold text-amber-900">Total</span>
+              <span className="text-sm font-bold text-amber-900">Grand Total</span>
               <span className="text-xl font-extrabold text-amber-900">
-                ₱{b.totalAmount?.toLocaleString()}
+                ₱{grandTotal.toLocaleString()}
               </span>
             </div>
 
