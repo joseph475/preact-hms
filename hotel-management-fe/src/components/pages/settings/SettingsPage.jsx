@@ -1,12 +1,14 @@
 import { h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 import { useAuth } from '../../../hooks/useAuth';
+import { useTheme } from '../../../context/ThemeContext';
 import api from '../../../services/api';
 import Pagination from '../../common/Pagination';
 import Modal from '../../common/Modal';
 
 const SettingsPage = () => {
   const { user } = useAuth();
+  const { theme, setTheme } = useTheme();
   const [roomTypes, setRoomTypes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -196,6 +198,49 @@ const SettingsPage = () => {
           {success}
         </div>
       )}
+
+      {/* Appearance */}
+      <div className="bg-white p-6 rounded-lg shadow w-full mb-6">
+        <h2 className="text-lg font-semibold mb-1">Appearance</h2>
+        <p className="text-sm text-gray-500 mb-4">Choose your interface color theme</p>
+        <div className="flex gap-6">
+          <button
+            type="button"
+            onClick={() => setTheme('amber')}
+            className="flex flex-col items-center gap-2 focus:outline-none group"
+          >
+            <div
+              className={`w-10 h-10 rounded-full transition-all duration-200 ${
+                theme === 'amber'
+                  ? 'ring-2 ring-offset-2 ring-amber-500'
+                  : 'opacity-60 group-hover:opacity-90'
+              }`}
+              style={{ background: 'linear-gradient(135deg, #7c2d12 50%, #f59e0b 50%)' }}
+            />
+            <span className={`text-xs font-medium ${theme === 'amber' ? 'text-amber-700' : 'text-gray-500'}`}>
+              Warm Amber
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setTheme('blue')}
+            className="flex flex-col items-center gap-2 focus:outline-none group"
+          >
+            <div
+              className={`w-10 h-10 rounded-full transition-all duration-200 ${
+                theme === 'blue'
+                  ? 'ring-2 ring-offset-2 ring-blue-500'
+                  : 'opacity-60 group-hover:opacity-90'
+              }`}
+              style={{ background: 'linear-gradient(135deg, #1e3a8a 50%, #3b82f6 50%)' }}
+            />
+            <span className={`text-xs font-medium ${theme === 'blue' ? 'text-blue-700' : 'text-gray-500'}`}>
+              Light Blue
+            </span>
+          </button>
+        </div>
+      </div>
 
       {/* Room Types List */}
       <div className="bg-white p-6 rounded-lg shadow w-full">
