@@ -251,7 +251,10 @@ const GuestsPage = ({ user }) => {
                           </button>
                         )}
                       </div>
-                      <div className="text-xs text-gray-500">
+                      {guest.company && (
+                        <div className="text-xs text-gray-500">{guest.company}</div>
+                      )}
+                      <div className="text-xs text-gray-400">
                         Guest ID: {guest._id.slice(-6)}
                       </div>
                     </div>

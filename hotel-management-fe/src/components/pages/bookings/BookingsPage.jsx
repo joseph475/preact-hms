@@ -89,6 +89,7 @@ const BookingsPage = ({ user }) => {
         idType: 'National ID',
         idNumber: '',
         nationality: '',
+        company: '',
         isVip: false
       },
       room: '',
@@ -246,6 +247,7 @@ const BookingsPage = ({ user }) => {
         idType: booking.guest?.idType || 'National ID',
         idNumber: booking.guest?.idNumber || '',
         nationality: booking.guest?.nationality || '',
+        company: booking.guest?.company || '',
         isVip: booking.guest?.isVip || false
       },
       room: booking.room._id,
@@ -372,6 +374,7 @@ const BookingsPage = ({ user }) => {
         idType: 'National ID',
         idNumber: '',
         nationality: '',
+        company: '',
         isVip: false
       },
       room: '',

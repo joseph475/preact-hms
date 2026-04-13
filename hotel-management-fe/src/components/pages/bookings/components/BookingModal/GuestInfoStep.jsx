@@ -68,6 +68,17 @@ const GuestInfoStep = ({ formData, handleInputChange }) => {
         </div>
       </div>
 
+      <div className="form-group">
+        <label className="form-label">Company <span className="text-xs font-normal text-stone-400">(optional)</span></label>
+        <input
+          type="text"
+          className="form-input"
+          placeholder="e.g. Acme Corp"
+          value={formData.guest.company}
+          onChange={(e) => handleInputChange('guest.company', e.target.value)}
+        />
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="form-group">
           <label className="form-label">Nationality</label>
