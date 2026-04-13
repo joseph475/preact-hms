@@ -334,6 +334,8 @@ const BookingsPage = ({ user }) => {
       paymentMethod: primaryMethod,
       bankReference: primaryReference,
       splitPayments: payments.length > 1 ? payments : [],
+      discountAmount: paymentDetails.discountAmount || 0,
+      discountType: paymentDetails.discountType || 'none',
     };
     setReceiptBooking(updatedBooking);
     setShowReceipt(true);

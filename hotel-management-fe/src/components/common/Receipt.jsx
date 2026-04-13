@@ -29,7 +29,10 @@ const Receipt = ({ booking, onClose, autoPrint = false }) => {
     const extensionCharges = bookingData.extensionCharges || [];
     const foodTotal = foodOrders.reduce((s, o) => s + (o.total || 0), 0);
     const extTotal = extensionCharges.reduce((s, c) => s + (c.charge || 0), 0);
-    const grandTotal = (bookingData.totalAmount || 0) + foodTotal + extTotal;
+    const subtotal = (bookingData.totalAmount || 0) + foodTotal + extTotal;
+    const discountAmount = bookingData.discountAmount || 0;
+    const discountType = bookingData.discountType || 'none';
+    const grandTotal = subtotal - discountAmount;
     const change = Math.max(0, (bookingData.paidAmount || 0) - grandTotal);
     const currentDate = new Date();
     const dateStr = currentDate.toLocaleDateString();
@@ -228,6 +231,16 @@ const Receipt = ({ booking, onClose, autoPrint = false }) => {
               <span class="total-label">Tax & Service:</span>
               <span class="total-amount">Included</span>
             </div>
+            ${discountAmount > 0 ? `
+            <div class="total-row">
+              <span class="total-label">Subtotal:</span>
+              <span class="total-amount">₱${subtotal.toLocaleString()}</span>
+            </div>
+            <div class="total-row">
+              <span class="total-label">Discount${discountType === 'sc' ? ' (SC 20%)' : discountType === 'pwd' ? ' (PWD 20%)' : ''}:</span>
+              <span class="total-amount">-₱${discountAmount.toLocaleString()}</span>
+            </div>
+            ` : ''}
             <div class="total-row bold large">
               <span class="total-label">GRAND TOTAL:</span>
               <span class="total-amount">₱${grandTotal.toLocaleString()}</span>
