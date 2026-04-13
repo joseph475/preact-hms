@@ -14,6 +14,7 @@ import TimeRemaining from '../../common/TimeRemaining';
 import Receipt from '../../common/Receipt';
 import FoodOrderModal from '../../common/FoodOrderModal';
 import ExtendStayModal from '../../common/ExtendStayModal';
+import CheckOutModal from './components/CheckOutModal';
 
 const BookingsPage = ({ user }) => {
   const {
@@ -285,20 +286,28 @@ const BookingsPage = ({ user }) => {
     setShowCheckOutModal(true);
   };
 
-  const handleCheckOutConfirm = async () => {
+  const handleCheckOutConfirm = async (paymentDetails) => {
     if (!bookingToCheckOut) return;
-    
-    await handleCheckOut(bookingToCheckOut._id);
-    
-    // Show receipt after successful checkout
+
+    await handleCheckOut(bookingToCheckOut._id, paymentDetails);
+
+    const foodTotal = (bookingToCheckOut.foodOrders || []).reduce((s, o) => s + (o.total || 0), 0);
+    const extTotal = (bookingToCheckOut.extensionCharges || []).reduce((s, c) => s + (c.charge || 0), 0);
+    const grandTotal = (bookingToCheckOut.totalAmount || 0) + foodTotal + extTotal;
+    const paidAmount = paymentDetails.paidAmount ?? grandTotal;
+    const paymentStatus = paidAmount >= grandTotal ? 'Paid' : paidAmount > 0 ? 'Partial' : 'Pending';
+
     const updatedBooking = {
       ...bookingToCheckOut,
       bookingStatus: 'Checked Out',
-      paymentStatus: 'Paid'
+      paymentStatus,
+      paidAmount,
+      paymentMethod: paymentDetails.paymentMethod,
+      bankReference: paymentDetails.bankReference || '',
     };
     setReceiptBooking(updatedBooking);
     setShowReceipt(true);
-    
+
     setShowCheckOutModal(false);
     setBookingToCheckOut(null);
   };
@@ -747,24 +756,13 @@ const BookingsPage = ({ user }) => {
         }
       />
 
-      {/* Check Out Confirmation Modal */}
-      <ConfirmationModal
+      {/* Check Out Modal */}
+      <CheckOutModal
         isOpen={showCheckOutModal}
+        booking={bookingToCheckOut}
         onClose={handleCheckOutCancel}
         onConfirm={handleCheckOutConfirm}
-        title="Check Out Guest"
-        message="Are you sure you want to check out"
-        itemName={bookingToCheckOut ? `${bookingToCheckOut.guest?.firstName} ${bookingToCheckOut.guest?.lastName}` : 'this guest'}
-        itemDetails={bookingToCheckOut ? `Room ${bookingToCheckOut.room?.roomNumber} - ₱${bookingToCheckOut.totalAmount?.toLocaleString()}` : ''}
-        warningMessage="This will mark the booking as checked out and automatically set the payment status to 'Paid'. The room will become available for new bookings."
-        confirmButtonText="Check Out & Mark Paid"
-        confirmButtonClass="btn-primary"
         isLoading={loading}
-        icon={
-          <svg className="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        }
       />
 
       {/* Booking Details Modal */}

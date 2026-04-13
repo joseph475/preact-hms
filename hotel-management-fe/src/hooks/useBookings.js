@@ -64,27 +64,30 @@ export const useBookings = () => {
     }
   };
 
-  const handleCheckOut = async (bookingId) => {
+  const handleCheckOut = async (bookingId, paymentDetails = {}) => {
     try {
       const booking = bookings.find(b => b._id === bookingId);
       const foodTotal = (booking?.foodOrders || []).reduce((s, o) => s + (o.total || 0), 0);
       const extTotal = (booking?.extensionCharges || []).reduce((s, c) => s + (c.charge || 0), 0);
       const grandTotal = (booking?.totalAmount || 0) + foodTotal + extTotal;
 
+      const paidAmount = paymentDetails.paidAmount ?? grandTotal;
+      const paymentStatus = paidAmount >= grandTotal ? 'Paid' : paidAmount > 0 ? 'Partial' : 'Pending';
+
       // Use dedicated checkout endpoint (sets actualCheckOut + room to Needs Cleaning)
       const checkOutResponse = await apiService.checkOutGuest(bookingId);
       if (checkOutResponse.success) {
-        // Record payment separately
-        await apiService.updateBooking(bookingId, {
-          paymentStatus: 'Paid',
-          paidAmount: grandTotal
-        });
+        const updateData = {
+          paymentStatus,
+          paidAmount,
+          paymentMethod: paymentDetails.paymentMethod || booking?.paymentMethod,
+        };
+        if (paymentDetails.bankReference) {
+          updateData.bankReference = paymentDetails.bankReference;
+        }
+        await apiService.updateBooking(bookingId, updateData);
         cacheService.invalidate('rooms');
-        await Promise.all([
-          refreshBookings(),
-          refreshRooms(),
-          refreshGuests()
-        ]);
+        await Promise.all([refreshBookings(), refreshRooms(), refreshGuests()]);
       }
     } catch (err) {
       setError('Failed to check out');
