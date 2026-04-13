@@ -483,6 +483,26 @@ const BookingsPage = ({ user }) => {
 
   const clearSuggestions = () => setSuggestions([]);
 
+  const handleFirstNameFocus = () => {
+    const q = formData.guest.firstName.trim();
+    if (q.length < 2 || suggestions.length > 0) return;
+    clearTimeout(searchTimerRef.current);
+    searchTimerRef.current = setTimeout(async () => {
+      setSearching(true);
+      try {
+        const res = await apiService.request(
+          `/guests/search?q=${encodeURIComponent(q)}`,
+          { suppressErrorModal: true }
+        );
+        setSuggestions(res.data || []);
+      } catch {
+        setSuggestions([]);
+      } finally {
+        setSearching(false);
+      }
+    }, 100);
+  };
+
   const filteredBookings = useMemo(() => bookings.filter(booking => {
     const searchLower = searchTerm.toLowerCase();
     const matchesSearch = (
@@ -786,6 +806,7 @@ const BookingsPage = ({ user }) => {
         searching={searching}
         onSuggestionSelect={handleSuggestionSelect}
         clearSuggestions={clearSuggestions}
+        onFirstNameFocus={handleFirstNameFocus}
       />
 
       {/* Delete Confirmation Modal */}

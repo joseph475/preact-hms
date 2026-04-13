@@ -31,6 +31,7 @@ const BookingModal = ({
   searching,
   onSuggestionSelect,
   clearSuggestions,
+  onFirstNameFocus,
 }) => {
   const nextStep = () => {
     if (currentStep < 3) setCurrentStep(currentStep + 1);
@@ -112,6 +113,7 @@ const BookingModal = ({
             searching={searching}
             onSelectSuggestion={onSuggestionSelect}
             clearSuggestions={clearSuggestions}
+            onFirstNameFocus={onFirstNameFocus}
           />
         )}
 

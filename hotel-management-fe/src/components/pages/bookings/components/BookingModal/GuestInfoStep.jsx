@@ -1,6 +1,6 @@
 import { h } from 'preact';
 
-const GuestInfoStep = ({ formData, handleInputChange, suggestions = [], searching, onSelectSuggestion, wrapperRef }) => {
+const GuestInfoStep = ({ formData, handleInputChange, suggestions = [], searching, onSelectSuggestion, clearSuggestions, onFirstNameFocus }) => {
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
@@ -10,7 +10,7 @@ const GuestInfoStep = ({ formData, handleInputChange, suggestions = [], searchin
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* First Name with auto-suggest */}
-        <div ref={wrapperRef} className="form-group relative">
+        <div className="form-group relative">
           <label className="form-label">First Name *</label>
           <div className="relative">
             <input
@@ -18,6 +18,7 @@ const GuestInfoStep = ({ formData, handleInputChange, suggestions = [], searchin
               className="form-input"
               value={formData.guest.firstName}
               onChange={(e) => handleInputChange('guest.firstName', e.target.value)}
+              onFocus={onFirstNameFocus}
               required
             />
             {searching && (
@@ -28,8 +29,17 @@ const GuestInfoStep = ({ formData, handleInputChange, suggestions = [], searchin
           </div>
           {suggestions.length > 0 && (
             <div className="absolute z-50 left-0 right-0 mt-1 bg-white border border-amber-200 rounded-xl shadow-lg overflow-hidden">
-              <div className="px-3 py-1.5 bg-amber-50 border-b border-amber-100">
+              <div className="px-3 py-1.5 bg-amber-50 border-b border-amber-100 flex items-center justify-between">
                 <span className="text-xs text-amber-700 font-medium">Returning guests</span>
+                <button
+                  type="button"
+                  onMouseDown={() => clearSuggestions()}
+                  className="text-amber-400 hover:text-amber-700 transition-colors focus:outline-none"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
               </div>
               {suggestions.slice(0, 6).map((g) => (
                 <button
