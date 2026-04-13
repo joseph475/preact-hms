@@ -1,0 +1,7 @@
+{"type":"server-started","port":51010,"host":"127.0.0.1","url_host":"localhost","url":"http://localhost:51010","screen_dir":"/Users/joseph-macbookpro-m3/Documents/Apps/practice/HMS/.superpowers/brainstorm/62528-1776033731/content","state_dir":"/Users/joseph-macbookpro-m3/Documents/Apps/practice/HMS/.superpowers/brainstorm/62528-1776033731/state"}
+{"type":"screen-added","file":"/Users/joseph-macbookpro-m3/Documents/Apps/practice/HMS/.superpowers/brainstorm/62528-1776033731/content/theme-palettes.html"}
+{"type":"screen-added","file":"/Users/joseph-macbookpro-m3/Documents/Apps/practice/HMS/.superpowers/brainstorm/62528-1776033731/content/waiting.html"}
+{"type":"screen-added","file":"/Users/joseph-macbookpro-m3/Documents/Apps/practice/HMS/.superpowers/brainstorm/62528-1776033731/content/settings-theme-picker.html"}
+{"source":"user-event","type":"click","text":"Appearance\n      \n        Color Theme\n        \n          \n          \n            \n            Amber\n          \n          \n          \n            \n            Blue\n          \n        \n      \n    \n    \n      C — Color Swatches\n      Split-circle swatches showing sidebar + primary colors. Compact, visually distinctive, designer feel.","choice":"c","id":null,"timestamp":1776035094085}
+{"type":"screen-added","file":"/Users/joseph-macbookpro-m3/Documents/Apps/practice/HMS/.superpowers/brainstorm/62528-1776033731/content/waiting-2.html"}
+{"type":"server-stopped","reason":"idle timeout"}

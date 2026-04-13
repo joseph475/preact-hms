@@ -1,0 +1,93 @@
+<h2>Settings — Appearance Section</h2>
+<p class="subtitle">How should the theme picker look in the Settings page? Pick your preferred style.</p>
+
+<div class="cards">
+
+  <!-- Option A: Card tiles -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f8f8f8;padding:20px;">
+      <div style="font-size:11px;font-weight:600;color:#666;margin-bottom:12px;text-transform:uppercase;letter-spacing:0.05em;">Appearance</div>
+      <div style="display:flex;gap:12px;">
+        <!-- Amber tile -->
+        <div style="flex:1;border:2px solid #f59e0b;border-radius:10px;padding:12px;background:white;cursor:pointer;">
+          <div style="display:flex;gap:6px;margin-bottom:8px;">
+            <div style="width:16px;height:32px;border-radius:4px;background:#7c2d12;"></div>
+            <div style="flex:1;">
+              <div style="height:6px;background:#f59e0b;border-radius:3px;margin-bottom:4px;"></div>
+              <div style="height:4px;background:#fde68a;border-radius:3px;width:70%;"></div>
+            </div>
+          </div>
+          <div style="font-size:10px;font-weight:600;color:#92400e;text-align:center;">Warm Amber</div>
+          <div style="width:16px;height:16px;border-radius:50%;background:#f59e0b;border:2px solid white;box-shadow:0 0 0 2px #f59e0b;margin:6px auto 0;"></div>
+        </div>
+        <!-- Blue tile -->
+        <div style="flex:1;border:2px solid #e5e7eb;border-radius:10px;padding:12px;background:white;cursor:pointer;opacity:0.7;">
+          <div style="display:flex;gap:6px;margin-bottom:8px;">
+            <div style="width:16px;height:32px;border-radius:4px;background:#1e3a8a;"></div>
+            <div style="flex:1;">
+              <div style="height:6px;background:#3b82f6;border-radius:3px;margin-bottom:4px;"></div>
+              <div style="height:4px;background:#bfdbfe;border-radius:3px;width:70%;"></div>
+            </div>
+          </div>
+          <div style="font-size:10px;font-weight:600;color:#1d4ed8;text-align:center;">Light Blue</div>
+          <div style="width:16px;height:16px;border-radius:50%;background:white;border:2px solid #d1d5db;margin:6px auto 0;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Theme Cards</h3>
+      <p>Visual mini-previews of each theme, selected card gets a highlight border. Clear and intuitive.</p>
+    </div>
+  </div>
+
+  <!-- Option B: Toggle row -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f8f8f8;padding:20px;">
+      <div style="font-size:11px;font-weight:600;color:#666;margin-bottom:12px;text-transform:uppercase;letter-spacing:0.05em;">Appearance</div>
+      <div style="background:white;border-radius:10px;border:1px solid #e5e7eb;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <div style="font-size:12px;font-weight:600;color:#111;margin-bottom:2px;">Color Theme</div>
+          <div style="font-size:10px;color:#6b7280;">Choose your preferred interface color</div>
+        </div>
+        <!-- Segmented control -->
+        <div style="display:flex;background:#f3f4f6;border-radius:8px;padding:3px;gap:2px;">
+          <div style="padding:5px 12px;background:#f59e0b;border-radius:6px;font-size:10px;font-weight:600;color:white;cursor:pointer;">Amber</div>
+          <div style="padding:5px 12px;font-size:10px;font-weight:500;color:#6b7280;cursor:pointer;">Blue</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Segmented Toggle</h3>
+      <p>Compact inline toggle row, fits neatly alongside other settings rows. Less visual but more consistent with the existing Settings layout.</p>
+    </div>
+  </div>
+
+  <!-- Option C: Color swatches -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f8f8f8;padding:20px;">
+      <div style="font-size:11px;font-weight:600;color:#666;margin-bottom:12px;text-transform:uppercase;letter-spacing:0.05em;">Appearance</div>
+      <div style="background:white;border-radius:10px;border:1px solid #e5e7eb;padding:14px 16px;">
+        <div style="font-size:12px;font-weight:600;color:#111;margin-bottom:10px;">Color Theme</div>
+        <div style="display:flex;gap:16px;align-items:center;">
+          <!-- Amber swatch -->
+          <div style="display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;">
+            <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#7c2d12 50%,#f59e0b 50%);border:3px solid #f59e0b;box-shadow:0 0 0 2px white, 0 0 0 4px #f59e0b;"></div>
+            <div style="font-size:9px;font-weight:600;color:#92400e;">Amber</div>
+          </div>
+          <!-- Blue swatch -->
+          <div style="display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;opacity:0.6;">
+            <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#1e3a8a 50%,#3b82f6 50%);border:3px solid transparent;"></div>
+            <div style="font-size:9px;font-weight:500;color:#6b7280;">Blue</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Color Swatches</h3>
+      <p>Split-circle swatches showing sidebar + primary colors. Compact, visually distinctive, designer feel.</p>
+    </div>
+  </div>
+
+</div>
+
+<p style="text-align:center;margin-top:16px;font-size:13px;color:#666;">Click to select your preferred style, then let me know in the terminal.</p>
