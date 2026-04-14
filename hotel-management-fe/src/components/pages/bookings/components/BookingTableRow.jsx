@@ -1,5 +1,6 @@
 import { h, Fragment } from 'preact';
 import TimeRemaining from '../../../common/TimeRemaining';
+import { PROPERTY_TYPE } from '../../../../config/environment';
 
 const BookingTableRow = ({
   booking,
@@ -16,7 +17,7 @@ const BookingTableRow = ({
   formatDateTime,
   calculateCheckOutTime
 }) => {
-  const isBeforeCheckInTime = new Date().getHours() < 14;
+  const isBeforeCheckInTime = PROPERTY_TYPE === 'hotel' && new Date().getHours() < 14;
 
   return (
     <tr className="table-row">
