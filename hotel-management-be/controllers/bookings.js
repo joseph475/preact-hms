@@ -132,6 +132,22 @@ exports.createBooking = asyncHandler(async (req, res, next) => {
   const checkOutDate = new Date(checkInDate.getTime() + (durationHours * 60 * 60 * 1000));
   req.body.checkOutDate = checkOutDate;
 
+  // Hotel mode: enforce check-in time window (14:00–22:00)
+  const propertyType = process.env.PROPERTY_TYPE || 'motel';
+  if (propertyType === 'hotel') {
+    const checkInHour = checkInDate.getHours();
+    const EARLIEST_HOUR = 14; // 2:00 PM
+    const LATEST_HOUR = 22;   // 10:00 PM
+    if (checkInHour < EARLIEST_HOUR || checkInHour >= LATEST_HOUR) {
+      return next(
+        new ErrorResponse(
+          `Check-in time must be between ${EARLIEST_HOUR}:00 and ${LATEST_HOUR}:00 for hotel bookings`,
+          400
+        )
+      );
+    }
+  }
+
   // Use the total amount from frontend (already calculated correctly)
   // Frontend calculates based on roomType.pricing structure
   if (!req.body.totalAmount || req.body.totalAmount <= 0) {

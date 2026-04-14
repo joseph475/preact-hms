@@ -57,9 +57,10 @@ module.exports = {
   },
   plugins: [
     new webpack.DefinePlugin({
-      'process.env.NODE_ENV':          JSON.stringify(process.env.NODE_ENV || 'development'),
-      'process.env.REACT_APP_API_URL': JSON.stringify(process.env.REACT_APP_API_URL || ''),
-      'process.env.REACT_APP_THEME':   JSON.stringify(process.env.REACT_APP_THEME || 'blue'),
+      'process.env.NODE_ENV':                  JSON.stringify(process.env.NODE_ENV || 'development'),
+      'process.env.REACT_APP_API_URL':         JSON.stringify(process.env.REACT_APP_API_URL || ''),
+      'process.env.REACT_APP_THEME':           JSON.stringify(process.env.REACT_APP_THEME || 'blue'),
+      'process.env.REACT_APP_PROPERTY_TYPE':   JSON.stringify(process.env.REACT_APP_PROPERTY_TYPE || 'motel'),
     }),
     new HtmlWebpackPlugin({
       template: './src/index.html',
