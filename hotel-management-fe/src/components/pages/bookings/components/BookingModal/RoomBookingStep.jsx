@@ -1,6 +1,6 @@
 import { h } from 'preact';
 import RoomSelector from './RoomSelector';
-import { PROPERTY_TYPE, HOTEL_CHECKIN_EARLIEST, HOTEL_CHECKIN_LATEST } from '../../../../../config/environment';
+import { PROPERTY_TYPE, HOTEL_CHECKIN_EARLIEST } from '../../../../../config/environment';
 
 const RoomBookingStep = ({
   formData,
@@ -54,7 +54,7 @@ const RoomBookingStep = ({
             Check-in Time *
             {PROPERTY_TYPE === 'hotel' && (
               <span className="ml-2 text-xs text-amber-600 font-normal">
-                ({HOTEL_CHECKIN_EARLIEST} – {HOTEL_CHECKIN_LATEST})
+                (earliest {HOTEL_CHECKIN_EARLIEST})
               </span>
             )}
           </label>
@@ -64,10 +64,7 @@ const RoomBookingStep = ({
             value={formData.checkInTime}
             onChange={(e) => handleInputChange('checkInTime', e.target.value)}
             required
-            {...(PROPERTY_TYPE === 'hotel' ? {
-              min: HOTEL_CHECKIN_EARLIEST,
-              max: HOTEL_CHECKIN_LATEST,
-            } : {})}
+            {...(PROPERTY_TYPE === 'hotel' ? { min: HOTEL_CHECKIN_EARLIEST } : {})}
           />
         </div>
       </div>

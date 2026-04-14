@@ -132,16 +132,15 @@ exports.createBooking = asyncHandler(async (req, res, next) => {
   const checkOutDate = new Date(checkInDate.getTime() + (durationHours * 60 * 60 * 1000));
   req.body.checkOutDate = checkOutDate;
 
-  // Hotel mode: enforce check-in time window (14:00–22:00)
+  // Hotel mode: enforce earliest check-in time (14:00 — room turnover window)
   const propertyType = process.env.PROPERTY_TYPE || 'motel';
   if (propertyType === 'hotel') {
     const checkInHour = checkInDate.getHours();
     const EARLIEST_HOUR = 14; // 2:00 PM
-    const LATEST_HOUR = 22;   // 10:00 PM
-    if (checkInHour < EARLIEST_HOUR || checkInHour >= LATEST_HOUR) {
+    if (checkInHour < EARLIEST_HOUR) {
       return next(
         new ErrorResponse(
-          `Check-in time must be between ${EARLIEST_HOUR}:00 and ${LATEST_HOUR}:00 for hotel bookings`,
+          `Check-in is not available before ${EARLIEST_HOUR}:00. Rooms need time for housekeeping turnover.`,
           400
         )
       );

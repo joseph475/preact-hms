@@ -16,7 +16,7 @@ import Receipt from '../../common/Receipt';
 import FoodOrderModal from '../../common/FoodOrderModal';
 import ExtendStayModal from '../../common/ExtendStayModal';
 import CheckOutModal from './components/CheckOutModal';
-import { PROPERTY_TYPE, HOTEL_CHECKIN_EARLIEST, HOTEL_CHECKIN_LATEST } from '../../../config/environment';
+import { PROPERTY_TYPE, HOTEL_CHECKIN_EARLIEST } from '../../../config/environment';
 
 const BookingsPage = ({ user }) => {
   const {
@@ -218,13 +218,12 @@ const BookingsPage = ({ user }) => {
       return;
     }
 
-    // Hotel mode: validate check-in time window
+    // Hotel mode: validate earliest check-in time (14:00 — no latest cap)
     if (PROPERTY_TYPE === 'hotel') {
       const [hours] = timeStr.split(':').map(Number);
       const [earliestH] = HOTEL_CHECKIN_EARLIEST.split(':').map(Number);
-      const [latestH] = HOTEL_CHECKIN_LATEST.split(':').map(Number);
-      if (hours < earliestH || hours >= latestH) {
-        setError(`Hotel check-in is only available between ${HOTEL_CHECKIN_EARLIEST} and ${HOTEL_CHECKIN_LATEST}`);
+      if (hours < earliestH) {
+        setError(`Hotel check-in is not available before ${HOTEL_CHECKIN_EARLIEST}. Rooms need time for housekeeping turnover.`);
         return;
       }
     }

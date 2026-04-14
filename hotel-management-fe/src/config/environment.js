@@ -33,7 +33,6 @@ const getApiBaseUrl = () => {
 
 export default getEnvironmentConfig;
 
-// Property type: 'motel' (default, 24/7 check-in) or 'hotel' (14:00–22:00 window)
+// Property type: 'motel' (default, 24/7 check-in) or 'hotel' (earliest 14:00, no latest cap)
 export const PROPERTY_TYPE = process.env.REACT_APP_PROPERTY_TYPE || 'motel';
 export const HOTEL_CHECKIN_EARLIEST = '14:00';
-export const HOTEL_CHECKIN_LATEST = '22:00';
